@@ -63,7 +63,9 @@
 
 /* private define ------------------------------------------------------------*/
 /* add user code begin private define */
-
+#define FEED_DOG_TIME 100
+#define SPI1_RD_GPIO_PORT GPIOF
+#define SPI1_RD_PIN GPIO_PINS_5
 /* add user code end private define */
 
 /* private macro -------------------------------------------------------------*/
@@ -89,6 +91,8 @@ void debug_task(void);
 void flash_task(void);
 void work_task(void);
 void ec11_task(void);
+void feed_dog_task(void);
+void check_flash_updata(void);
 /* add user code end function prototypes */
 
 /* private user code ---------------------------------------------------------*/
@@ -103,7 +107,6 @@ void ec11_task(void);
   */
 int main(void)
 {
-#if 1
   /* add user code begin 1 */
 	nvic_vector_table_set(NVIC_VECTTAB_FLASH, 0x4000);
   /* add user code end 1 */
@@ -160,12 +163,14 @@ int main(void)
   /* add user code begin 2 */
   /* 优化方向：1.提高定时器分辨率 2.更换合适滤波算法 3.让小数点参与到运算中,减少输入误差 */
 //  PID_Init(&handle_pid,1000,4,33000, MAX_PWM_OUTPUT);
-  PID_Init(&handle_pid,800,3,20000, MAX_PWM_OUTPUT);
+  PID_Init(&handle_pid,800,4,20000, MAX_PWM_OUTPUT);
 
   tmt_init();
   
     
   /* 读取W25Q128 ID */
+  
+  tmt.create(feed_dog_task, FEED_DOG_TIME);
   tmt.create(lcd_task, LCD_HANDLE_TIME);
   tmt.create(output_task, OUTPUT_HANDLE_TIME);
   tmt.create(flash_task, FLASH_HANDLE_TIME);
@@ -178,9 +183,9 @@ int main(void)
   LCD_Init(); 
   TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
    TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
+   check_flash_updata();
   /* 等待系统上电稳定延时 */
   wk_delay_ms(1000);
-#endif
   /* add user code end 2 */
 
   while(1)
@@ -192,6 +197,21 @@ int main(void)
 }
 
   /* add user code begin 4 */
+
+void check_flash_updata(void)
+{
+    /* check flash updata */
+    if (gpio_input_data_bit_read(SPI1_RD_GPIO_PORT, SPI1_RD_PIN))
+    {
+        LCD_ShowString(176, 152, (uint8_t *)"updata flash....", RED, BLACK, 16, 0);
+        spi_enable(SPI1, FALSE);
+    }
+
+    while (gpio_input_data_bit_read(SPI1_RD_GPIO_PORT, SPI1_RD_PIN));
+
+    spi_enable(SPI1, TRUE);
+}
+
 void key_task(void)
 {
     if (sFWHA01_t.init_flag)
@@ -259,5 +279,19 @@ void work_task(void)
 	#if 0
     WorkProc();
 	#endif
+}
+
+
+
+void feed_dog_task(void)
+{
+  static bool first_in = false;
+  if (first_in == false)
+  {
+    first_in = true;
+    /* if enabled, please feed the dog through wdt_counter_reload() function */
+//  	 wdt_enable();
+  }
+  wdt_counter_reload();
 }
 /* add user code end 4 */

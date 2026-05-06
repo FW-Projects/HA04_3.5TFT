@@ -3,7 +3,8 @@
   * @file     at32f415_tmr.c
   * @brief    contains all the functions for the tmr firmware library
   **************************************************************************
-  *                       Copyright notice & Disclaimer
+  *
+  * Copyright (c) 2025, Artery Technology, All rights reserved.
   *
   * The software Board Support Package (BSP) that is made available to
   * download from Artery official website is the copyrighted work of Artery.
@@ -153,7 +154,7 @@ void tmr_brkdt_default_para_init(tmr_brkdt_config_type *tmr_brkdt_struct)
 }
 
 /**
-  * @brief  init tmr system_parameter
+  * @brief  init tmr base
   * @param  tmr_x: select the tmr peripheral.
   *         this parameter can be one of the following values:
   *         TMR1, TMR2, TMR3, TMR4, TMR5, TMR9, TMR10, TMR11

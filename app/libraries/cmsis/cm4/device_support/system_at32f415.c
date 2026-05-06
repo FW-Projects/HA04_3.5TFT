@@ -3,7 +3,8 @@
   * @file     system_at32f415.c
   * @brief    contains all the functions for cmsis cortex-m4 system source file
   **************************************************************************
-  *                       Copyright notice & Disclaimer
+  *
+  * Copyright (c) 2025, Artery Technology, All rights reserved.
   *
   * The software Board Support Package (BSP) that is made available to
   * download from Artery official website is the copyrighted work of Artery.
@@ -35,7 +36,7 @@
 /** @addtogroup AT32F415_system_private_defines
   * @{
   */
-#define VECT_TAB_OFFSET                  0x0 /*!< vector table system_parameter offset field. this value must be a multiple of 0x200. */
+#define VECT_TAB_OFFSET                  0x0 /*!< vector table base offset field. this value must be a multiple of 0x200. */
 /**
   * @}
   */
@@ -43,7 +44,7 @@
 /** @addtogroup AT32F415_system_private_variables
   * @{
   */
-unsigned int SystemCoreClock           = HICK_VALUE; /*!< system clock frequency (core clock) */
+unsigned int system_core_clock           = HICK_VALUE; /*!< system clock frequency (core clock) */
 /**
   * @}
   */
@@ -103,8 +104,8 @@ void SystemInit (void)
 }
 
 /**
-  * @brief  update SystemCoreClock variable according to clock register values.
-  *         the SystemCoreClock variable contains the core clock (hclk), it can
+  * @brief  update system_core_clock variable according to clock register values.
+  *         the system_core_clock variable contains the core clock (hclk), it can
   *         be used by the user application to setup the systick timer or configure
   *         other parameters.
   * @param  none
@@ -125,12 +126,12 @@ void system_core_clock_update(void)
   {
     case CRM_SCLK_HICK:
       if(((CRM->misc2_bit.hick_to_sclk) != RESET) && ((CRM->misc1_bit.hickdiv) != RESET))
-        SystemCoreClock = HICK_VALUE * 6;
+        system_core_clock = HICK_VALUE * 6;
       else
-        SystemCoreClock = HICK_VALUE;
+        system_core_clock = HICK_VALUE;
       break;
     case CRM_SCLK_HEXT:
-      SystemCoreClock = HEXT_VALUE;
+      system_core_clock = HEXT_VALUE;
       break;
     case CRM_SCLK_PLL:
       pll_clock_source = CRM->cfg_bit.pllrcs;
@@ -151,7 +152,7 @@ void system_core_clock_update(void)
         if(pll_clock_source == 0x00)
         {
           /* hick divided by 2 selected as pll clock entry */
-          SystemCoreClock = (HICK_VALUE >> 1) * pll_mult;
+          system_core_clock = (HICK_VALUE >> 1) * pll_mult;
         }
         else
         {
@@ -159,11 +160,11 @@ void system_core_clock_update(void)
           if(CRM->cfg_bit.pllhextdiv != RESET)
           {
             /* hext clock divided by 2 */
-            SystemCoreClock = (HEXT_VALUE / 2) * pll_mult;
+            system_core_clock = (HEXT_VALUE / 2) * pll_mult;
           }
           else
           {
-            SystemCoreClock = HEXT_VALUE * pll_mult;
+            system_core_clock = HEXT_VALUE * pll_mult;
           }
         }
       }
@@ -191,11 +192,11 @@ void system_core_clock_update(void)
             pllrcsfreq = HEXT_VALUE;
           }
         }
-        SystemCoreClock = (uint32_t)(((uint64_t)pllrcsfreq * pll_ns) / (pll_ms * (0x1 << pll_fr)));
+        system_core_clock = (uint32_t)(((uint64_t)pllrcsfreq * pll_ns) / (pll_ms * (0x1 << pll_fr)));
       }
       break;
     default:
-      SystemCoreClock = HICK_VALUE;
+      system_core_clock = HICK_VALUE;
       break;
   }
 
@@ -204,7 +205,7 @@ void system_core_clock_update(void)
   temp = CRM->cfg_bit.ahbdiv;
   div_value = sys_ahb_div_table[temp];
   /* ahbclk frequency */
-  SystemCoreClock = SystemCoreClock >> div_value;
+  system_core_clock = system_core_clock >> div_value;
 }
 /**
   * @}

@@ -276,7 +276,6 @@ void SysTick_Handler(void)
         get_fan_speed_time = TIME_1S;
     }
 	
-
 	/* get mcu temp */
     if (first_in == false)
     {

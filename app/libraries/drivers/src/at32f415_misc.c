@@ -3,7 +3,8 @@
   * @file     at32f415_misc.c
   * @brief    contains all the functions for the misc firmware library
   **************************************************************************
-  *                       Copyright notice & Disclaimer
+  *
+  * Copyright (c) 2025, Artery Technology, All rights reserved.
   *
   * The software Board Support Package (BSP) that is made available to
   * download from Artery official website is the copyrighted work of Artery.
@@ -100,16 +101,16 @@ void nvic_priority_group_config(nvic_priority_group_type priority_group)
 
 /**
   * @brief  set the vector table location and offset.
-  * @param  system_parameter
+  * @param  base
   *         this parameter can be one of the following values:
   *         - NVIC_VECTTAB_RAM
   *         - NVIC_VECTTAB_FLASH
-  * @param  offset (vector table system_parameter offset field. this value must be a multiple of 0x200)
+  * @param  offset (vector table base offset field. this value must be a multiple of 0x200)
   * @retval none
   */
-void nvic_vector_table_set(uint32_t system_parameter, uint32_t offset)
+void nvic_vector_table_set(uint32_t base, uint32_t offset)
 {
-  SCB->VTOR = system_parameter | (offset & (uint32_t)0x1FFFFF80);
+  SCB->VTOR = base | (offset & (uint32_t)0x1FFFFF80);
 }
 
 /**

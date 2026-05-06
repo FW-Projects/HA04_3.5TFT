@@ -1574,6 +1574,15 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 102:
 			uiPic_Addr = PIC_ADDRESS_102;
 			break;
+		case 103:
+			uiPic_Addr = PIC_ADDRESS_103;
+			break;
+		case 105:
+			uiPic_Addr = PIC_ADDRESS_105;
+			break;
+		case 106:
+			uiPic_Addr = PIC_ADDRESS_106;
+			break;
 		}
 	}
 	else if(sFWHA01_t.language_state == ENGLISH)
@@ -1775,6 +1784,15 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 102:
 			uiPic_Addr = PIC_ADDRESS_102;
 			break;
+		case 103:
+			uiPic_Addr = PIC_ADDRESS_104;
+			break;
+		case 105:
+			uiPic_Addr = PIC_ADDRESS_105;
+			break;
+		case 106:
+			uiPic_Addr = PIC_ADDRESS_106;
+			break;
 		}
 	}
     width = width + x1;
@@ -1968,32 +1986,20 @@ void LCD_Show_Grid(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t 
             LCD_DrawLine(x1 + i * x_line_space, y1, x1 + i * x_line_space, y2, color);
         }
     }
+	TranferPicturetoTFT_LCD(20, 42, 47, 25, CURVE_ICON);
+//        LCD_ShowString(x1 + 2, y1 + 2, (uint8_t *)"C", color, BLACK, 16, 0);
+	LCD_ShowString(x1 + 3, y1 + 30, (uint8_t *)"500(932)", 0xf460, BLACK, 12, 0);
+	LCD_ShowString(x1 + 3, y1 + 72, (uint8_t *)"400(752)", 0xf460, BLACK, 12, 0);
+	LCD_ShowString(x1 + 3, y1 + 114, (uint8_t *)"300(572)", 0xf460, BLACK, 12, 0);
+	LCD_ShowString(x1 + 3, y1 + 156, (uint8_t *)"200(392)", 0xf460, BLACK, 12, 0);
+	LCD_ShowString(x1 + 3, y1 + 198, (uint8_t *)"100(212)", 0xf460, BLACK, 12, 0);
 
-    if (unit == 0)
-    {
-        // LCD_ShowString(x1 + 8, y1 + 2, (uint8_t *)"C", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 26, (uint8_t *)"500", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 68, (uint8_t *)"400", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 110, (uint8_t *)"300", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 152, (uint8_t *)"200", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 194, (uint8_t *)"100", color, BLACK, 16, 0);
-    }
-    else
-    {
-        // LCD_ShowString(x1 + 8, y1 + 2, (uint8_t *)"F", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 26, (uint8_t *)"932", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 68, (uint8_t *)"752", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 110, (uint8_t *)"572", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 152, (uint8_t *)"392", color, BLACK, 16, 0);
-        LCD_ShowString(x1 + 2, y1 + 194, (uint8_t *)"212", color, BLACK, 16, 0);
-    }
-
-    // LCD_ShowString(x1 + 318, y1 + 2, (uint8_t *)"%", color, BLACK, 16, 0);
-    LCD_ShowString(x2 - 24, y1 + 26, (uint8_t *)"100", color, BLACK, 16, 0);
-    LCD_ShowString(x2 - 24, y1 + 68, (uint8_t *)"75", color, BLACK, 16, 0);
-    LCD_ShowString(x2 - 24, y1 + 110, (uint8_t *)"50", color, BLACK, 16, 0);
-    LCD_ShowString(x2 - 16, y1 + 152, (uint8_t *)"25", color, BLACK, 16, 0);
-    LCD_ShowString(x2 - 8, y1 + 194, (uint8_t *)"0", color, BLACK, 16, 0);
+	TranferPicturetoTFT_LCD(x2-25, y1+2, 23, 23, CURVE_FAN_ICON);
+    LCD_ShowString(x2 - 20, y1 + 30, (uint8_t *)"200", 0x4c38, BLACK, 12, 0);
+    LCD_ShowString(x2 - 20, y1 + 72, (uint8_t *)"150", 0x4c38, BLACK, 12, 0);
+    LCD_ShowString(x2 - 20, y1 + 114, (uint8_t *)"100", 0x4c38, BLACK, 12, 0);
+    LCD_ShowString(x2 - 14, y1 + 156, (uint8_t *)"50", 0x4c38, BLACK, 12, 0);
+    LCD_ShowString(x2 - 8, y1 + 198, (uint8_t *)"0", 0x4c38, BLACK, 12, 0);
 }
 void LCD_Show_Curve(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,
                     float curve_1, float curve_2, uint8_t *curve_1_arr, uint8_t *curve_2_arr)
@@ -2079,7 +2085,7 @@ void LCD_VISION(uint16_t x, uint16_t y,  uint8_t len, uint16_t fc, uint16_t bc, 
 				LCD_ShowChar(x + t * sizex, y, '.', fc, bc, sizey, 0);
 				break;
 			case 6:
-				LCD_ShowChar(x + t * sizex, y, '0', fc, bc, sizey, 0);
+				LCD_ShowChar(x + t * sizex, y, '1', fc, bc, sizey, 0);
 				break;
 		}
         

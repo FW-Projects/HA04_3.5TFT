@@ -15,7 +15,7 @@ void FWHA01_Init(HA01_Handle *FWHA01)
 	FWHA01->system_parameter.cal_data = 0,
 	FWHA01->system_parameter.cal_temp_c_display = 0,
 	FWHA01->system_parameter.cal_temp_f_display = 0,
-	FWHA01->handle_position = IN_POSSITION,
+	FWHA01->handle_position = NOT_IN_POSSITION,
 	FWHA01->handle_error_state = HANDLE_OK,
 	FWHA01->Work_handle_state = HANDLE_WORKING;
 
@@ -37,7 +37,6 @@ void FWHA01_Init(HA01_Handle *FWHA01)
 	FWHA01->set_language_state = CHINESE,
 	FWHA01->sleep_state = SLEEP_OPEN,
 	FWHA01->set_sleep_state = SLEEP_OPEN,
-
 	FWHA01->general_parameter.ch = 0,
 	FWHA01->system_parameter.last_pwm_out = 1000;
 	/* ch set */
@@ -65,6 +64,7 @@ void FWHA01_Init(HA01_Handle *FWHA01)
 	FWHA01->system_parameter.last_curve_air_data = 0x00;
 //	FWHA01->general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 	FWHA01->general_parameter.set_temp_time = 0x00;
+	FWHA01->general_parameter.save_ch_flag = false;
 	FWHA01->fan_run_flag = true;
 	FWHA01->init_flag = false;
 }

@@ -421,7 +421,7 @@ void ec11_event_handle(void)
         {
             sFWHA01_t.page = CURVE_PAGE;
         }
-
+		sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
         ec11_handle_event = EC11_END_EVENT;
         break;
 
@@ -429,6 +429,7 @@ void ec11_event_handle(void)
         if (sFWHA01_t.page == SELECT_SET_WORK_PAGE_CN)
         {
             sFWHA01_t.page = SET_RUN_PAGE_CN;
+			sFWHA01_t.set_run_mode = sFWHA01_t.run_mode;
         }
 		
         else if (sFWHA01_t.page == SELECT_SET_UNIT_PAGE_CN)
@@ -632,7 +633,7 @@ void ec11_event_handle(void)
             {
                 sFWHA01_t.system_parameter.last_set_temp = 0;
                 sFWHA01_t.system_parameter.set_temp = MAX_SET_TEMP;
-            }
+            }                                                                                                                                                           
             else
             {
                 sFWHA01_t.system_parameter.set_temp++;
@@ -1010,6 +1011,7 @@ void ec11_event_handle(void)
         /* reset value */
         /* reset handle data */
         sFWHA01_t.system_parameter.set_temp = 380;
+		sFWHA01_t.system_parameter.air_data = 40;
         sFWHA01_t.system_parameter.cal_data= 0;
         sFWHA01_t.system_parameter.ch1_set_temp = 380;
         sFWHA01_t.system_parameter.ch2_set_temp = 400;

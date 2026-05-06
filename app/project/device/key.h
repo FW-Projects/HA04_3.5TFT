@@ -17,10 +17,21 @@
 #define CH3_KEY_PIN              GPIO_PINS_8
 #define READ_CH3_KEY             gpio_input_data_bit_read(CH3_KEY_PORT, CH3_KEY_PIN)
 
+#define HANDLE1_KEY_PORT             GPIOC
+#define HANDLE1_KEY_PIN              GPIO_PINS_1
+#define READ_HANDLE1_KEY             gpio_input_data_bit_read(HANDLE1_KEY_PORT, HANDLE1_KEY_PIN)
+
+#define HANDLE2_KEY_PORT             GPIOC
+#define HANDLE2_KEY_PIN              GPIO_PINS_2
+#define READ_HANDLE2_KEY             gpio_input_data_bit_read(HANDLE2_KEY_PORT, HANDLE2_KEY_PIN)
+
+#define HANDLE3_KEY_PORT             GPIOC
+#define HANDLE3_KEY_PIN              GPIO_PINS_3
+#define READ_HANDLE3_KEY             gpio_input_data_bit_read(HANDLE3_KEY_PORT, HANDLE3_KEY_PIN)
 
 #define LONG_PRESS_TIME          10 
 #define KEY_CYCLE_TIME           10
-#define KEY_NUMBER               3
+#define KEY_NUMBER               6
 #ifdef __cplusplus
 extern "C" {
 #endif

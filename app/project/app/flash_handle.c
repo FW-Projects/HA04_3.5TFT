@@ -60,6 +60,7 @@ void FlashProc(void)
 	static uint16_t last_cal_data;
     static uint8_t last_display_lock_mode;
 	static uint8_t last_sleep_mode;
+	static uint8_t last_run_mode;
     static uint16_t flash_version = 0;
     static uint8_t flash_count = 0;
     static uint16_t a_ver;
@@ -129,7 +130,8 @@ void FlashProc(void)
 				last_language_mode != sFWHA01_t.language_state               ||
 				last_cal_data != sFWHA01_t.system_parameter.cal_data         ||
                 last_display_lock_mode != sFWHA01_t.display_lock_state       ||
-                last_sleep_mode != sFWHA01_t.sleep_state)
+                last_sleep_mode != sFWHA01_t.sleep_state                     ||
+				last_run_mode != sFWHA01_t.run_mode)
         {
             flash_unlock();
 
@@ -182,6 +184,7 @@ void FlashProc(void)
 			flash_halfword_program(A_CAL_DATA_ADDRESS, sFWHA01_t.system_parameter.cal_data);
 			flash_halfword_program(A_DISPLAY_LOCK_MODE_ADDRESS, sFWHA01_t.display_lock_state);
 			flash_halfword_program(A_SLEEP_MODE_ADDRESS, sFWHA01_t.sleep_state);
+			flash_halfword_program(A_RUN_MODE_ADDRESS, sFWHA01_t.run_mode);
         }
         else
         {
@@ -192,6 +195,7 @@ void FlashProc(void)
 			flash_halfword_program(B_CAL_DATA_ADDRESS, sFWHA01_t.system_parameter.cal_data);
 			flash_halfword_program(B_DISPLAY_LOCK_MODE_ADDRESS, sFWHA01_t.display_lock_state);
 			flash_halfword_program(B_SLEEP_MODE_ADDRESS, sFWHA01_t.sleep_state);
+			flash_halfword_program(B_RUN_MODE_ADDRESS, sFWHA01_t.run_mode);
         }
 		last_work_mode = sFWHA01_t.work_mode;
 		last_temp_unit_mode = sFWHA01_t.temp_unit;
@@ -200,6 +204,7 @@ void FlashProc(void)
 		last_cal_data = sFWHA01_t.system_parameter.cal_data;
 		last_display_lock_mode = sFWHA01_t.display_lock_state;
 		last_sleep_mode = sFWHA01_t.sleep_state;
+		last_run_mode = sFWHA01_t.run_mode;
         sflash.state ++;
         break;
 
@@ -213,7 +218,7 @@ void FlashProc(void)
              flash_halfword_program(B_FLASH_VERSION_ADDRESS, flash_version);
         }
 
-         flash_lock();
+        flash_lock();
         flash_version++;
         flash_count++;
         sflash.state = FLASH_HANDLE_DATA;
@@ -239,6 +244,7 @@ void get_data_from_a(void)
 	sFWHA01_t.system_parameter.cal_data = flash_wred_halfword(A_CAL_DATA_ADDRESS);
 	sFWHA01_t.display_lock_state = flash_wred_halfword(A_DISPLAY_LOCK_MODE_ADDRESS);
 	sFWHA01_t.sleep_state = flash_wred_halfword(A_SLEEP_MODE_ADDRESS);
+	sFWHA01_t.run_mode = flash_wred_halfword(A_RUN_MODE_ADDRESS);
 }
 void get_data_from_b(void)
 {
@@ -258,6 +264,7 @@ void get_data_from_b(void)
 	sFWHA01_t.system_parameter.cal_data = flash_wred_halfword(B_CAL_DATA_ADDRESS);
 	sFWHA01_t.display_lock_state = flash_wred_halfword(B_DISPLAY_LOCK_MODE_ADDRESS);
 	sFWHA01_t.sleep_state = flash_wred_halfword(B_SLEEP_MODE_ADDRESS);
+	sFWHA01_t.run_mode = flash_wred_halfword(B_RUN_MODE_ADDRESS);
 }
 
 void get_reset_data(void)
@@ -277,6 +284,7 @@ void get_reset_data(void)
 	sFWHA01_t.system_parameter.cal_data = 0;
 	sFWHA01_t.display_lock_state = UNLOCK;
 	sFWHA01_t.sleep_state = SLEEP_OPEN;
+	sFWHA01_t.run_mode = Standard_Mode;
 }
 
 
@@ -351,5 +359,10 @@ void check_data_all(void)
 	if(sFWHA01_t.sleep_state != SLEEP_CLOSE && sFWHA01_t.sleep_state != SLEEP_OPEN)
 	{
 		sFWHA01_t.sleep_state = SLEEP_OPEN;
+	}
+	
+	if(sFWHA01_t.run_mode != Standard_Mode && sFWHA01_t.run_mode != Power_Mode)
+	{
+		sFWHA01_t.run_mode = Standard_Mode;
 	}
 }

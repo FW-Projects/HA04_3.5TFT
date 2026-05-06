@@ -3,7 +3,8 @@
   * @file     at32f415_misc.h
   * @brief    at32f415 misc header file
   **************************************************************************
-  *                       Copyright notice & Disclaimer
+  *
+  * Copyright (c) 2025, Artery Technology, All rights reserved.
   *
   * The software Board Support Package (BSP) that is made available to
   * download from Artery official website is the copyrighted work of Artery.
@@ -100,7 +101,7 @@ void nvic_system_reset(void);
 void nvic_irq_enable(IRQn_Type irqn, uint32_t preempt_priority, uint32_t sub_priority);
 void nvic_irq_disable(IRQn_Type irqn);
 void nvic_priority_group_config(nvic_priority_group_type priority_group);
-void nvic_vector_table_set(uint32_t system_parameter, uint32_t offset);
+void nvic_vector_table_set(uint32_t base, uint32_t offset);
 void nvic_lowpower_mode_config(nvic_lowpower_mode_type lp_mode, confirm_state new_state);
 void systick_clock_source_config(systick_clock_source_type source);
 

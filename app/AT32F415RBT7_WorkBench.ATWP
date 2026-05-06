@@ -124,6 +124,10 @@
         <Signal SignalName="TMR5_CH4" PinName="PA3">
             <Parameters name="Label" value="HOT_PWM"/>
         </Signal>
+        <Signal SignalName="GPIO_Input" PinName="PF5">
+            <Parameters name="GPIO_PullType_Set" value="GPIO_PULL_DOWN"/>
+            <Parameters name="Label" value="SPI1_RD"/>
+        </Signal>
         <Signal SignalName="GPIO_Output" PinName="PC4">
             <Parameters name="Label" value="LED_PWM"/>
         </Signal>
@@ -256,6 +260,7 @@
         <PinSub pinname="PA1" signalname="TMR2_CH2" signaltype="3"/>
         <PinSub pinname="PA3" signalname="TMR5_CH4" signaltype="3"/>
         <PinSub pinname="PF4" signalname="GPIO_Output" signaltype="3"/>
+        <PinSub pinname="PF5" signalname="GPIO_Input" signaltype="3"/>
         <PinSub pinname="PA4" signalname="GPIO_Output" signaltype="3"/>
         <PinSub pinname="PA5" signalname="SPI1_SCK" signaltype="3"/>
         <PinSub pinname="PA6" signalname="SPI1_MISO" signaltype="3"/>
@@ -309,6 +314,6 @@
         <MinHeapSize>0x200</MinHeapSize>
         <MinStackSize>0x400</MinStackSize>
         <UseFirmware>true</UseFirmware>
-        <PackageVersion>V2.1.7</PackageVersion>
+        <PackageVersion>V2.1.8</PackageVersion>
     </ProjectInfomation>
 </Root>

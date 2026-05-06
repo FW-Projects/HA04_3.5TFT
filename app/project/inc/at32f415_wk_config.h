@@ -120,6 +120,8 @@ extern "C" {
 #define HOT_ADC_GPIO_PORT    GPIOC
 #define HOT_PWM_PIN    GPIO_PINS_3
 #define HOT_PWM_GPIO_PORT    GPIOA
+#define SPI1_RD_PIN    GPIO_PINS_5
+#define SPI1_RD_GPIO_PORT    GPIOF
 #define LED_PWM_PIN    GPIO_PINS_4
 #define LED_PWM_GPIO_PORT    GPIOC
 #define DB0_PIN    GPIO_PINS_0

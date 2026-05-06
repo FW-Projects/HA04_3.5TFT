@@ -34,6 +34,10 @@
 
 #define FLASH_COUNT                   4
 
+#define REDUCE_TEMP 0
+#define ADD_TEMP 1
+#define PID_TEMP 2
+
 typedef enum
 {
 	

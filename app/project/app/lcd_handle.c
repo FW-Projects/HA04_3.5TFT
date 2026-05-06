@@ -18,6 +18,7 @@ static uint8_t actual_refesh_time = 0;
 static float display_air = 0;
 static float display_temp = 0;
 static float display_value = 0;
+static uint8_t last_sleep_state = 0;
 static number temp_actual =
 	{
 		.x = 85,
@@ -341,14 +342,14 @@ static icon_t power_icon =
 
 void LcdProc(void)
 {
+	page_switch();
 	show_temp();
 	show_output(&sFWHA01_t);
-	show_cal_temp();
 	show_curve(&sFWHA01_t);
-	number_change();
 	show_channel_state();
 	show_channel_value();
-	page_switch();
+	show_cal_temp();
+	number_change();
 	show_icon();
 	show_navigation_bar();
 	show_fan(&sFWHA01_t);
@@ -357,6 +358,8 @@ void LcdProc(void)
 void show_icon(void)
 {
 	static uint8_t display_number = 0;
+	static int display_times = 50;
+	
 	/*  ¡æ ¨H */
 	if (sFWHA01_t.last_temp_unit != sFWHA01_t.temp_unit)
 	{
@@ -382,6 +385,7 @@ void show_icon(void)
 			else if (sFWHA01_t.temp_unit == FAHRENHEIT)
 				TranferPicturetoTFT_LCD(320, 153, 28, 27, CAL_FAHRENHEIT_ICON);
 		}
+		sFWHA01_t.last_temp_unit = sFWHA01_t.temp_unit;
 	}
 
 	/* select icon */
@@ -505,28 +509,34 @@ void show_icon(void)
 	}
 	
 	/* sleep icon */
-	if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP && sFWHA01_t.page == WORK_PAGE)
+	if(last_sleep_state != sFWHA01_t.Work_handle_state)
 	{
-		TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,SLEEP_STATE_CN);
+		last_sleep_state = sFWHA01_t.Work_handle_state;
+		if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP && sFWHA01_t.page == WORK_PAGE)
+		{
+			TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,SLEEP_STATE_CN);
+		}		
 	}
 	
-	
-	
-//	if(sFWHA01_t.last_Work_handle_state != sFWHA01_t.Work_handle_state)
-//	{
-//		if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP)
-//		{
-//			TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,SLEEP_STATE_CN);
-//			display_number++;
-//			if(display_number > 2)
-//			{
-//				display_number = 0;
-//				sFWHA01_t.last_Work_handle_state = sFWHA01_t.Work_handle_state;
-//			}
-//		}
-//		
-//	}
-	
+	if(sFWHA01_t.general_parameter.save_ch_flag == true)
+	{
+		TranferPicturetoTFT_LCD(165,135,150,68,SAVE_ICON_CN);
+		display_times--;
+		if(display_times <= 0)
+		{
+			if(sFWHA01_t.page == CURVE_PAGE)
+			{
+				display_times = 50;
+			}
+			else
+			{
+				display_times = SAVE_CH_TIME;
+			}
+			
+			sFWHA01_t.general_parameter.save_ch_flag = false;
+			sFWHA01_t.last_page = RESET_VALUE;
+		}
+	}
 }
 
 void show_cal_temp(void)
@@ -601,12 +611,12 @@ void show_curve(HA01_Handle *this)
 		{ 
 			display_air = 0;
 		} 
-		if (this->temp_unit == FAHRENHEIT)
-		{
-			display_temp = (sFWHA01_t.system_parameter.actual_temp - 32) * 5 / 9;
-		}
+		
+		if(sFWHA01_t.run_mode == Power_Mode)
+			display_temp = sFWHA01_t.system_parameter.actual_temp - POWER_TEMP;
 		else
-			display_temp = sFWHA01_t.system_parameter.actual_temp ;
+			display_temp = sFWHA01_t.system_parameter.actual_temp;
+
 
 		LCD_Show_Curve(18, 40, 376, 250, display_temp, display_air,
 					   this->system_parameter.temp_buff, this->system_parameter.air_buff);
@@ -621,11 +631,17 @@ void show_curve(HA01_Handle *this)
 			sFWHA01_t.system_parameter.last_curve_actual_temp_f_display = sFWHA01_t.system_parameter.actual_temp_f_display;
 			if (this->temp_unit == CELSIUS)
 			{
-				bar_value = this->system_parameter.actual_temp * 0.2;
+				if(sFWHA01_t.run_mode == Power_Mode)
+					bar_value = (this->system_parameter.actual_temp - POWER_TEMP) * 0.2;
+				else
+					bar_value = this->system_parameter.actual_temp * 0.2;
 			}
 			else if (this->temp_unit == FAHRENHEIT)
 			{
-				bar_value = this->system_parameter.actual_temp_f_display * 0.108;
+				if(sFWHA01_t.run_mode == Power_Mode)
+					bar_value = (this->system_parameter.actual_temp_f_display - 122) * 0.108;
+				else
+					bar_value = this->system_parameter.actual_temp_f_display * 0.108;
 			}
 			DrawProgressBar(26, 90, 39, 256, 15, 15, bar_value, 0xfca0, 0x18a3, TEMP_BAR_ICON);
 		}
@@ -656,142 +672,160 @@ void show_curve(HA01_Handle *this)
 static void show_fan(HA01_Handle *this)
 {
 	static uint8_t fan_count = 0;
+	static uint8_t fan_times = 0;
+	static uint8_t first_in = false;
 	static bool show_fan_flag = true;
-	if (this->system_parameter.actual_air >= MIN_ACTUAL_AIR && this->page == WORK_PAGE)
+	
+	if(first_in == false)
+	{
+		first_in = true;
+		show_fan_flag = true;
+	}
+	
+	if (this->system_parameter.actual_air >= MIN_ACTUAL_AIR && this->page == WORK_PAGE && this->Work_handle_state != HANDLE_SLEEP)
+	{
+		fan_times++;
+		if(fan_times > 40)
 		{
+			fan_times = 0;
 			fan_count++;
-			show_fan_flag = true;
+		}
+		
+		show_fan_flag = true;
 
-			if (1 == fan_count)
-			{
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_1);
-			}
-			else if (2 == fan_count)
-			{
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_2);
-			}
-			else if (3 == fan_count)
-			{
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_3);
-			}
-			if (4 == fan_count)
-			{
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_4);
-				fan_count = 0;
-			}
-		}
-		else if (this->system_parameter.actual_air < MIN_ACTUAL_AIR && this->page == WORK_PAGE)
+		if (1 == fan_count)
 		{
-			if (show_fan_flag)
-			{
-				show_fan_flag = false;
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_1);
-			}
+			TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_1);
 		}
-		else if (this->page != WORK_PAGE)
+		else if (2 == fan_count)
 		{
-			show_fan_flag = true;
+			TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_2);
 		}
+		else if (3 == fan_count)
+		{
+			TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_3);
+		}
+		if (4 == fan_count)
+		{
+			TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_4);
+			fan_count = 0;
+		}
+	}
+	else if (this->system_parameter.actual_air < MIN_ACTUAL_AIR && this->page == WORK_PAGE && this->Work_handle_state == HANDLE_SLEEP)
+	{
+		if (show_fan_flag)
+		{
+			show_fan_flag = false;
+			TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_1);
+		}
+	}
+	else if (this->page != WORK_PAGE)
+	{
+		show_fan_flag = true;
+	}
 }
 
 static void show_output(HA01_Handle *this)
 {
 	static uint8_t show_step = 0;
-	
+	static uint8_t temp_state = 0;
+	static uint8_t last_temp_state = 0;
 	static bool first_in = false;
-	static uint8_t output_value = 0;
+	static char output_value = 0;
+	static char last_output_value = 0xff;
 	static int16_t delay_time = 0;
-#if 1
-	switch (show_step)
+	static int16_t display_actual_data = 0;
+	
+	if (this->page == WORK_PAGE &&
+		this->Work_handle_state == HANDLE_WORKING)
 	{
-	/* show out bar and value */
-	case 0:
-		delay_time--;
-
-		if (this->page == WORK_PAGE &&
-			this->Work_handle_state == HANDLE_WORKING)
+		if ((this->handle_position == IN_POSSITION && this->sleep_state == SLEEP_OPEN))
 		{
-			if (delay_time <= 0)
+			output_value = 0;
+		}
+		else
+		{
+			if(sFWHA01_t.run_mode == Power_Mode)
 			{
-				delay_time = 50;
-				output_value = this->system_parameter.pwm_out / 479;
-				first_in = false;
-				if (this->system_parameter.last_pwm_out != this->system_parameter.pwm_out)
+				display_actual_data = this->system_parameter.actual_temp - POWER_TEMP;
+			}
+			else
+			{
+				display_actual_data = this->system_parameter.actual_temp;
+			}
+			
+			
+			if(display_actual_data <= (this->system_parameter.set_temp + 100) &&
+				display_actual_data >= (this->system_parameter.set_temp -100))
+			{
+				if(last_temp_state != PID_TEMP)
 				{
-					/* show set output bar */
-					DrawProgressBar_2(207, 63, 270, 67, output_value, 0x4750, 0x18a3);
-					/* show set output value with white color */
-					LCD_ShowIntNum(325, 52, output_value, 3, WHITE, BLACK, 24, 0);
-//					this->system_parameter.last_pwm_out = this->system_parameter.pwm_out;
+					output_value = 100;
+					temp_state = PID_TEMP;
+					last_temp_state = temp_state;
+				}
+				else
+				{
+					delay_time--;
+					if (delay_time <= 0)
+					{
+						delay_time = 50;
+						if(this->system_parameter.set_temp >= display_actual_data )
+							output_value = this->system_parameter.set_temp - display_actual_data;
+						else
+							output_value = display_actual_data - this->system_parameter.set_temp;
+						if(output_value <= 1)
+						output_value = 1;				
+					}
 				}
 			}
-		}
-		else if(this->page == WORK_PAGE && (this->Work_handle_state == HANDLE_SLEEP || this->Work_handle_state == HANDLE_WAKEN))
-		{
-			LCD_ShowIntNum(325, 52, 0x00, 3, WHITE, BLACK, 24, 0);
-		}
-		show_step++;
-		break;
-
-		/* show fan flash icon */
-	case 1:
-		
-#if 0
-		if (this->system_parameter.actual_air >= MIN_ACTUAL_AIR && this->page == WORK_PAGE)
-		{
-			fan_count++;
-			show_fan_flag = true;
-
-			if (1 == fan_count)
+			else if(display_actual_data <= (this->system_parameter.set_temp - 100))
 			{
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_1);
+				output_value = 100;
+				temp_state = ADD_TEMP;
+				last_temp_state = temp_state;
 			}
-			else if (2 == fan_count)
+			else if(display_actual_data >= (this->system_parameter.set_temp + 100))
 			{
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_2);
-			}
-			else if (3 == fan_count)
-			{
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_3);
-			}
-			if (4 == fan_count)
-			{
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_4);
-				fan_count = 0;
+				output_value = 0;
+				temp_state = REDUCE_TEMP;
+				last_temp_state = temp_state;
 			}
 		}
-		else if (this->system_parameter.actual_air < MIN_ACTUAL_AIR && this->page == WORK_PAGE)
-		{
-			if (show_fan_flag)
-			{
-				show_fan_flag = false;
-				TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_1);
-			}
-		}
-		else if (this->page != WORK_PAGE)
-		{
-			show_fan_flag = true;
-		}
-#endif
-		show_step = 0;
-		break;
 	}
-#endif
+	else if(this->page == WORK_PAGE && (this->Work_handle_state == HANDLE_SLEEP || this->Work_handle_state == HANDLE_WAKEN))
+	{
+		LCD_ShowIntNum(325, 52, 0x00, 3, WHITE, BLACK, 24, 0);
+		output_value = 0;
+//		last_output_value = RESET_VALUE;
+	}
+	
+	if (last_output_value != output_value)
+	{
+		/* show set output bar */
+		DrawProgressBar_2(207, 63, 270, 67, output_value, 0x4750, 0x18a3);
+		/* show set output value with white color */
+		LCD_ShowIntNum(325, 52, output_value, 3, WHITE, BLACK, 24, 0);
+		last_output_value = output_value;
+	}
+
 }
 static void show_temp(void)
 {
 	static uint8_t cal = 0;
 	static uint8_t first_in = 0;
+	static int disp_actual = 0;
+	
 	if (sFWHA01_t.general_parameter.set_temp_time != 0x00)
 	{
 		if(sFWHA01_t.page == CURVE_PAGE)
 		{
-			sFWHA01_t.general_parameter.set_temp_time -= 50;
+			sFWHA01_t.general_parameter.set_temp_time -= 25;
 			if(sFWHA01_t.general_parameter.set_temp_time <= 0)
 				sFWHA01_t.general_parameter.set_temp_time = 0;
 		}
 		else if(sFWHA01_t.page == WORK_PAGE)
-			sFWHA01_t.general_parameter.set_temp_time--;
+			sFWHA01_t.general_parameter.set_temp_time -= 5;
 	}
 	else
 	{
@@ -801,17 +835,19 @@ static void show_temp(void)
 
 	if (sFWHA01_t.general_parameter.set_temp_time != 0x00)
 	{
-		if (sFWHA01_t.general_parameter.set_temp_time == 1)
-		{
-			first_in = false;
-		}
-		/* show set_temp */
+		sFWHA01_t.system_parameter.last_air_data = 0x00;
+		sFWHA01_t.system_parameter.last_sleep_air_data = 0x00;
+		sFWHA01_t.system_parameter.last_actual_temp = 0x00;
+		sFWHA01_t.system_parameter.last_actual_temp_f_display = 0x00;
+			
+//		/* show set_temp */
 //		if (sFWHA01_t.Work_handle_state == HANDLE_SLEEP && sFWHA01_t.page != CURVE_PAGE)
 //		{
 //			sFWHA01_t.system_parameter.last_set_temp = sFWHA01_t.system_parameter.set_temp;
 //			sFWHA01_t.system_parameter.last_set_temp_f_display = sFWHA01_t.system_parameter.set_temp_f_display;
 //			sFWHA01_t.system_parameter.last_air_data = sFWHA01_t.system_parameter.air_data;
 //		}
+		
 		if ((sFWHA01_t.system_parameter.last_set_temp != sFWHA01_t.system_parameter.set_temp) ||
 			(sFWHA01_t.system_parameter.last_set_temp_f_display != sFWHA01_t.system_parameter.set_temp_f_display))
 		{
@@ -851,7 +887,7 @@ static void show_temp(void)
 
 		if (sFWHA01_t.system_parameter.last_air_data != sFWHA01_t.system_parameter.air_data)
 		{
-			sFWHA01_t.system_parameter.last_air_data = sFWHA01_t.system_parameter.air_data;
+//			sFWHA01_t.system_parameter.last_air_data = sFWHA01_t.system_parameter.air_data;
 			display_air = sFWHA01_t.system_parameter.air_data;
 			if (sFWHA01_t.page == CURVE_PAGE)
 			{
@@ -876,6 +912,7 @@ static void show_temp(void)
 			if (sFWHA01_t.temp_unit == FAHRENHEIT)
 			{
 				sFWHA01_t.system_parameter.actual_temp_f_display = 9 * sFWHA01_t.system_parameter.actual_temp / 5 + 32;
+	
 
 				if (sFWHA01_t.system_parameter.cal_data != 0)
 				{
@@ -886,6 +923,21 @@ static void show_temp(void)
 			{
 				cal = -sFWHA01_t.system_parameter.cal_data;
 			}
+			
+			if(sFWHA01_t.run_mode == Power_Mode)
+			{
+				if (sFWHA01_t.temp_unit == FAHRENHEIT)
+					disp_actual = sFWHA01_t.system_parameter.actual_temp_f_display - 122 + cal;
+				else
+					disp_actual = sFWHA01_t.system_parameter.actual_temp - POWER_TEMP + cal;
+			}
+			else{
+				if (sFWHA01_t.temp_unit == FAHRENHEIT)
+					disp_actual = sFWHA01_t.system_parameter.actual_temp_f_display + cal;
+				else
+					disp_actual = sFWHA01_t.system_parameter.actual_temp + cal;
+			}
+			
 
 			if (sFWHA01_t.page == CURVE_PAGE || sFWHA01_t.page == LOGO )
 				actual_refesh_time = 20;
@@ -896,22 +948,22 @@ static void show_temp(void)
 
 
 
-//			if ((sFWHA01_t.system_parameter.last_actual_temp != sFWHA01_t.system_parameter.actual_temp) ||
-//				 (sFWHA01_t.system_parameter.last_actual_temp_f_display != sFWHA01_t.system_parameter.actual_temp_f_display))
-//			{
+			if ((sFWHA01_t.system_parameter.last_actual_temp != sFWHA01_t.system_parameter.actual_temp) ||
+				 (sFWHA01_t.system_parameter.last_actual_temp_f_display != sFWHA01_t.system_parameter.actual_temp_f_display))
+			{
 				sFWHA01_t.system_parameter.last_actual_temp = sFWHA01_t.system_parameter.actual_temp;
 				sFWHA01_t.system_parameter.last_actual_temp_f_display = sFWHA01_t.system_parameter.actual_temp_f_display;
 
 				/* show system_parameter actual temp in page single */
-				if (sFWHA01_t.page == WORK_PAGE)
+				if (sFWHA01_t.page == WORK_PAGE && sFWHA01_t.general_parameter.save_ch_flag == false)
 				{
 					TranferPicturetoTFT_LCD(actual_temp_icon.x1, actual_temp_icon.y1, actual_temp_icon.length, actual_temp_icon.winth, ACTUAL_TEMP_ICON_CN);
 					if (sFWHA01_t.Work_handle_state == HANDLE_WORKING)
 					{
 						if (sFWHA01_t.display_lock_state == LOCK)
 						{
-							if ((sFWHA01_t.system_parameter.actual_temp - sFWHA01_t.system_parameter.cal_data) < (sFWHA01_t.system_parameter.set_temp + LOCK_RANGE) &&
-								(sFWHA01_t.system_parameter.actual_temp - sFWHA01_t.system_parameter.cal_data) > (sFWHA01_t.system_parameter.set_temp - LOCK_RANGE))
+							if (disp_actual < (sFWHA01_t.system_parameter.set_temp + LOCK_RANGE) &&
+								disp_actual > (sFWHA01_t.system_parameter.set_temp - LOCK_RANGE))
 							{
 								if (sFWHA01_t.temp_unit == FAHRENHEIT)
 									LCD_ShowIntNum(temp_main.x, temp_main.y, sFWHA01_t.system_parameter.set_temp_f_display,
@@ -923,20 +975,20 @@ static void show_temp(void)
 							else
 							{
 								if (sFWHA01_t.temp_unit == FAHRENHEIT)
-									LCD_ShowIntNum(temp_main.x, temp_main.y, sFWHA01_t.system_parameter.actual_temp_f_display + cal,
+									LCD_ShowIntNum(temp_main.x, temp_main.y, disp_actual,
 												   temp_main.len, temp_main.fc, temp_main.bc, temp_main.sizey, 0);
 								else if (sFWHA01_t.temp_unit == CELSIUS)
-									LCD_ShowIntNum(temp_main.x, temp_main.y, sFWHA01_t.system_parameter.actual_temp + cal,
+									LCD_ShowIntNum(temp_main.x, temp_main.y, disp_actual,
 												   temp_main.len, temp_main.fc, temp_main.bc, temp_main.sizey, 0);
 							}
 						}
 						else if (sFWHA01_t.display_lock_state == UNLOCK)
 						{
 							if (sFWHA01_t.temp_unit == FAHRENHEIT)
-								LCD_ShowIntNum(temp_main.x, temp_main.y, sFWHA01_t.system_parameter.actual_temp_f_display + cal,
+								LCD_ShowIntNum(temp_main.x, temp_main.y, disp_actual,
 											   temp_main.len, temp_main.fc, temp_main.bc, temp_main.sizey, 0);
 							else if (sFWHA01_t.temp_unit == CELSIUS)
-								LCD_ShowIntNum(temp_main.x, temp_main.y, sFWHA01_t.system_parameter.actual_temp + cal,
+								LCD_ShowIntNum(temp_main.x, temp_main.y, disp_actual,
 											   temp_main.len, temp_main.fc, temp_main.bc, temp_main.sizey, 0);
 						}
 					}
@@ -944,10 +996,11 @@ static void show_temp(void)
 					{
 	#if 1
 						if (sFWHA01_t.temp_unit == FAHRENHEIT)
-							LCD_ShowIntNum(temp_main.x, temp_main.y, sFWHA01_t.system_parameter.actual_temp_f_display + cal,
+							
+							LCD_ShowIntNum(temp_main.x, temp_main.y, disp_actual,
 										   temp_main.len, temp_main.fc, temp_main.bc, temp_main.sizey, 0);
 						else if (sFWHA01_t.temp_unit == CELSIUS)
-							LCD_ShowIntNum(temp_main.x, temp_main.y, sFWHA01_t.system_parameter.actual_temp + cal,
+							LCD_ShowIntNum(temp_main.x, temp_main.y, disp_actual,
 										   temp_main.len, temp_main.fc, temp_main.bc, temp_main.sizey, 0);
 	#endif
 					}
@@ -958,18 +1011,18 @@ static void show_temp(void)
 					if (sFWHA01_t.handle_position == IN_POSSITION)
 					{
 						if (sFWHA01_t.temp_unit == FAHRENHEIT)
-							LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, sFWHA01_t.system_parameter.actual_temp_f_display + cal,
+							LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, disp_actual,
 										   temp_main_curve.len, temp_main_curve.fc, temp_main_curve.bc, temp_main_curve.sizey, 0);
 						else if (sFWHA01_t.temp_unit == CELSIUS)
-							LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, sFWHA01_t.system_parameter.actual_temp + cal,
+							LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, disp_actual,
 										   temp_main_curve.len, temp_main_curve.fc, temp_main_curve.bc, temp_main_curve.sizey, 0);
 					}
 					else
 					{
 						if (sFWHA01_t.display_lock_state == LOCK)
 						{
-							if ((sFWHA01_t.system_parameter.actual_temp - sFWHA01_t.system_parameter.cal_data) < (sFWHA01_t.system_parameter.set_temp + LOCK_RANGE) &&
-								(sFWHA01_t.system_parameter.actual_temp - sFWHA01_t.system_parameter.cal_data) > (sFWHA01_t.system_parameter.set_temp - LOCK_RANGE))
+							if (disp_actual < (sFWHA01_t.system_parameter.set_temp + LOCK_RANGE) &&
+								disp_actual > (sFWHA01_t.system_parameter.set_temp - LOCK_RANGE))
 							{
 								if (sFWHA01_t.temp_unit == CELSIUS)
 									LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, sFWHA01_t.system_parameter.set_temp,
@@ -979,39 +1032,39 @@ static void show_temp(void)
 									LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, sFWHA01_t.system_parameter.set_temp_f_display,
 												   temp_main_curve.len, temp_main_curve.fc, temp_main_curve.bc,
 												   temp_main_curve.sizey, 0);
-								else
-								{
-									if (sFWHA01_t.temp_unit == FAHRENHEIT)
-										LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, sFWHA01_t.system_parameter.actual_temp_f_display + cal,
-													   temp_main_curve.len, temp_main_curve.fc, temp_main_curve.bc, temp_main_curve.sizey, 0);
-									else if (sFWHA01_t.temp_unit == CELSIUS)
-										LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, sFWHA01_t.system_parameter.actual_temp + cal,
-													   temp_main_curve.len, temp_main_curve.fc, temp_main_curve.bc, temp_main_curve.sizey, 0);
-								}
+							}
+							else
+							{
+								if (sFWHA01_t.temp_unit == FAHRENHEIT)
+									LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, disp_actual,
+												   temp_main_curve.len, temp_main_curve.fc, temp_main_curve.bc, temp_main_curve.sizey, 0);
+								else if (sFWHA01_t.temp_unit == CELSIUS)
+									LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, disp_actual,
+												   temp_main_curve.len, temp_main_curve.fc, temp_main_curve.bc, temp_main_curve.sizey, 0);
 							}
 						}
 						else if (sFWHA01_t.display_lock_state == UNLOCK)
 						{
 							if (sFWHA01_t.temp_unit == FAHRENHEIT)
-								LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, sFWHA01_t.system_parameter.actual_temp_f_display + cal,
+								LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, disp_actual,
 											   temp_main_curve.len, temp_main_curve.fc, temp_main_curve.bc, temp_main_curve.sizey, 0);
 							else if (sFWHA01_t.temp_unit == CELSIUS)
-								LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, sFWHA01_t.system_parameter.actual_temp + cal,
+								LCD_ShowIntNum(temp_main_curve.x, temp_main_curve.y, disp_actual,
 											   temp_main_curve.len, temp_main_curve.fc, temp_main_curve.bc, temp_main_curve.sizey, 0);
 						}
 					}
 				}
-//			}
-			if (sFWHA01_t.system_parameter.last_air_data != sFWHA01_t.system_parameter.air_data || first_in == false
-				|| (sFWHA01_t.system_parameter.last_sleep_air_data != sFWHA01_t.system_parameter.sleep_air_data))
-//			if (first_in == false || (sFWHA01_t.system_parameter.last_sleep_air_data != sFWHA01_t.system_parameter.sleep_air_data))
+			}
+			if ((sFWHA01_t.system_parameter.last_air_data != sFWHA01_t.system_parameter.air_data || 
+				sFWHA01_t.system_parameter.last_sleep_air_data != sFWHA01_t.system_parameter.sleep_air_data)
+				&& sFWHA01_t.general_parameter.save_ch_flag == false)
 			{
 				first_in = true;
 				sFWHA01_t.system_parameter.last_air_data = sFWHA01_t.system_parameter.air_data;
 				sFWHA01_t.system_parameter.last_sleep_air_data = sFWHA01_t.system_parameter.sleep_air_data;
 				if (sFWHA01_t.Work_handle_state == HANDLE_WORKING &&
-				 sFWHA01_t.handle_position == IN_POSSITION &&
-				 sFWHA01_t.sleep_state== SLEEP_OPEN)
+					sFWHA01_t.handle_position == IN_POSSITION &&
+					sFWHA01_t.sleep_state== SLEEP_OPEN)
 				{
 					display_value = sFWHA01_t.system_parameter.sleep_air_data;
 				}
@@ -1281,8 +1334,7 @@ static void show_channel_value(void)
 			{
 				LCD_ShowIntNum(ch3_set_air_1.x, ch3_set_air_1.y, *ch3_set_air_1.num,
 							   ch3_set_air_1.len, ch3_set_air_1.fc, ch3_set_air_1.bc, ch3_set_air_1.sizey, 0);
-			}
-
+			} 
 			sFWHA01_t.system_parameter.last_ch3_set_air = sFWHA01_t.system_parameter.ch3_set_air;
 		}
 	}
@@ -1337,22 +1389,25 @@ void page_switch(void)
 			}
 		}
 	}
-	if(sFWHA01_t.sleep_state == SLEEP_OPEN)
-	{
-		if(sFWHA01_t.last_handle_position != sFWHA01_t.handle_position)
-		{
-			sFWHA01_t.last_handle_position = sFWHA01_t.handle_position;
-			sFWHA01_t.system_parameter.last_air_data = 0x00;
-			sFWHA01_t.system_parameter.last_sleep_air_data = 0x00;
-			sFWHA01_t.system_parameter.last_curve_air_data = 0x00;
-			sFWHA01_t.system_parameter.last_curve_sleep_air_data = 0x00;
-		}
-		
-	}
+//	if(sFWHA01_t.sleep_state == SLEEP_OPEN)
+//	{
+//		if(sFWHA01_t.last_handle_position != sFWHA01_t.handle_position)
+//		{
+//			sFWHA01_t.last_handle_position = sFWHA01_t.handle_position;
+//			sFWHA01_t.system_parameter.last_air_data = 0x00;
+//			sFWHA01_t.system_parameter.last_sleep_air_data = 0x00;
+//			sFWHA01_t.system_parameter.last_curve_air_data = 0x00;
+//			sFWHA01_t.system_parameter.last_curve_sleep_air_data = 0x00;
+//		}
+//		
+//	}
 	if(sFWHA01_t.last_Work_handle_state != sFWHA01_t.Work_handle_state && sFWHA01_t.page == WORK_PAGE)
 	{
 		if(sFWHA01_t.last_Work_handle_state == HANDLE_SLEEP && sFWHA01_t.Work_handle_state == HANDLE_WORKING)
+		{
+//			TranferPicturetoTFT_LCD(0, 30, 480, 290, sFWHA01_t.page);
 			sFWHA01_t.last_page = RESET_VALUE;
+		}
 		else if(sFWHA01_t.last_Work_handle_state == HANDLE_WORKING && sFWHA01_t.Work_handle_state == HANDLE_SLEEP)
 		{
 			sFWHA01_t.system_parameter.last_air_data = 0x00;
@@ -1408,6 +1463,7 @@ void page_switch(void)
 		sFWHA01_t.last_display_lock_state = RESET_VALUE;
 //		sFWHA01_t.last_Work_handle_state = RESET_VALUE;
 
+		last_sleep_state = RESET_VALUE;
 		sFWHA01_t.general_parameter.last_ch = RESET_VALUE;
 		sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
 		sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;

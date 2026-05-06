@@ -44,7 +44,7 @@ extern "C" {
   */
 
 #define FLASH_SIZE                2
-#define FLASH_START_ADDRESS       (0x08000000 + 1024 * 126)
+#define FLASH_START_ADDRESS       (0x08000000 + 1024 * 127)
 
 /**
   * @}

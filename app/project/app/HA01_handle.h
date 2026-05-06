@@ -8,6 +8,8 @@
 
 #define RESET_TIME 300
 
+#define SAVE_CH_TIME 300
+
 #define RESET_VALUE 255
 
 #define MAX_SET_TEMP 500
@@ -171,6 +173,7 @@ typedef enum
 	ENGLISH,
 } language_e;
 
+
 typedef enum
 {
     LOGO = 1,
@@ -288,6 +291,13 @@ typedef enum
 	UNCONFIRM_ICON_ENG,
 	
 	POWER_ICON,
+	
+	SAVE_ICON_CN,
+	SAVE_ICON_ENG,
+	
+	CURVE_ICON,
+	CURVE_FAN_ICON,
+	
 } page_e;
 
 typedef struct
@@ -359,6 +369,7 @@ typedef struct
 	uint8_t ch;
 	uint8_t last_ch;
 	uint16_t set_temp_time;
+	bool save_ch_flag;
 } system_state_t;
 
 typedef struct
@@ -407,6 +418,7 @@ typedef struct
 	
 	page_e page;
     page_e last_page;
+	
 	
     bool reset_flag;
     bool init_flag;
