@@ -114,6 +114,7 @@ typedef enum
 {
     Standard_Mode = 0,
     Power_Mode,
+	Cold_Mode,
 } run_mode_e;
 
 
@@ -174,18 +175,45 @@ typedef enum
 } language_e;
 
 
+typedef enum 
+{
+	LONGKEY_MODE = 1,
+	SHORTKEY_MODE,
+	ADJUSTKEY_MODE,
+	RETURN_MENU,
+} key_type_e;
+
+
+typedef enum 
+{
+	CHANNEL_SWITCHING = 1,
+	COLDWIND_MODE,
+	POWER_MODE,
+} key_mode_e;
+
+
+typedef enum 
+{
+	SELECT_TEMP = 1,
+	SELECT_WIND,
+	SELECT_CH,
+} adjust_key_mode_e;
+
+
 typedef enum
 {
     LOGO = 1,
     WORK_PAGE,
-	WORK_PAGE_ENG,
 	CURVE_PAGE,
+	MENU_BACKGROUND,
     SELECT_SET_WORK_PAGE_CN,
 	SELECT_SET_WORK_PAGE_ENG,
     SELECT_SET_UNIT_PAGE_CN,
 	SELECT_SET_UNIT_PAGE_ENG,
 	SELECT_SET_SPEAK_PAGE_CN,
-	SELECT_SET_SPEAK_PAGE_ENG,
+	SELECT_SET_SPEAK_PAGE_ENG, //10
+	SELECT_SET_KEY_PAGE_CN,
+	SELECT_SET_KEY_PAGE_ENG,
 	SELECT_SET_LANGUAGE_PAGE_CN,
 	SELECT_SET_LANGUAGE_PAGE_ENG,
     SELECT_SET_TEMP_CAL_PAGE_CN,
@@ -193,7 +221,7 @@ typedef enum
     SELECT_SET_TEMP_LOCK_PAGE_CN,
 	SELECT_SET_TEMP_LOCK_PAGE_ENG,
     SELECT_SET_SLEEP_PAGE_CN,
-	SELECT_SET_SLEEP_PAGE_ENG,
+	SELECT_SET_SLEEP_PAGE_ENG, //20
 	SELECT_SET_VERSION_PAGE_CN,
 	SELECT_SET_VERSION_PAGE_ENG,
     SELECT_SET_RESET_PAGE_CN,
@@ -203,17 +231,27 @@ typedef enum
     SELECT_EXIT_MENU_PAGE_CN,
 	SELECT_EXIT_MENU_PAGE_ENG,
     SET_RUN_PAGE_CN,
-	SET_RUN_PAGE_ENG,
+	SET_RUN_PAGE_ENG,          //30
     SET_UNIT_PAGE_CN,
 	SET_UNIT_PAGE_ENG,
 	SET_SPEAK_PAGE_CN,
 	SET_SPEAK_PAGE_ENG,
+	SET_KEY_PAGE_CN,
+	SET_KEY_PAGE_ENG,
+	SET_LONG_KEY_PAGE_CN,
+	SET_LONG_KEY_PAGE_ENG,
+	SET_SHORT_KEY_PAGE_CN,
+	SET_SHORT_KEY_PAGE_ENG,    //40
+	SET_KEY_MODE_PAGE_CN,
+	SET_KEY_MODE_PAGE_ENG,
 	SET_LANGUAGE_PAGE_CN,
 	SET_LANGUAGE_PAGE_ENG, 
 	SET_TEMP_CAL_PAGE_CN,
 	SET_TEMP_CAL_PAGE_ENG,
+	SET_SELECT_TEMP_CAL_PAGE_CN,
+	SET_SELECT_TEMP_CAL_PAGE_ENG,
     SET_TEMP_LOCK_PAGE_CN,
-	SET_TEMP_LOCK_PAGE_ENG,
+	SET_TEMP_LOCK_PAGE_ENG,     //50
     SET_SLEEP_PAGE_CN,
 	SET_SLEEP_PAGE_ENG,
 	SET_VERSION_PAGE_CN,
@@ -223,7 +261,7 @@ typedef enum
     SET_RESET_DONE_PAGE_CN,
 	SET_RESET_DONE_PAGE_ENG,
 	SET_SUPPORT_PAGE_CN,
-	SET_SUPPORT_PAGE_ENG,
+	SET_SUPPORT_PAGE_ENG,       //60
 	NAVIGATION_BAR,
 	 /* some icons */
 	SPEAK_ICON,           
@@ -235,7 +273,7 @@ typedef enum
 	LOW_TEMP_ICON_ENG,	
 	FAN_ABNORMAL_ICON_CN,
 	FAN_ABNORMAL_ICON_ENG,
-	OVER_TEMP_ICON_CN,
+	OVER_TEMP_ICON_CN,       //70
 	OVER_TEMP_ICON_ENG,
 	
 	CAL_CELSIUS_ICON,
@@ -247,8 +285,9 @@ typedef enum
 	
 	RETURN_ICON_CN,
 	RETURN_ICON_ENG,
-	UN_RETURN_ICON_CN,
-	UN_RETURN_ICON_ENG,
+	
+	UN_RETURN_ICON_ENG,       //80
+	UN_RETURN_ICON_CN,    
 	
 	
 	EXIT_ICON_CN,
@@ -261,7 +300,7 @@ typedef enum
 	FAN_ICON_3,
 	FAN_ICON_4,
 	
-	MENU_SELECT_ICON,
+	MENU_SELECT_ICON,       //90
 	MENU_UNSELECT_ICON,
 	
 	ACTUAL_TEMP_ICON_CN,
@@ -273,7 +312,7 @@ typedef enum
 	SELECT_OUTPUT_FAN_ICON_CN,
 	SELECT_OUTPUT_FAN_ICON_ENG,
 	
-	UNSELECT_CH1, 
+	UNSELECT_CH1,          //100
 	UNSELECT_CH2, 
 	UNSELECT_CH3, 
 	SELECT_CH1, 
@@ -281,14 +320,12 @@ typedef enum
 	SELECT_CH3, 
 	TEMP_BAR_ICON,
 	AIR_BAR_ICON,
-	
-	SET_SELECT_TEMP_CAL_PAGE_CN,
-	SET_SELECT_TEMP_CAL_PAGE_ENG,
+
 	
 	CONFIRM_ICON_CN,
 	CONFIRM_ICON_ENG,
+	UNCONFIRM_ICON_ENG,    //110
 	UNCONFIRM_ICON_CN,
-	UNCONFIRM_ICON_ENG,
 	
 	POWER_ICON,
 	
@@ -297,6 +334,19 @@ typedef enum
 	
 	CURVE_ICON,
 	CURVE_FAN_ICON,
+	
+	COLD_MODE_ICON_CN,
+	COLD_MODE_ICON_ENG,
+	
+	MAIN_POWER_OUTPUT_ENG,
+	MAIN_POWER_OUTPUT_CN,    //110
+	
+	SELECT_ARROW,
+	NOSELECT_ARROW,
+	
+	REFRESH_SLEEP_ICON,
+	REFRESH_COLDWIND_ICON,
+	REFRESH_SLEEP_ICON_ENG
 	
 } page_e;
 
@@ -344,11 +394,16 @@ typedef struct
 	float last_ch3_set_air;
 	float air_data;
 	float last_air_data;
+	float last_air_data_actual;
 	float last_curve_air_data;
 	float last_curve_sleep_air_data;
+	float last_curve_cold_mode_air_data;
 	float actual_air;
 	float sleep_air_data;
 	float last_sleep_air_data;
+	float cold_mode_set_air;
+	float last_cold_mode_set_air;
+	
 	uint16_t sleep_time;
 	int fan_icon_show_times;
 	uint8_t fan_icon_show_step;
@@ -369,6 +424,7 @@ typedef struct
 	uint8_t ch;
 	uint8_t last_ch;
 	uint16_t set_temp_time;
+	uint16_t set_wind_time;
 	bool save_ch_flag;
 } system_state_t;
 
@@ -415,6 +471,17 @@ typedef struct
 	
 	set_reset_e1 set_reset1;
     set_reset_e2 set_reset2;
+	
+	key_type_e set_key_mode;
+	
+	key_mode_e long_key_mode;
+	key_mode_e set_long_key_mode;
+	
+	key_mode_e short_key_mode;
+	key_mode_e set_short_key_mode;
+	
+	adjust_key_mode_e adjust_key_mode;
+	adjust_key_mode_e set_adjust_key_mode;
 	
 	page_e page;
     page_e last_page;

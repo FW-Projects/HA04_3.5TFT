@@ -121,6 +121,18 @@
         <Signal SignalName="ADC1_IN10" PinName="PC0">
             <Parameters name="Label" value="HOT_ADC"/>
         </Signal>
+        <Signal SignalName="GPIO_Input" PinName="PC1">
+            <Parameters name="GPIO_PullType_Set" value="GPIO_PULL_UP"/>
+            <Parameters name="Label" value="KEY_HAL1"/>
+        </Signal>
+        <Signal SignalName="GPIO_Input" PinName="PC2">
+            <Parameters name="GPIO_PullType_Set" value="GPIO_PULL_UP"/>
+            <Parameters name="Label" value="KEY_HAL2"/>
+        </Signal>
+        <Signal SignalName="GPIO_Input" PinName="PC3">
+            <Parameters name="GPIO_PullType_Set" value="GPIO_PULL_UP"/>
+            <Parameters name="Label" value="KEY_HAL3"/>
+        </Signal>
         <Signal SignalName="TMR5_CH4" PinName="PA3">
             <Parameters name="Label" value="HOT_PWM"/>
         </Signal>
@@ -257,6 +269,9 @@
         <PinSub pinname="PD0/HEXT_IN" signalname="CRM_HEXT_IN" signaltype="2"/>
         <PinSub pinname="PD1/HEXT_OUT" signalname="CRM_HEXT_OUT" signaltype="2"/>
         <PinSub pinname="PC0" signalname="ADC1_IN10" signaltype="3"/>
+        <PinSub pinname="PC1" signalname="GPIO_Input" signaltype="3"/>
+        <PinSub pinname="PC2" signalname="GPIO_Input" signaltype="3"/>
+        <PinSub pinname="PC3" signalname="GPIO_Input" signaltype="3"/>
         <PinSub pinname="PA1" signalname="TMR2_CH2" signaltype="3"/>
         <PinSub pinname="PA3" signalname="TMR5_CH4" signaltype="3"/>
         <PinSub pinname="PF4" signalname="GPIO_Output" signaltype="3"/>

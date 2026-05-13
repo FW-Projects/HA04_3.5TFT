@@ -52,12 +52,12 @@ static void get_handle_work_state(HA01_Handle *this)
     case HANDLE_SLEEP:
 		if(this->sleep_state == SLEEP_OPEN)
 		{
-			if (this->handle_position == NOT_IN_POSSITION )
+			if (this->handle_position == NOT_IN_POSSITION || this->run_mode == Cold_Mode)
 			{
 				this->Work_handle_state = HANDLE_WORKING;
-				sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
-				sFWHA01_t.system_parameter.last_set_temp = 0x00;
-				sFWHA01_t.system_parameter.last_set_temp_f_display = 0x00;
+//				sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
+//				sFWHA01_t.system_parameter.last_set_temp = 0x00;
+//				sFWHA01_t.system_parameter.last_set_temp_f_display = 0x00;
 			}
 			else if (this->handle_position == IN_POSSITION)
 			{
@@ -77,7 +77,8 @@ static void get_handle_work_state(HA01_Handle *this)
     case HANDLE_WORKING:
 
         if (this->handle_position == IN_POSSITION &&
-                this->sleep_state == SLEEP_OPEN)
+                this->sleep_state == SLEEP_OPEN &&
+				this->run_mode != Cold_Mode)
         {
             if (this->system_parameter.actual_temp <= 70)
             {
@@ -127,54 +128,72 @@ static void get_handle_error_state(HA01_Handle *this)
     switch (get_step)
     {
     case 0:
-		if (this->handle_position == NOT_IN_POSSITION ||
-				(this->handle_position == IN_POSSITION && this->sleep_state== SLEEP_CLOSE))
+		if(sFWHA01_t.run_mode == Cold_Mode)
 		{
-			if (this->system_parameter.actual_temp >= MAX_ACTUAL_TEMP ||
-					this->system_parameter.actual_temp <= MIN_ACTUAL_TEMP ||
-					this->system_parameter.actual_air < MIN_ACTUAL_AIR)
+			if(this->system_parameter.actual_air < MIN_ACTUAL_AIR)
 			{
 				this->system_parameter.error_time++;
-
-				/* 5 * 200 / 2 = 500ms */
-				if (this->system_parameter.error_time > ERROR_TIME / 2)
+				
+				if(this->system_parameter.error_time > ERROR_TIME * 2)
 				{
-					if (this->system_parameter.actual_temp >= MAX_ACTUAL_TEMP)
+					this->handle_error_state = HANDLE_FAN_ERROR;
+					this->system_parameter.error_time = 0x00;
+					get_step = 1;
+					break;
+				}
+			}
+		}
+		else
+		{
+			if (this->handle_position == NOT_IN_POSSITION ||
+					(this->handle_position == IN_POSSITION && this->sleep_state== SLEEP_CLOSE))
+			{
+				if (this->system_parameter.actual_temp >= MAX_ACTUAL_TEMP ||
+						this->system_parameter.actual_temp <= MIN_ACTUAL_TEMP ||
+						this->system_parameter.actual_air < MIN_ACTUAL_AIR)
+				{
+					this->system_parameter.error_time++;
+
+					/* 5 * 200 / 2 = 500ms */
+					if (this->system_parameter.error_time > ERROR_TIME / 2)
 					{
-						this->handle_error_state = HANDLE_OVER_TEMP_ERR;
-						this->system_parameter.error_time = 0;
-						get_step = 1;
-						break;
+						if (this->system_parameter.actual_temp >= MAX_ACTUAL_TEMP)
+						{
+							this->handle_error_state = HANDLE_OVER_TEMP_ERR;
+							this->system_parameter.error_time = 0;
+							get_step = 1;
+							break;
+						}
+					}
+
+					/* 5 * 200  = 1000ms */
+					if (this->system_parameter.error_time > ERROR_TIME * 2)
+					{
+						if (this->system_parameter.actual_air < MIN_ACTUAL_AIR)
+						{
+							this->handle_error_state = HANDLE_FAN_ERROR;
+							this->system_parameter.error_time = 0;
+							get_step = 1;
+							break;
+						}
+						else if (this->system_parameter.actual_temp <= MIN_ACTUAL_TEMP)
+						{
+							this->handle_error_state = HANDLE_LOW_TEMP_ERR;
+							this->system_parameter.error_time = 0;
+							get_step = 1;
+							break;
+						}
 					}
 				}
-
-				/* 5 * 200  = 1000ms */
-				if (this->system_parameter.error_time > ERROR_TIME * 2)
+				else
 				{
-					if (this->system_parameter.actual_air < MIN_ACTUAL_AIR)
-					{
-						this->handle_error_state = HANDLE_FAN_ERROR;
-						this->system_parameter.error_time = 0;
-						get_step = 1;
-						break;
-					}
-					else if (this->system_parameter.actual_temp <= MIN_ACTUAL_TEMP)
-					{
-						this->handle_error_state = HANDLE_LOW_TEMP_ERR;
-						this->system_parameter.error_time = 0;
-						get_step = 1;
-						break;
-					}
+					this->system_parameter.error_time = 0;
 				}
 			}
 			else
 			{
 				this->system_parameter.error_time = 0;
 			}
-		}
-		else
-		{
-			this->system_parameter.error_time = 0;
 		}
         break;
     case 1:
@@ -205,76 +224,82 @@ static void get_handle_error_state(HA01_Handle *this)
             control_step = 1;
             break;
         }
-
-		if (this->Work_handle_state == HANDLE_SLEEP)
+		if(sFWHA01_t.run_mode == Cold_Mode)
 		{
-			/* keep fan output until the temp below 60 */
-			if (this->system_parameter.actual_temp >= 60 && this->system_parameter.actual_temp < 70)
+			fan_run_flag = true;
+            tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.cold_mode_set_air * 1.13 + 30);
+		}
+		else
+		{
+			if (this->Work_handle_state == HANDLE_SLEEP)
 			{
-				if (fan_run_flag == false)
+				/* keep fan output until the temp below 60 */
+				if (this->system_parameter.actual_temp >= 60 && this->system_parameter.actual_temp < 70)
 				{
-					tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, 50);
+					if (fan_run_flag == false)
+					{
+						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, 50);
+					}
+				}
+				else
+				{
+					if (fan_run_flag == false)
+					{
+						fan_run_flag = true;
+						/* close fan output */
+						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, 0);
+					}
 				}
 			}
-			else
+			else if (this->Work_handle_state == HANDLE_WORKING &&
+					 this->handle_position == IN_POSSITION &&
+					 this->sleep_state== SLEEP_OPEN)
 			{
-				if (fan_run_flag == false)
+				/* wait for next time open */
+				if (fan_run_flag)
 				{
-					fan_run_flag = true;
+					fan_run_flag = false;
+				}
+				if (this->system_parameter.actual_temp >= 250)
+				{
+					this->system_parameter.sleep_air_data = SLEEP_FAN_DATA;
+
+					if (fan_run_flag == false)
+					{
+						/* open fan output with a half of max set val*/
+						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13 + 30);
+					}
+				}
+				else if (this->system_parameter.actual_temp >= 70 && this->system_parameter.actual_temp < 250)
+				{
+					if (fan_run_flag == false)
+					{
+						/* open fan output with actual temp change*/
+						this->system_parameter.sleep_air_data = this->system_parameter.actual_temp * 0.4;
+						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13 + 30);
+					}
+				}
+				else
+				{
 					/* close fan output */
 					tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, 0);
 				}
 			}
-		}
-		else if (this->Work_handle_state == HANDLE_WORKING &&
-				 this->handle_position == IN_POSSITION &&
-				 this->sleep_state== SLEEP_OPEN)
-		{
-			/* wait for next time open */
-			if (fan_run_flag)
+			else if ((this->Work_handle_state == HANDLE_WORKING &&
+					  this->handle_position == NOT_IN_POSSITION) ||
+					 this->sleep_state== SLEEP_CLOSE)
 			{
-				fan_run_flag = false;
-			}
-			if (this->system_parameter.actual_temp >= 250)
-			{
-				this->system_parameter.sleep_air_data = SLEEP_FAN_DATA;
-
+				/* wait for next time open */
 				if (fan_run_flag == false)
 				{
-					/* open fan output with a half of max set val*/
-					tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13 + 30);
+					fan_run_flag = true;
+
 				}
-			}
-			else if (this->system_parameter.actual_temp >= 70 && this->system_parameter.actual_temp < 250)
-			{
-				if (fan_run_flag == false)
-				{
-					/* open fan output with actual temp change*/
-					this->system_parameter.sleep_air_data = this->system_parameter.actual_temp * 0.4;
-					tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13 + 30);
-				}
-			}
-			else
-			{
-				/* close fan output */
-				tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, 0);
+				
+				/* open fan output with user set val */
+				tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.air_data * 1.13 + 30);
 			}
 		}
-		else if ((this->Work_handle_state == HANDLE_WORKING &&
-				  this->handle_position == NOT_IN_POSSITION) ||
-				 this->sleep_state== SLEEP_CLOSE)
-		{
-			/* wait for next time open */
-			if (fan_run_flag == false)
-			{
-				fan_run_flag = true;
-
-			}
-			
-			/* open fan output with user set val */
-			tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.air_data * 1.13 + 30);
-		}
-
         break;
 
     case 1:
@@ -425,51 +450,62 @@ void pwm_control(HA01_Handle *this)
     this->system_parameter.actual_temp = move_average_filter(&handle_temp) >> 2;
 //    temp = this->system_parameter.actual_temp + this->system_parameter.temp_linear_data - this->system_parameter.cal_data;
 	temp = this->system_parameter.actual_temp- this->system_parameter.cal_data;
-	if ((this->handle_position == NOT_IN_POSSITION || this->sleep_state == SLEEP_CLOSE))
-	{
-		if (temp <= (set_temp + PID_RANGE) && temp >= (set_temp - PID_RANGE))
-		{
-			if (temp <= (set_temp + 5) && temp >= (set_temp - 5))
-			{
- 				delay_time++;
-				if (delay_time >= 15)
-				{
-					if(handle_pid.Kd-5000<=low_kd)
-					{
-						handle_pid.Kd = low_kd;
-					}
-					else
-					{
-						handle_pid.Kd -= 5000;
-						
-					}
-					
-					delay_time = 0;
-					change_flag = true;
-				}
-			}
-			else
-			{
-				change_flag = false;                                                                                                                                                                                                                                                                                                                                                                         
-				delay_time = 0;
-			}
-			this->system_parameter.pwm_out = PID_Position_Calc(&handle_pid, set_temp, temp);
-		}
-		else if (temp > (set_temp + PID_RANGE))
-		{
-			this->system_parameter.pwm_out = 0;
-		}
-		else if (temp < (set_temp - PID_RANGE))
-		{
-			this->system_parameter.pwm_out = MAX_PWM_OUTPUT;
-		}
-	}
-	else if ((this->handle_position == IN_POSSITION && this->sleep_state == SLEEP_OPEN))
+	
+	if(sFWHA01_t.run_mode == Cold_Mode)
 	{
 		change_flag = false;
 		delay_time = 0;
 		this->system_parameter.pwm_out = 0;
 		PID_Clear(&handle_pid);
+	}
+	else
+	{	
+		if ((this->handle_position == NOT_IN_POSSITION || this->sleep_state == SLEEP_CLOSE))
+		{
+			if (temp <= (set_temp + PID_RANGE) && temp >= (set_temp - PID_RANGE))
+			{
+				if (temp <= (set_temp + 5) && temp >= (set_temp - 5))
+				{
+					delay_time++;
+					if (delay_time >= 15)
+					{
+						if(handle_pid.Kd-5000<=low_kd)
+						{
+							handle_pid.Kd = low_kd;
+						}
+						else
+						{
+							handle_pid.Kd -= 5000;
+							
+						}
+						
+						delay_time = 0;
+						change_flag = true;
+					}
+				}
+				else
+				{
+					change_flag = false;                                                                                                                                                                                                                                                                                                                                                                         
+					delay_time = 0;
+				}
+				this->system_parameter.pwm_out = PID_Position_Calc(&handle_pid, set_temp, temp);
+			}
+			else if (temp > (set_temp + PID_RANGE))
+			{
+				this->system_parameter.pwm_out = 0;
+			}
+			else if (temp < (set_temp - PID_RANGE))
+			{
+				this->system_parameter.pwm_out = MAX_PWM_OUTPUT;
+			}
+		}
+		else if ((this->handle_position == IN_POSSITION && this->sleep_state == SLEEP_OPEN))
+		{
+			change_flag = false;
+			delay_time = 0;
+			this->system_parameter.pwm_out = 0;
+			PID_Clear(&handle_pid);
+		}
 	}
 
     if (this->system_parameter.pwm_out <= 0)

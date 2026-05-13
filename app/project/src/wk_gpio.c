@@ -56,14 +56,15 @@ void wk_gpio_config(void)
   gpio_init(GPIOC, &gpio_init_struct);
 
   gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
+  gpio_init_struct.gpio_pins = KEY_HAL1_PIN | KEY_HAL2_PIN | KEY_HAL3_PIN | KEY_CH1_PIN | KEY_CH2_PIN | 
+                               KEY_CH3_PIN | EC_KEY2_PIN;
+  gpio_init_struct.gpio_pull = GPIO_PULL_UP;
+  gpio_init(GPIOC, &gpio_init_struct);
+
+  gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
   gpio_init_struct.gpio_pins = SPI1_RD_PIN;
   gpio_init_struct.gpio_pull = GPIO_PULL_DOWN;
   gpio_init(SPI1_RD_GPIO_PORT, &gpio_init_struct);
-
-  gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
-  gpio_init_struct.gpio_pins = KEY_CH1_PIN | KEY_CH2_PIN | KEY_CH3_PIN | EC_KEY2_PIN;
-  gpio_init_struct.gpio_pull = GPIO_PULL_UP;
-  gpio_init(GPIOC, &gpio_init_struct);
 
   gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
   gpio_init_struct.gpio_pins = EC_R2_PIN | EC_L2_PIN | EC_KEY1_PIN;
@@ -125,7 +126,7 @@ void wk_gpio_config(void)
 
   /* gpio analog config */
   gpio_init_struct.gpio_mode = GPIO_MODE_ANALOG;
-  gpio_init_struct.gpio_pins = GPIO_PINS_14 | GPIO_PINS_15 | GPIO_PINS_1 | GPIO_PINS_2 | GPIO_PINS_3;
+  gpio_init_struct.gpio_pins = GPIO_PINS_14 | GPIO_PINS_15;
   gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
   gpio_init(GPIOC, &gpio_init_struct);
 

@@ -34,9 +34,18 @@
 
 #define FLASH_COUNT                   4
 
+#define CH_COUNT 3
+
 #define REDUCE_TEMP 0
 #define ADD_TEMP 1
 #define PID_TEMP 2
+
+
+// 先定义宏，统一管理刷屏区域，方便修改
+#define LCD_FULL_SCREEN_X1      0
+#define LCD_FULL_SCREEN_Y1      30
+#define LCD_FULL_SCREEN_WIDTH   480
+#define LCD_FULL_SCREEN_HEIGHT  290
 
 typedef enum
 {
@@ -124,8 +133,9 @@ extern uint8_t set_speak_flag;
 extern int16_t external_temp;
 extern int16_t external_temp_f;
 extern uint8_t set_calibration_temp_flag;
-
-
+extern uint8_t last_coldwind_state;
+extern uint8_t actual_temp_refesh_time;
+extern uint8_t actual_wind_refesh_time;
 void LcdProc(void);
 
 #endif

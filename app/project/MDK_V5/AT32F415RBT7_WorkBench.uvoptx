@@ -120,7 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>CMSIS_AGDI</Key>
-          <Name>-X"Any" -UAny -O206 -S0 -C0 -P00000000 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO65554 -TC10000000 -TT10000000 -TP20 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC1000 -FN1 -FF0AT32F415_128.FLM -FS08000000 -FL020000 -FP0($$Device:-AT32F415RBT7$Flash\AT32F415_128.FLM)</Name>
+          <Name>-X"AT-Link CMSIS-DAP" -U90D39C000000524C14148807 -O206 -S9 -C0 -P00000000 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO65555 -TC144000000 -TT10000000 -TP20 -TDS802F -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC1000 -FN1 -FF0AT32F415_128.FLM -FS08000000 -FL020000 -FP0($$Device:-AT32F415RBT7$Flash\AT32F415_128.FLM)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -158,35 +158,85 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>display_value</ItemText>
+          <ItemText>sFWHA01_t.set_key_mode</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sFWHA01_t.system_parameter.actual_temp</ItemText>
+          <ItemText>sFWHA01_t.set_short_key_mode</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sFWHA01_t.Work_handle_state</ItemText>
+          <ItemText>sFWHA01_t.general_parameter.ch</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sFWHA01_t.system_parameter.set_temp</ItemText>
+          <ItemText>sFWHA01_t.run_mode</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sFWHA01_t.system_parameter.air_data</ItemText>
+          <ItemText>sFWHA01_t.short_key_mode</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sFWHA01_t.handle_position</ItemText>
+          <ItemText>sFWHA01_t.system_parameter.cold_mode_set_air</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sFWHA01_t.system_parameter.set_temp</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sFWHA01_t.Work_handle_state</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sFWHA01_t.system_parameter.actual_temp</ItemText>
+        </Ww>
+        <Ww>
+          <count>9</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>temp_diff</ItemText>
+        </Ww>
+        <Ww>
+          <count>10</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sFWHA01_t.page</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sFWHA01_t.system_parameter.set_temp</ItemText>
+        </Ww>
+        <Ww>
+          <count>12</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sFWHA01_t.general_parameter.set_temp_time</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>last_key_adjust_state</ItemText>
+        </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>adjust_state</ItemText>
+        </Ww>
+        <Ww>
+          <count>15</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>channel_state</ItemText>
+        </Ww>
+        <Ww>
+          <count>16</count>
           <WinNumber>1</WinNumber>
           <ItemText>display_air</ItemText>
         </Ww>
@@ -212,6 +262,16 @@
           <WinNumber>2</WinNumber>
           <ItemText>sFWHA01_t.Work_handle_state</ItemText>
         </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>sFWHA01_t.page</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>UN_RETURN_ICON_CN</ItemText>
+        </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>
@@ -227,7 +287,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>0</periodic>
-        <aLwin>0</aLwin>
+        <aLwin>1</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>

@@ -38,6 +38,7 @@
 #include "adc_filter.h"
 #include "ec11_handle.h"
 #include "output_handle.h"
+#include "beep_handle.h"
 /* add user code end private includes */
 
 /* private typedef -----------------------------------------------------------*/
@@ -235,7 +236,34 @@ void SysTick_Handler(void)
 	static uint16_t ec11_run_time = 1;
 	static bool first_in = false;
 	static uint8_t fan_run_time = 1;
-
+	static char beep_task_time = BEEP_TASK_TIME;
+	static uint8_t warning_time = 10;
+	
+	beep_task_time--;
+	if(!beep_task_time)
+	{
+		beep_task_time = BEEP_TASK_TIME;
+		if (sFWHA01_t.speak_state == SPEAKER_OPEN)
+		{
+			beep_handle();
+			
+			if(sFWHA01_t.handle_error_state != HANDLE_OK)
+			{
+				warning_time--;
+				 if(!warning_time)
+				 {
+					 warning_time = 40;
+					 sbeep.cmd = BEEP_LONG;
+				 }
+			}
+		}
+		else
+		{
+			sbeep.off();
+		}
+	}
+	
+	
 	if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP)
 	{
 		fan_control(&sFWHA01_t);

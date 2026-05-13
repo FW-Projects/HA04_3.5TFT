@@ -17,4 +17,5 @@
   ..\..\libraries\drivers\inc\at32f415_usart.h \
   ..\..\libraries\drivers\inc\at32f415_wdt.h ..\inc\wk_system.h \
   ..\system\tmt.h ..\app\HA01_handle.h ..\app\output_handle.h \
-  ..\device\adc_filter.h ..\app\ec11_handle.h ..\device\EncoderEC11.h
+  ..\device\adc_filter.h ..\app\ec11_handle.h ..\device\EncoderEC11.h \
+  ..\app\beep_handle.h ..\device\beep.h

@@ -176,14 +176,13 @@ int main(void)
   tmt.create(flash_task, FLASH_HANDLE_TIME);
   tmt.create(work_task, WORK_HANDLE_TIME);
 //  tmt.create(ec11_task, EC11_TASK_TIME);
-  tmt.create(beep_task, BEEP_TASK_TIME);
   tmt.create(key_task, KEY_HANDLE_TIME);
   filter_init(&handle_temp, ADC_CHANNEL_10);
   FWHA01_Init(&sFWHA01_t);
   LCD_Init(); 
-  TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
-   TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
-   check_flash_updata();
+  
+  TranferPicturetoTFT_LCD(94, 134, 292, 51, LOGO);
+  check_flash_updata();
   /* 等待系统上电稳定延时 */
   wk_delay_ms(1000);
   /* add user code end 2 */
@@ -214,37 +213,17 @@ void check_flash_updata(void)
 
 void key_task(void)
 {
-    if (sFWHA01_t.init_flag)
+    if (sFWHA01_t.init_flag && sFWHA01_t.handle_error_state == HANDLE_OK)
         key_handle();
 }
 
 
 void ec11_task(void)
-{
+{	
 	ec11_handle();
 }
 
-void beep_task(void)
-{
-    static uint8_t warning_time = 0;
-    if (sFWHA01_t.speak_state == SPEAKER_OPEN)
-    {
-        beep_handle();
-    }
-    else if (sFWHA01_t.speak_state == SPEAKER_CLOSE)
-    {
-        sbeep.off();
-    }
-	
-	if(sFWHA01_t.handle_error_state != HANDLE_OK)
-	{
-	     if(warning_time++ == 50)
-		 {
-		     warning_time = 0;
-			 sbeep.cmd = BEEP_LONG;
-		 }
-	}
-}
+
 
 void lcd_task(void)
 {

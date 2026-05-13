@@ -17,4 +17,5 @@
   ..\..\libraries\drivers\inc\at32f415_tmr.h \
   ..\..\libraries\drivers\inc\at32f415_usart.h \
   ..\..\libraries\drivers\inc\at32f415_wdt.h ..\app\HA01_HANDLE.h \
-  ..\app\beep_handle.h ..\device\beep.h
+  ..\app\beep_handle.h ..\device\beep.h ..\app\lcd_handle.h \
+  ..\device\lcd.h ..\inc\at32f415_wk_config.h

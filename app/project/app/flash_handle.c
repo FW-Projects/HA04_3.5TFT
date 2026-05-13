@@ -61,6 +61,9 @@ void FlashProc(void)
     static uint8_t last_display_lock_mode;
 	static uint8_t last_sleep_mode;
 	static uint8_t last_run_mode;
+	static uint8_t last_longkey_mode;
+	static uint8_t last_shortkey_mode;
+	static uint8_t last_adjustkey_mode;
     static uint16_t flash_version = 0;
     static uint8_t flash_count = 0;
     static uint16_t a_ver;
@@ -131,7 +134,10 @@ void FlashProc(void)
 				last_cal_data != sFWHA01_t.system_parameter.cal_data         ||
                 last_display_lock_mode != sFWHA01_t.display_lock_state       ||
                 last_sleep_mode != sFWHA01_t.sleep_state                     ||
-				last_run_mode != sFWHA01_t.run_mode)
+				last_run_mode != sFWHA01_t.run_mode							 ||
+				last_longkey_mode != sFWHA01_t.long_key_mode                 ||
+				last_shortkey_mode != sFWHA01_t.short_key_mode               ||
+				last_adjustkey_mode != sFWHA01_t.adjust_key_mode 	)
         {
             flash_unlock();
 
@@ -185,6 +191,9 @@ void FlashProc(void)
 			flash_halfword_program(A_DISPLAY_LOCK_MODE_ADDRESS, sFWHA01_t.display_lock_state);
 			flash_halfword_program(A_SLEEP_MODE_ADDRESS, sFWHA01_t.sleep_state);
 			flash_halfword_program(A_RUN_MODE_ADDRESS, sFWHA01_t.run_mode);
+			flash_halfword_program(A_LONGKEY_MODE_ADDRESS, sFWHA01_t.long_key_mode);
+			flash_halfword_program(A_SHORTKEY_MODE_ADDRESS, sFWHA01_t.short_key_mode);
+			flash_halfword_program(A_ADJUSTKEY_MODE_ADDRESS, sFWHA01_t.adjust_key_mode);
         }
         else
         {
@@ -196,6 +205,9 @@ void FlashProc(void)
 			flash_halfword_program(B_DISPLAY_LOCK_MODE_ADDRESS, sFWHA01_t.display_lock_state);
 			flash_halfword_program(B_SLEEP_MODE_ADDRESS, sFWHA01_t.sleep_state);
 			flash_halfword_program(B_RUN_MODE_ADDRESS, sFWHA01_t.run_mode);
+			flash_halfword_program(B_LONGKEY_MODE_ADDRESS, sFWHA01_t.long_key_mode);
+			flash_halfword_program(B_SHORTKEY_MODE_ADDRESS, sFWHA01_t.short_key_mode);
+			flash_halfword_program(B_ADJUSTKEY_MODE_ADDRESS, sFWHA01_t.adjust_key_mode);
         }
 		last_work_mode = sFWHA01_t.work_mode;
 		last_temp_unit_mode = sFWHA01_t.temp_unit;
@@ -205,9 +217,11 @@ void FlashProc(void)
 		last_display_lock_mode = sFWHA01_t.display_lock_state;
 		last_sleep_mode = sFWHA01_t.sleep_state;
 		last_run_mode = sFWHA01_t.run_mode;
-        sflash.state ++;
-        break;
-
+		last_longkey_mode = sFWHA01_t.long_key_mode;  
+        last_shortkey_mode = sFWHA01_t.short_key_mode;  
+        last_adjustkey_mode = sFWHA01_t.adjust_key_mode;
+		sflash.state ++;
+		break;
     case FLASH_FINSH:
         if (flash_count % 2 != FALSE)
         {
@@ -245,6 +259,9 @@ void get_data_from_a(void)
 	sFWHA01_t.display_lock_state = flash_wred_halfword(A_DISPLAY_LOCK_MODE_ADDRESS);
 	sFWHA01_t.sleep_state = flash_wred_halfword(A_SLEEP_MODE_ADDRESS);
 	sFWHA01_t.run_mode = flash_wred_halfword(A_RUN_MODE_ADDRESS);
+	sFWHA01_t.long_key_mode = flash_wred_halfword(A_LONGKEY_MODE_ADDRESS);  
+    sFWHA01_t.short_key_mode = flash_wred_halfword(A_SHORTKEY_MODE_ADDRESS);  
+	sFWHA01_t.adjust_key_mode = flash_wred_halfword(A_ADJUSTKEY_MODE_ADDRESS); 
 }
 void get_data_from_b(void)
 {
@@ -265,6 +282,9 @@ void get_data_from_b(void)
 	sFWHA01_t.display_lock_state = flash_wred_halfword(B_DISPLAY_LOCK_MODE_ADDRESS);
 	sFWHA01_t.sleep_state = flash_wred_halfword(B_SLEEP_MODE_ADDRESS);
 	sFWHA01_t.run_mode = flash_wred_halfword(B_RUN_MODE_ADDRESS);
+	sFWHA01_t.long_key_mode = flash_wred_halfword(B_LONGKEY_MODE_ADDRESS);  
+    sFWHA01_t.short_key_mode = flash_wred_halfword(B_SHORTKEY_MODE_ADDRESS);  
+	sFWHA01_t.adjust_key_mode = flash_wred_halfword(B_ADJUSTKEY_MODE_ADDRESS); 
 }
 
 void get_reset_data(void)
@@ -285,6 +305,10 @@ void get_reset_data(void)
 	sFWHA01_t.display_lock_state = UNLOCK;
 	sFWHA01_t.sleep_state = SLEEP_OPEN;
 	sFWHA01_t.run_mode = Standard_Mode;
+	sFWHA01_t.long_key_mode = COLDWIND_MODE;
+	sFWHA01_t.short_key_mode = CHANNEL_SWITCHING;
+	sFWHA01_t.adjust_key_mode = SELECT_TEMP;
+	
 }
 
 
@@ -364,5 +388,20 @@ void check_data_all(void)
 	if(sFWHA01_t.run_mode != Standard_Mode && sFWHA01_t.run_mode != Power_Mode)
 	{
 		sFWHA01_t.run_mode = Standard_Mode;
+	}
+	
+	if(sFWHA01_t.long_key_mode != COLDWIND_MODE && sFWHA01_t.long_key_mode != POWER_MODE)
+	{
+		sFWHA01_t.long_key_mode = COLDWIND_MODE;
+	}
+	
+	if(sFWHA01_t.short_key_mode != COLDWIND_MODE && sFWHA01_t.short_key_mode != POWER_MODE && sFWHA01_t.short_key_mode != CHANNEL_SWITCHING)
+	{
+		sFWHA01_t.short_key_mode = CHANNEL_SWITCHING;
+	}
+	
+	if(sFWHA01_t.adjust_key_mode != SELECT_TEMP && sFWHA01_t.adjust_key_mode != SELECT_WIND && sFWHA01_t.adjust_key_mode != SELECT_CH)
+	{
+		sFWHA01_t.adjust_key_mode = SELECT_TEMP;
 	}
 }

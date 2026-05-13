@@ -1361,9 +1361,10 @@ void LCD_Init(void)
     /* Sleep Out11h */
     LCD_WR_REG(0x11);
     wk_delay_ms(200);
+	LCD_Clear(BLACK);
     LCD_WR_REG(0x29);
     gpio_bits_set(GPIOC, GPIO_PINS_4);
-    LCD_Clear(BLACK);
+
 }
 
 
@@ -1384,6 +1385,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			break;
 		case 2:
 			uiPic_Addr = PIC_ADDRESS_2;
+			break;
+		case 3:
+			uiPic_Addr = PIC_ADDRESS_3;
 			break;
 		case 4:
 			uiPic_Addr = PIC_ADDRESS_4;
@@ -1433,9 +1437,6 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 33:
 			uiPic_Addr = PIC_ADDRESS_33;
 			break;
-		case 34:
-			uiPic_Addr = PIC_ADDRESS_34;
-			break;
 		case 35:
 			uiPic_Addr = PIC_ADDRESS_35;
 			break;
@@ -1451,6 +1452,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 43:
 			uiPic_Addr = PIC_ADDRESS_43;
 			break;
+		case 44:
+			uiPic_Addr = PIC_ADDRESS_44;
+			break;
 		case 45:
 			uiPic_Addr = PIC_ADDRESS_45;
 			break;
@@ -1460,26 +1464,20 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 49:
 			uiPic_Addr = PIC_ADDRESS_49;
 			break;
-		case 50:
-			uiPic_Addr = PIC_ADDRESS_50;
-			break;
 		case 51:
 			uiPic_Addr = PIC_ADDRESS_51;
 			break;
-		case 52:
-			uiPic_Addr = PIC_ADDRESS_52;
+		case 53:
+			uiPic_Addr = PIC_ADDRESS_53;
 			break;
-		case 54:
-			uiPic_Addr = PIC_ADDRESS_54;
+		case 55:
+			uiPic_Addr = PIC_ADDRESS_55;
 			break;
-		case 56:
-			uiPic_Addr = PIC_ADDRESS_56;
+		case 57:
+			uiPic_Addr = PIC_ADDRESS_57;
 			break;
-		case 58:
-			uiPic_Addr = PIC_ADDRESS_58;
-			break;
-		case 60:
-			uiPic_Addr = PIC_ADDRESS_60;
+		case 59:
+			uiPic_Addr = PIC_ADDRESS_59;
 			break;
 		case 61:
 			uiPic_Addr = PIC_ADDRESS_61;
@@ -1493,9 +1491,6 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 64:
 			uiPic_Addr = PIC_ADDRESS_64;
 			break;
-		case 65:
-			uiPic_Addr = PIC_ADDRESS_65;
-			break;
 		case 66:
 			uiPic_Addr = PIC_ADDRESS_66;
 			break;
@@ -1507,6 +1502,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			break;
 		case 72:
 			uiPic_Addr = PIC_ADDRESS_72;
+			break;
+		case 73:
+			uiPic_Addr = PIC_ADDRESS_73;
 			break;
 		case 74:
 			uiPic_Addr = PIC_ADDRESS_74;
@@ -1523,11 +1521,8 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 78:
 			uiPic_Addr = PIC_ADDRESS_78;
 			break;
-		case 79:
-			uiPic_Addr = PIC_ADDRESS_79;
-			break;
-		case 80:
-			uiPic_Addr = PIC_ADDRESS_80;
+		case 81:
+			uiPic_Addr = PIC_ADDRESS_81;
 			break;
 		case 82:
 			uiPic_Addr = PIC_ADDRESS_82;
@@ -1537,6 +1532,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			break;
 		case 86:
 			uiPic_Addr = PIC_ADDRESS_86;
+			break;
+		case 87:
+			uiPic_Addr = PIC_ADDRESS_87;
 			break;
 		case 88:
 			uiPic_Addr = PIC_ADDRESS_88;
@@ -1553,14 +1551,8 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 92:
 			uiPic_Addr = PIC_ADDRESS_92;
 			break;
-		case 93:
-			uiPic_Addr = PIC_ADDRESS_93;
-			break;
 		case 94:
 			uiPic_Addr = PIC_ADDRESS_94;
-			break;
-		case 95:
-			uiPic_Addr = PIC_ADDRESS_95;
 			break;
 		case 96:
 			uiPic_Addr = PIC_ADDRESS_96;
@@ -1571,11 +1563,17 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 100:
 			uiPic_Addr = PIC_ADDRESS_100;
 			break;
+		case 101:
+			uiPic_Addr = PIC_ADDRESS_101;
+			break;
 		case 102:
 			uiPic_Addr = PIC_ADDRESS_102;
 			break;
 		case 103:
 			uiPic_Addr = PIC_ADDRESS_103;
+			break;
+		case 104:
+			uiPic_Addr = PIC_ADDRESS_104;
 			break;
 		case 105:
 			uiPic_Addr = PIC_ADDRESS_105;
@@ -1583,6 +1581,48 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 106:
 			uiPic_Addr = PIC_ADDRESS_106;
 			break;
+		case 107:
+			uiPic_Addr = PIC_ADDRESS_107;
+			break;
+		case 108:
+			uiPic_Addr = PIC_ADDRESS_108;
+			break;
+		case 111:
+			uiPic_Addr = PIC_ADDRESS_111;
+			break;
+		case 112:
+			uiPic_Addr = PIC_ADDRESS_112;
+			break;
+		case 113:
+			uiPic_Addr = PIC_ADDRESS_113;
+			break;
+		case 115:
+			uiPic_Addr = PIC_ADDRESS_115;
+			break;
+		case 116:
+			uiPic_Addr = PIC_ADDRESS_116;
+			break;
+		case 117:
+			uiPic_Addr = PIC_ADDRESS_117;
+			break;		
+		case 119:
+			uiPic_Addr = PIC_ADDRESS_119;
+			break;
+		case 120:
+			uiPic_Addr = PIC_ADDRESS_120;
+			break;		
+		case 121:
+			uiPic_Addr = PIC_ADDRESS_121;
+			break;		
+		case 122:
+			uiPic_Addr = PIC_ADDRESS_122;
+			break;	
+		case 123:
+			uiPic_Addr = PIC_ADDRESS_123;
+			break;	
+		case 124:
+			uiPic_Addr = PIC_ADDRESS_124;
+			break;	
 		}
 	}
 	else if(sFWHA01_t.language_state == ENGLISH)
@@ -1593,6 +1633,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_1;
 			break;
 		case 2:
+			uiPic_Addr = PIC_ADDRESS_125;
+			break;
+		case 3:
 			uiPic_Addr = PIC_ADDRESS_3;
 			break;
 		case 4:
@@ -1641,9 +1684,6 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_32;
 			break;
 		case 33:
-			uiPic_Addr = PIC_ADDRESS_33;
-			break;
-		case 34:
 			uiPic_Addr = PIC_ADDRESS_34;
 			break;
 		case 35:
@@ -1659,6 +1699,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_42;
 			break;
 		case 43:
+			uiPic_Addr = PIC_ADDRESS_43;
+			break;
+		case 44:
 			uiPic_Addr = PIC_ADDRESS_44;
 			break;
 		case 45:
@@ -1668,27 +1711,21 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_48;
 			break;
 		case 49:
-			uiPic_Addr = PIC_ADDRESS_49;
-			break;
-		case 50:
 			uiPic_Addr = PIC_ADDRESS_50;
 			break;
 		case 51:
-			uiPic_Addr = PIC_ADDRESS_51;
+			uiPic_Addr = PIC_ADDRESS_52;
 			break;
-		case 52:
-			uiPic_Addr = PIC_ADDRESS_53;
+		case 53:
+			uiPic_Addr = PIC_ADDRESS_54;
 			break;
-		case 54:
-			uiPic_Addr = PIC_ADDRESS_55;
+		case 55:
+			uiPic_Addr = PIC_ADDRESS_56;
 			break;
-		case 56:
-			uiPic_Addr = PIC_ADDRESS_57;
+		case 57:
+			uiPic_Addr = PIC_ADDRESS_58;
 			break;
-		case 58:
-			uiPic_Addr = PIC_ADDRESS_59;
-			break;
-		case 60:
+		case 59:
 			uiPic_Addr = PIC_ADDRESS_60;
 			break;
 		case 61:
@@ -1701,9 +1738,6 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_63;
 			break;
 		case 64:
-			uiPic_Addr = PIC_ADDRESS_64;
-			break;
-		case 65:
 			uiPic_Addr = PIC_ADDRESS_65;
 			break;
 		case 66:
@@ -1716,6 +1750,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_71;
 			break;
 		case 72:
+			uiPic_Addr = PIC_ADDRESS_72;
+			break;
+		case 73:
 			uiPic_Addr = PIC_ADDRESS_73;
 			break;
 		case 74:
@@ -1731,13 +1768,10 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_77;
 			break;
 		case 78:
-			uiPic_Addr = PIC_ADDRESS_78;
-			break;
-		case 79:
 			uiPic_Addr = PIC_ADDRESS_79;
 			break;
-		case 80:
-			uiPic_Addr = PIC_ADDRESS_81;
+		case 81:
+			uiPic_Addr = PIC_ADDRESS_80;
 			break;
 		case 82:
 			uiPic_Addr = PIC_ADDRESS_83;
@@ -1746,6 +1780,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_85;
 			break;
 		case 86:
+			uiPic_Addr = PIC_ADDRESS_86;
+			break;
+		case 87:
 			uiPic_Addr = PIC_ADDRESS_87;
 			break;
 		case 88:
@@ -1761,15 +1798,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_91;
 			break;
 		case 92:
-			uiPic_Addr = PIC_ADDRESS_92;
-			break;
-		case 93:
 			uiPic_Addr = PIC_ADDRESS_93;
 			break;
 		case 94:
-			uiPic_Addr = PIC_ADDRESS_94;
-			break;
-		case 95:
 			uiPic_Addr = PIC_ADDRESS_95;
 			break;
 		case 96:
@@ -1779,12 +1810,18 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_99;
 			break;
 		case 100:
+			uiPic_Addr = PIC_ADDRESS_100;
+			break;
+		case 101:
 			uiPic_Addr = PIC_ADDRESS_101;
 			break;
 		case 102:
 			uiPic_Addr = PIC_ADDRESS_102;
 			break;
 		case 103:
+			uiPic_Addr = PIC_ADDRESS_103;
+			break;
+		case 104:
 			uiPic_Addr = PIC_ADDRESS_104;
 			break;
 		case 105:
@@ -1793,6 +1830,48 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 106:
 			uiPic_Addr = PIC_ADDRESS_106;
 			break;
+		case 107:
+			uiPic_Addr = PIC_ADDRESS_107;
+			break;
+		case 108:
+			uiPic_Addr = PIC_ADDRESS_109;
+			break;
+		case 111:
+			uiPic_Addr = PIC_ADDRESS_110;
+			break;
+		case 112:
+			uiPic_Addr = PIC_ADDRESS_112;
+			break;
+		case 113:
+			uiPic_Addr = PIC_ADDRESS_114;
+			break;
+		case 115:
+			uiPic_Addr = PIC_ADDRESS_115;
+			break;
+		case 116:
+			uiPic_Addr = PIC_ADDRESS_116;
+			break;
+		case 117:
+			uiPic_Addr = PIC_ADDRESS_118;
+			break;		
+		case 119:
+			uiPic_Addr = PIC_ADDRESS_119;
+			break;
+		case 120:
+			uiPic_Addr = PIC_ADDRESS_120;
+			break;			
+		case 121:
+			uiPic_Addr = PIC_ADDRESS_121;
+			break;		
+		case 122:
+			uiPic_Addr = PIC_ADDRESS_122;
+			break;	
+		case 123:
+			uiPic_Addr = PIC_ADDRESS_126;
+			break;	
+		case 124:
+			uiPic_Addr = PIC_ADDRESS_124;
+			break;	
 		}
 	}
     width = width + x1;
@@ -2085,7 +2164,7 @@ void LCD_VISION(uint16_t x, uint16_t y,  uint8_t len, uint16_t fc, uint16_t bc, 
 				LCD_ShowChar(x + t * sizex, y, '.', fc, bc, sizey, 0);
 				break;
 			case 6:
-				LCD_ShowChar(x + t * sizex, y, '1', fc, bc, sizey, 0);
+				LCD_ShowChar(x + t * sizex, y, '2', fc, bc, sizey, 0);
 				break;
 		}
         
@@ -2118,7 +2197,7 @@ void LCD_VISION_1(uint16_t x, uint16_t y,  uint8_t len, uint16_t fc, uint16_t bc
 				LCD_ShowChar(x + t * sizex, y, '.', fc, bc, sizey, 0);
 				break;
 			case 6:
-				LCD_ShowChar(x + t * sizex, y, '0', fc, bc, sizey, 0);
+				LCD_ShowChar(x + t * sizex, y, '1', fc, bc, sizey, 0);
 				break;
 		}
         

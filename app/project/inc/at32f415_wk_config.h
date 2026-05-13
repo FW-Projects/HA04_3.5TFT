@@ -118,6 +118,12 @@ extern "C" {
 /* Private defines -------------------------------------------------------------*/
 #define HOT_ADC_PIN    GPIO_PINS_0
 #define HOT_ADC_GPIO_PORT    GPIOC
+#define KEY_HAL1_PIN    GPIO_PINS_1
+#define KEY_HAL1_GPIO_PORT    GPIOC
+#define KEY_HAL2_PIN    GPIO_PINS_2
+#define KEY_HAL2_GPIO_PORT    GPIOC
+#define KEY_HAL3_PIN    GPIO_PINS_3
+#define KEY_HAL3_GPIO_PORT    GPIOC
 #define HOT_PWM_PIN    GPIO_PINS_3
 #define HOT_PWM_GPIO_PORT    GPIOA
 #define SPI1_RD_PIN    GPIO_PINS_5
