@@ -835,6 +835,8 @@ void show_curve(HA01_Handle *this)
         int16_t display_temp = (sFWHA01_t.run_mode == Power_Mode) 
                                ? sFWHA01_t.system_parameter.actual_temp - POWER_TEMP
                                : sFWHA01_t.system_parameter.actual_temp;
+		if(display_temp < sFWHA01_t.system_parameter.cpu_temp)
+			display_temp = sFWHA01_t.system_parameter.cpu_temp;
 		if(this->Work_handle_state == HANDLE_SLEEP || this->system_parameter.actual_air < 30)
 		{
 			display_air = this->system_parameter.actual_air;
@@ -938,8 +940,7 @@ static void show_fan(HA01_Handle *this)
     }
 
     // 风量足够且设备未休眠
-    if (this->system_parameter.actual_air >= MIN_ACTUAL_AIR &&
-        this->Work_handle_state != HANDLE_SLEEP) 
+    if (this->system_parameter.actual_air >= MIN_ACTUAL_AIR) 
     {
         fan_times++;
         if (fan_times > 20) {
@@ -959,8 +960,8 @@ static void show_fan(HA01_Handle *this)
     }
     // 风量低或设备休眠，只显示静止风扇图标
     else if (this->system_parameter.actual_air < MIN_ACTUAL_AIR &&
-             (this->Work_handle_state == HANDLE_SLEEP) &&
-             show_fan_flag == true) 
+             this->Work_handle_state == HANDLE_SLEEP &&
+             show_fan_flag == true)
     {
 		fan_num++;
 		if(fan_num > 2)
@@ -993,7 +994,7 @@ static void show_output(HA01_Handle *this)
     else if (this->Work_handle_state == HANDLE_WORKING)
     {
         // 判断手柄在位且睡眠开启，直接输出0
-        if (this->handle_position == IN_POSSITION && this->sleep_state == SLEEP_OPEN)
+        if ((this->handle_position == IN_POSSITION && this->sleep_state == SLEEP_OPEN) || sFWHA01_t.run_mode == Cold_Mode)
         {
             output_value = 0;
         }
@@ -1064,8 +1065,8 @@ static void show_temp(void)
 					sFWHA01_t.general_parameter.set_temp_time = (sFWHA01_t.general_parameter.set_temp_time > 25) ?
 																sFWHA01_t.general_parameter.set_temp_time - 25 : 0;
 				else if (sFWHA01_t.page == WORK_PAGE)
-					sFWHA01_t.general_parameter.set_temp_time = (sFWHA01_t.general_parameter.set_temp_time > 1) ?
-																sFWHA01_t.general_parameter.set_temp_time - 1 : 0;
+					sFWHA01_t.general_parameter.set_temp_time = (sFWHA01_t.general_parameter.set_temp_time > 5) ?
+																sFWHA01_t.general_parameter.set_temp_time - 5 : 0;
 				// 重置缓存
 				sFWHA01_t.system_parameter.last_actual_temp = 0;
 				sFWHA01_t.system_parameter.last_actual_temp_f_display = 0;
@@ -1111,13 +1112,35 @@ static void show_temp(void)
 							sFWHA01_t.system_parameter.actual_temp_f_display = 9 * sFWHA01_t.system_parameter.actual_temp / 5 + 32;
 
 						if (sFWHA01_t.run_mode == Power_Mode)
-							disp_actual = (sFWHA01_t.temp_unit == FAHRENHEIT) ? 
-										  sFWHA01_t.system_parameter.actual_temp_f_display - 122 + cal :
-										  sFWHA01_t.system_parameter.actual_temp - POWER_TEMP + cal;
+						{
+							if(sFWHA01_t.temp_unit == FAHRENHEIT)
+							{
+								disp_actual =  sFWHA01_t.system_parameter.actual_temp_f_display - 122 + cal;
+								if(disp_actual < sFWHA01_t.system_parameter.cpu_temp_f)
+									disp_actual = sFWHA01_t.system_parameter.cpu_temp_f;
+							}
+							else
+							{
+								disp_actual = sFWHA01_t.system_parameter.actual_temp - POWER_TEMP + cal;
+								if(disp_actual < sFWHA01_t.system_parameter.cpu_temp)
+									disp_actual = sFWHA01_t.system_parameter.cpu_temp;
+							}
+						}
 						else
-							disp_actual = (sFWHA01_t.temp_unit == FAHRENHEIT) ? 
-										  sFWHA01_t.system_parameter.actual_temp_f_display + cal :
-										  sFWHA01_t.system_parameter.actual_temp + cal;
+						{
+							if(sFWHA01_t.temp_unit == FAHRENHEIT)
+							{
+								disp_actual = sFWHA01_t.system_parameter.actual_temp_f_display + cal;
+								if(disp_actual < sFWHA01_t.system_parameter.cpu_temp_f)
+									disp_actual = sFWHA01_t.system_parameter.cpu_temp_f;
+							}
+							else
+							{
+								disp_actual = sFWHA01_t.system_parameter.actual_temp + cal;
+								if(disp_actual < sFWHA01_t.system_parameter.cpu_temp)
+									disp_actual = sFWHA01_t.system_parameter.cpu_temp;
+							}
+						}
 
 						actual_temp_refesh_time = (sFWHA01_t.page == CURVE_PAGE || sFWHA01_t.page == LOGO) ? 20 :
 											 (sFWHA01_t.Work_handle_state == HANDLE_SLEEP) ? 0 : ACTUAL_TEMP_REFRESH_TIME;
@@ -1161,8 +1184,8 @@ static void show_temp(void)
 					sFWHA01_t.general_parameter.set_wind_time = (sFWHA01_t.general_parameter.set_wind_time > 25) ?
 																sFWHA01_t.general_parameter.set_wind_time - 25 : 0;
 				else if (sFWHA01_t.page == WORK_PAGE)
-					sFWHA01_t.general_parameter.set_wind_time = (sFWHA01_t.general_parameter.set_wind_time > 1) ?
-																sFWHA01_t.general_parameter.set_wind_time - 1 : 0;
+					sFWHA01_t.general_parameter.set_wind_time = (sFWHA01_t.general_parameter.set_wind_time > 5) ?
+																sFWHA01_t.general_parameter.set_wind_time - 5 : 0;
 				
 				if(sFWHA01_t.run_mode != Cold_Mode)
 				{					

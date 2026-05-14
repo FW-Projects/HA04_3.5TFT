@@ -308,7 +308,8 @@ void SysTick_Handler(void)
     if (first_in == false)
     {
         adc1_ordinary_value = get_adcval(ADC_CHANNEL_16);
-        sFWHA01_t.system_parameter.cpu_temp = (ADC_TEMP_BASE - (double)adc1_ordinary_value * ADC_VREF / 4096) / ADC_TEMP_SLOPE + 25;
+        sFWHA01_t.system_parameter.cpu_temp = (ADC_TEMP_BASE - (double)adc1_ordinary_value * ADC_VREF / 4096) / ADC_TEMP_SLOPE ;
+		sFWHA01_t.system_parameter.cpu_temp_f = (sFWHA01_t.system_parameter.cpu_temp * 9 / 5) + 32;
       
         if (sFWHA01_t.system_parameter.cpu_temp <= 50 && sFWHA01_t.system_parameter.cpu_temp > 0)
         {

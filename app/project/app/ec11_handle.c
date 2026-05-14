@@ -945,7 +945,6 @@ void temp_ec11_get_event(EC11_AnalyzeResult state_temp)
 			sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
             sbeep.cmd = BEEP_SHORT;
         }
-
         break;
 
     case EC11_ANALYZE_LONG_PRESS:
@@ -1036,7 +1035,10 @@ void ec11_event_handle(void)
         if (sFWHA01_t.page == SELECT_SET_WORK_PAGE_CN)
         {
             sFWHA01_t.page = SET_RUN_PAGE_CN;
-			sFWHA01_t.set_run_mode = sFWHA01_t.run_mode;
+			if(sFWHA01_t.run_mode == Cold_Mode)
+				sFWHA01_t.set_run_mode = sFWHA01_t.before_cold_run_mode;
+			else
+				sFWHA01_t.set_run_mode = sFWHA01_t.run_mode;
         }
 		
         else if (sFWHA01_t.page == SELECT_SET_UNIT_PAGE_CN)
@@ -1104,11 +1106,17 @@ void ec11_event_handle(void)
 		{
 			if(sFWHA01_t.set_run_mode == Standard_Mode)
 			{
-				sFWHA01_t.run_mode = Standard_Mode;
+				if(sFWHA01_t.run_mode == Cold_Mode)
+					sFWHA01_t.before_cold_run_mode = Standard_Mode;
+				else
+					sFWHA01_t.run_mode = Standard_Mode;
 			}
 			else if(sFWHA01_t.set_run_mode == Power_Mode)
 			{
-				sFWHA01_t.run_mode = Power_Mode;
+				if(sFWHA01_t.run_mode == Cold_Mode)
+					sFWHA01_t.before_cold_run_mode = Power_Mode;
+				else 
+					sFWHA01_t.run_mode = Power_Mode;
 			}
 			sFWHA01_t.page = SELECT_SET_WORK_PAGE_CN;
 		}
@@ -1427,15 +1435,22 @@ void ec11_event_handle(void)
 
     case SET_RUN_MODE:
 		if(sFWHA01_t.set_run_mode == Standard_Mode)
-		{
-			sFWHA01_t.set_run_mode = Power_Mode;
-			sFWHA01_t.run_mode = Power_Mode;
-		}
-		else if(sFWHA01_t.set_run_mode == Power_Mode)
-		{
-			sFWHA01_t.set_run_mode = Standard_Mode;
-			sFWHA01_t.run_mode = Standard_Mode;
-		}
+			{
+				if(sFWHA01_t.run_mode == Cold_Mode)
+				{
+					sFWHA01_t.before_cold_run_mode = Power_Mode;
+					sFWHA01_t.set_run_mode = Power_Mode;
+				}
+
+			}
+			else if(sFWHA01_t.set_run_mode == Power_Mode)
+			{
+				if(sFWHA01_t.run_mode == Cold_Mode)
+				{
+					sFWHA01_t.before_cold_run_mode = Standard_Mode;
+					sFWHA01_t.set_run_mode = Standard_Mode;
+				}
+			}
         ec11_handle_event = EC11_END_EVENT;
         break;
 

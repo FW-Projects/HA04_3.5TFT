@@ -28,7 +28,7 @@
 #define MIN_SET_AIR 5
 
 #define MAX_ACTUAL_AIR 534
-#define MIN_ACTUAL_AIR 100
+#define MIN_ACTUAL_AIR 80
 
 #define MAX_ACTUAL_TEMP 600
 #define MIN_ACTUAL_TEMP 70
@@ -37,7 +37,7 @@
 
 #define MAX_PWM_OUTPUT (35000)
 //#define MAX_PWM_OUTPUT (48000-1)
-#define ACTUAL_TEMP_REFRESH_TIME 200
+#define ACTUAL_TEMP_REFRESH_TIME 20
 
 #define SET_TEMP_SHOW_TIMES 1000
 
@@ -375,6 +375,7 @@ typedef struct
     float pwm_out;
 	float last_pwm_out;
 	float cpu_temp;
+	float cpu_temp_f;
     float set_sleep_time;
     float last_set_sleep_time;
     float sleep_time_count;
@@ -449,6 +450,7 @@ typedef struct
 	
 	run_mode_e run_mode;
 	run_mode_e last_run_mode;
+	run_mode_e before_cold_run_mode;
 	run_mode_e set_run_mode;
 	
 	temp_unit_e temp_unit;

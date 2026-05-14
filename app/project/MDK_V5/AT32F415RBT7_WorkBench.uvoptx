@@ -170,6 +170,26 @@
           <WinNumber>1</WinNumber>
           <ItemText>sFWHA01_t.system_parameter.sleep_air_data</ItemText>
         </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sFWHA01_t.system_parameter.cpu_temp</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sFWHA01_t.system_parameter.actual_temp</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>disp_actual</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sFWHA01_t.system_parameter.pwm_out</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

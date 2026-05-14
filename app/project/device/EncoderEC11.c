@@ -53,8 +53,8 @@ EC11_Encoder air_ec11 =
 
     // 时间参数(基于扫描周期计算)
     .config.debounce_count = 5,        // 20ms / 5ms = 4次
-    .config.long_press_count = 150,    // 600ms / 5ms = 120次
-    .config.double_click_timeout = 50, // 200ms / 5ms = 40次
+    .config.long_press_count = 300,    // 600ms / 5ms = 120次
+    .config.double_click_timeout = 300, // 200ms / 5ms = 40次
     .config.long_repeat_count = 50,    // 200ms / 5ms = 40次
     .config.fast_rotation_threshold = 15, // 快速旋转阈值(50ms / 5ms = 10次)
 

@@ -29,7 +29,7 @@ void output_handle(void)
 	
     get_handle_position(&sFWHA01_t);
     get_handle_work_state(&sFWHA01_t);
-//    get_handle_error_state(&sFWHA01_t);
+    get_handle_error_state(&sFWHA01_t);
 //    fan_control(&sFWHA01_t);
 }
 
@@ -237,7 +237,7 @@ static void get_handle_error_state(HA01_Handle *this)
 			if (this->Work_handle_state == HANDLE_SLEEP)
 			{
 				/* keep fan output until the temp below 60 */
-				if (this->system_parameter.actual_temp >= 60 && this->system_parameter.actual_temp < 70)
+				if (this->system_parameter.actual_temp >= 40)
 				{
 					if (fan_run_flag == false)
 					{
