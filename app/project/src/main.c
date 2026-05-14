@@ -154,6 +154,9 @@ int main(void)
   /* init tmr5 function. */
   wk_tmr5_init();
 
+  /* init tmr9 function. */
+  wk_tmr9_init();
+
   /* init crc function. */
   wk_crc_init();
 
@@ -175,12 +178,12 @@ int main(void)
   tmt.create(output_task, OUTPUT_HANDLE_TIME);
   tmt.create(flash_task, FLASH_HANDLE_TIME);
   tmt.create(work_task, WORK_HANDLE_TIME);
-//  tmt.create(ec11_task, EC11_TASK_TIME);
+  tmt.create(ec11_task, EC11_TASK_TIME);
   tmt.create(key_task, KEY_HANDLE_TIME);
   filter_init(&handle_temp, ADC_CHANNEL_10);
   FWHA01_Init(&sFWHA01_t);
   LCD_Init(); 
-  
+   TranferPicturetoTFT_LCD(94, 134, 292, 51, LOGO);
   TranferPicturetoTFT_LCD(94, 134, 292, 51, LOGO);
   check_flash_updata();
   /* 等待系统上电稳定延时 */

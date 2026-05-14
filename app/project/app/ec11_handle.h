@@ -5,7 +5,7 @@
 
 #include "EncoderEC11.h"
 
-#define EC11_TASK_TIME          10
+#define EC11_TASK_TIME          2
 
 
 typedef enum

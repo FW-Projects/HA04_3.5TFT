@@ -349,18 +349,43 @@ static icon_t power_icon =
 
 void LcdProc(void)
 {
-	page_switch();
-	show_temp();
-	show_work_state_icon(&sFWHA01_t);
-	show_output(&sFWHA01_t);
-	show_curve(&sFWHA01_t);
-	show_channel_state();
-	show_channel_value();
-	show_cal_temp();
-	number_change();
-	show_icon();
-	show_navigation_bar();
-	show_fan(&sFWHA01_t);
+	static uint8_t run_step = 0;
+	
+	switch(run_step)
+	{
+		case 0:
+			show_fan(&sFWHA01_t);
+			page_switch();
+			show_temp();
+			show_curve(&sFWHA01_t);
+			show_channel_state();
+			show_channel_value();
+			run_step++;
+		break;
+		case 1:
+			show_navigation_bar();
+			show_work_state_icon(&sFWHA01_t);
+			show_output(&sFWHA01_t);
+			show_cal_temp();
+			number_change();
+			show_icon();
+			run_step = 0;
+		break;
+		default:break;
+		
+	}
+//	page_switch();
+//	show_temp();
+//	show_work_state_icon(&sFWHA01_t);
+//	show_output(&sFWHA01_t);
+//	show_curve(&sFWHA01_t);
+//	show_channel_state();
+//	show_channel_value();
+//	show_cal_temp();
+//	number_change();
+//	show_icon();
+//	show_navigation_bar();
+//	show_fan(&sFWHA01_t);
 }
 
 void show_icon(void)
@@ -637,7 +662,7 @@ void show_icon(void)
 			if(last_sleep_state != sFWHA01_t.Work_handle_state && sFWHA01_t.run_mode != Cold_Mode)
 			{
 				last_sleep_state = sFWHA01_t.Work_handle_state;
-				if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP && sFWHA01_t.page == WORK_PAGE)
+				if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP && sFWHA01_t.page == WORK_PAGE && sFWHA01_t.run_mode != Cold_Mode)
 				{
 					TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,SLEEP_STATE_CN);
 				}		
@@ -666,7 +691,16 @@ void show_icon(void)
 				last_coldwind_state = sFWHA01_t.run_mode;
 				if(sFWHA01_t.page == WORK_PAGE && sFWHA01_t.run_mode == Cold_Mode)
 				{
-					TranferPicturetoTFT_LCD(145,80,190,35,COLD_MODE_ICON_CN);
+					if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP)
+					{
+						if(sFWHA01_t.language_state == CHINESE)
+							TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,REFRESH_SLEEP_ICON);
+						else if(sFWHA01_t.language_state == CHINESE)
+							TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,REFRESH_SLEEP_ICON_ENG);
+						TranferPicturetoTFT_LCD(145,80,190,35,COLD_MODE_ICON_CN);
+					}
+					else
+						TranferPicturetoTFT_LCD(145,80,190,35,COLD_MODE_ICON_CN);
 				}
 			}
 			
@@ -679,7 +713,7 @@ void show_icon(void)
 				{
 					if(sFWHA01_t.page == CURVE_PAGE)
 					{
-						display_times = 50;
+						display_times = 25;
 					}
 					else
 					{
@@ -690,6 +724,9 @@ void show_icon(void)
 					
 					sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
 					sFWHA01_t.system_parameter.last_sleep_air_data = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE; 
+					sFWHA01_t.system_parameter.last_actual_temp_f_display = RESET_VALUE;
+					actual_temp_refesh_time = 0x00;
 					sFWHA01_t.last_page = RESET_VALUE;
 				}
 			}
@@ -821,19 +858,30 @@ void show_curve(HA01_Handle *this)
     {
         // 显示温度进度条
         if ((sFWHA01_t.system_parameter.last_curve_actual_temp != sFWHA01_t.system_parameter.actual_temp) ||
-            (sFWHA01_t.system_parameter.last_curve_actual_temp_f_display != sFWHA01_t.system_parameter.actual_temp_f_display))
+            (sFWHA01_t.system_parameter.last_curve_actual_temp_f_display != sFWHA01_t.system_parameter.actual_temp_f_display ||
+			sFWHA01_t.general_parameter.set_temp_time != 0x00))
         {
             sFWHA01_t.system_parameter.last_curve_actual_temp = sFWHA01_t.system_parameter.actual_temp;
             sFWHA01_t.system_parameter.last_curve_actual_temp_f_display = sFWHA01_t.system_parameter.actual_temp_f_display;
 
-            if (this->temp_unit == CELSIUS)
-                bar_value = (sFWHA01_t.run_mode == Power_Mode)
-                            ? (sFWHA01_t.system_parameter.actual_temp - POWER_TEMP) * 0.2
-                            : sFWHA01_t.system_parameter.actual_temp * 0.2;
-            else // FAHRENHEIT
-                bar_value = (sFWHA01_t.run_mode == Power_Mode)
-                            ? (sFWHA01_t.system_parameter.actual_temp_f_display - 122) * 0.108
-                            : sFWHA01_t.system_parameter.actual_temp_f_display * 0.108;
+			if(sFWHA01_t.general_parameter.set_temp_time != 0x00)
+			{
+				if (this->temp_unit == CELSIUS)
+					bar_value = sFWHA01_t.system_parameter.set_temp * 0.2;
+				else
+					bar_value = (sFWHA01_t.system_parameter.set_temp_f_display- 122) * 0.108;
+			}
+			else
+			{
+				if (this->temp_unit == CELSIUS)
+					bar_value = (sFWHA01_t.run_mode == Power_Mode)
+								? (sFWHA01_t.system_parameter.actual_temp - POWER_TEMP) * 0.2
+								: sFWHA01_t.system_parameter.actual_temp * 0.2;
+				else // FAHRENHEIT
+					bar_value = (sFWHA01_t.run_mode == Power_Mode)
+								? (sFWHA01_t.system_parameter.actual_temp_f_display - 122) * 0.108
+								: sFWHA01_t.system_parameter.actual_temp_f_display * 0.108;
+			}
 
             DrawProgressBar(26, 90, 39, 256, 15, 15, bar_value, 0xfca0, 0x18a3, TEMP_BAR_ICON);
         }
@@ -876,6 +924,7 @@ static void show_fan(HA01_Handle *this)
     static uint8_t fan_times = 0;
     static bool first_in = true;
     static bool show_fan_flag = true;
+	static uint8_t fan_num = 0x00;
 
     if (!first_in) {
         first_in = true;
@@ -893,7 +942,7 @@ static void show_fan(HA01_Handle *this)
         this->Work_handle_state != HANDLE_SLEEP) 
     {
         fan_times++;
-        if (fan_times > 40) {
+        if (fan_times > 20) {
             fan_times = 0;
             fan_count = (fan_count + 1) % 4;  // 循环 fan_count 0~3
         }
@@ -910,10 +959,15 @@ static void show_fan(HA01_Handle *this)
     }
     // 风量低或设备休眠，只显示静止风扇图标
     else if (this->system_parameter.actual_air < MIN_ACTUAL_AIR &&
-             this->Work_handle_state == HANDLE_SLEEP &&
-             show_fan_flag) 
+             (this->Work_handle_state == HANDLE_SLEEP) &&
+             show_fan_flag == true) 
     {
-        show_fan_flag = false;
+		fan_num++;
+		if(fan_num > 2)
+		{
+			fan_num = 0x00;
+			show_fan_flag = false;
+		}
         TranferPicturetoTFT_LCD(430, 40, 36, 34, FAN_ICON_1);
     }
 }
@@ -1152,7 +1206,7 @@ static void show_temp(void)
 						first_in = true;
 						sFWHA01_t.system_parameter.last_air_data_actual = sFWHA01_t.system_parameter.air_data;
 						sFWHA01_t.system_parameter.last_sleep_air_data = sFWHA01_t.system_parameter.sleep_air_data; 
-						if (sFWHA01_t.Work_handle_state == HANDLE_WORKING && sFWHA01_t.handle_position == IN_POSSITION && sFWHA01_t.sleep_state== SLEEP_OPEN) 
+						if (sFWHA01_t.handle_position == IN_POSSITION && sFWHA01_t.sleep_state== SLEEP_OPEN) 
 						{ 
 							display_value = sFWHA01_t.system_parameter.sleep_air_data; 
 						} 
@@ -1191,8 +1245,8 @@ static void show_channel_state(void)
 	} CH_Frame;
 
     CH_Frame ch_frames[CH_COUNT] = {
-    {ch1_frame.x1, ch1_frame.y1, ch1_frame.length, ch1_frame.winth, SELECT_CH1, UNSELECT_CH1},
-    {ch2_frame.x1, ch2_frame.y1, ch2_frame.length, ch2_frame.winth, SELECT_CH2, UNSELECT_CH2},
+    {ch1_frame.x1, ch3_frame.y1, ch1_frame.length, ch1_frame.winth, SELECT_CH1, UNSELECT_CH1},
+    {ch2_frame.x1, ch3_frame.y1, ch2_frame.length, ch2_frame.winth, SELECT_CH2, UNSELECT_CH2},
     {ch3_frame.x1, ch3_frame.y1, ch3_frame.length, ch3_frame.winth, SELECT_CH3, UNSELECT_CH3}
 	};
 
@@ -1338,12 +1392,12 @@ static void show_channel_value(void)
     {
         if (sFWHA01_t.temp_unit == FAHRENHEIT)
         {
-            LCD_ShowIntNum(ch1_set_temp_1.x, ch1_set_temp_1.y, sFWHA01_t.system_parameter.ch1_set_temp_f_display,
+            LCD_ShowIntNum(ch1_set_temp_1.x, ch3_set_temp_1.y, sFWHA01_t.system_parameter.ch1_set_temp_f_display,
                            ch1_set_temp_1.len, ch1_set_temp_1.fc, ch1_set_temp_1.bc, ch1_set_temp_1.sizey, 0);
         }
         else
         {
-            LCD_ShowIntNum(ch1_set_temp_1.x, ch1_set_temp_1.y, sFWHA01_t.system_parameter.ch1_set_temp,
+            LCD_ShowIntNum(ch1_set_temp_1.x, ch3_set_temp_1.y, sFWHA01_t.system_parameter.ch1_set_temp,
                            ch1_set_temp_1.len, ch1_set_temp_1.fc, ch1_set_temp_1.bc, ch1_set_temp_1.sizey, 0);
         }
         sFWHA01_t.system_parameter.last_ch1_set_temp = sFWHA01_t.system_parameter.ch1_set_temp;
@@ -1356,12 +1410,12 @@ static void show_channel_value(void)
     {
         if (sFWHA01_t.temp_unit == FAHRENHEIT)
         {
-            LCD_ShowIntNum(ch2_set_temp_1.x, ch2_set_temp_1.y, sFWHA01_t.system_parameter.ch2_set_temp_f_display,
+            LCD_ShowIntNum(ch2_set_temp_1.x, ch3_set_temp_1.y, sFWHA01_t.system_parameter.ch2_set_temp_f_display,
                            ch2_set_temp_1.len, ch2_set_temp_1.fc, ch2_set_temp_1.bc, ch2_set_temp_1.sizey, 0);
         }
         else
         {
-            LCD_ShowIntNum(ch2_set_temp_1.x, ch2_set_temp_1.y, sFWHA01_t.system_parameter.ch2_set_temp,
+            LCD_ShowIntNum(ch2_set_temp_1.x, ch3_set_temp_1.y, sFWHA01_t.system_parameter.ch2_set_temp,
                            ch2_set_temp_1.len, ch2_set_temp_1.fc, ch2_set_temp_1.bc, ch2_set_temp_1.sizey, 0);
         }
         sFWHA01_t.system_parameter.last_ch2_set_temp = sFWHA01_t.system_parameter.ch2_set_temp;

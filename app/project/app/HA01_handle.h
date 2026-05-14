@@ -8,7 +8,7 @@
 
 #define RESET_TIME 300
 
-#define SAVE_CH_TIME 300
+#define SAVE_CH_TIME 100
 
 #define RESET_VALUE 255
 
@@ -50,6 +50,10 @@
 #define WAKEN_TIMES 3000
 
 #define POWER_TEMP 50
+
+#define TEMP 0
+#define WIND 1
+#define CH   2
 
 
 #define LOGO_PICTURE 1

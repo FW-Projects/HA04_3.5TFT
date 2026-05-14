@@ -29,7 +29,7 @@ void output_handle(void)
 	
     get_handle_position(&sFWHA01_t);
     get_handle_work_state(&sFWHA01_t);
-    get_handle_error_state(&sFWHA01_t);
+//    get_handle_error_state(&sFWHA01_t);
 //    fan_control(&sFWHA01_t);
 }
 
@@ -55,6 +55,9 @@ static void get_handle_work_state(HA01_Handle *this)
 			if (this->handle_position == NOT_IN_POSSITION || this->run_mode == Cold_Mode)
 			{
 				this->Work_handle_state = HANDLE_WORKING;
+				sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+				sFWHA01_t.system_parameter.last_curve_air_data = 0x00;
+				sFWHA01_t.system_parameter.last_air_data = 0x00;
 //				sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 //				sFWHA01_t.system_parameter.last_set_temp = 0x00;
 //				sFWHA01_t.system_parameter.last_set_temp_f_display = 0x00;

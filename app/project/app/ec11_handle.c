@@ -2,7 +2,7 @@
 #include "HA01_HANDLE.h"
 #include "beep_handle.h"
 #include "lcd_handle.h"
-
+#include "key_handle.h"
 void ec11_event_handle(void);
 void air_handle(void);
 void temp_ec11_get_event(EC11_AnalyzeResult state);
@@ -28,26 +28,296 @@ void ec11_handle(void)
 void air_ec11_get_event(EC11_AnalyzeResult state_air)
 {
     static bool first_in = false;
-
+	static bool first_state = false;
     switch (state_air)
     {
-    case EC11_ANALYZE_CW:
-		if(sFWHA01_t.run_mode == Cold_Mode)
-		{
-			air_ec11_handle_event = COLD_AIR_ADD;
+    case EC11_ANALYZE_CW:	
+        if ((sFWHA01_t.page == WORK_PAGE || sFWHA01_t.page == CURVE_PAGE))
+        {
+            if(sFWHA01_t.run_mode == Cold_Mode)
+			{
+				air_ec11_handle_event = COLD_AIR_ADD;
+			}
+			else
+				air_ec11_handle_event = AIR_ADD;
 		}
-		else
-			air_ec11_handle_event = AIR_ADD;
+		else if (sFWHA01_t.page >= SELECT_SET_WORK_PAGE_CN && sFWHA01_t.page <= SELECT_EXIT_MENU_PAGE_CN)
+        {
+            ec11_handle_event = PAGE_ADD;
+        }
+		else if (sFWHA01_t.page == SET_RUN_PAGE_CN)
+        { 
+            ec11_handle_event = SET_RUN_MODE;
+        }
+		
+        else if (sFWHA01_t.page == SET_UNIT_PAGE_CN)
+        {
+            ec11_handle_event = SET_TEMP_UNIT;
+        }
+		
+		else if (sFWHA01_t.page == SET_SPEAK_PAGE_CN)
+        {
+            ec11_handle_event = SET_SPEAK_MODE;
+        }
+		
+		else if (sFWHA01_t.page == SET_KEY_PAGE_CN)
+        {
+            sFWHA01_t.set_key_mode++;
+			if(sFWHA01_t.set_key_mode > RETURN_MENU)
+			{
+				sFWHA01_t.set_key_mode = LONGKEY_MODE;
+			}
+        }
+		else if (sFWHA01_t.page == SET_LONG_KEY_PAGE_CN)
+		{
+			sFWHA01_t.set_long_key_mode++;
+			if(sFWHA01_t.set_long_key_mode > POWER_MODE)
+				sFWHA01_t.set_long_key_mode = COLDWIND_MODE;		
+
+			if(sFWHA01_t.set_long_key_mode == COLDWIND_MODE)
+			{
+				sFWHA01_t.long_key_mode = COLDWIND_MODE;
+			}
+			else if(sFWHA01_t.set_long_key_mode == POWER_MODE)
+			{
+				sFWHA01_t.long_key_mode = POWER_MODE;
+			}
+		}
+		else if (sFWHA01_t.page == SET_SHORT_KEY_PAGE_CN)
+		{
+			sFWHA01_t.set_short_key_mode++;
+			if(sFWHA01_t.set_short_key_mode > POWER_MODE)
+				sFWHA01_t.set_short_key_mode = CHANNEL_SWITCHING;		
+
+			if(sFWHA01_t.set_short_key_mode == CHANNEL_SWITCHING)
+			{
+				sFWHA01_t.short_key_mode = CHANNEL_SWITCHING;
+			}
+			else if(sFWHA01_t.set_short_key_mode == COLDWIND_MODE)
+			{
+				sFWHA01_t.short_key_mode = COLDWIND_MODE;
+			}
+			else if(sFWHA01_t.set_short_key_mode == POWER_MODE)
+			{
+				sFWHA01_t.short_key_mode = POWER_MODE;
+			}
+		}
+		else if (sFWHA01_t.page == SET_KEY_MODE_PAGE_CN)
+		{
+			sFWHA01_t.set_adjust_key_mode++;
+			if(sFWHA01_t.set_adjust_key_mode > SELECT_CH)
+				sFWHA01_t.set_adjust_key_mode = SELECT_TEMP;		
+
+			if(sFWHA01_t.set_adjust_key_mode == SELECT_TEMP)
+			{
+				adjust_state = TEMP;
+				sFWHA01_t.adjust_key_mode = SELECT_TEMP;
+			}
+			else if(sFWHA01_t.set_adjust_key_mode == SELECT_WIND)
+			{
+				adjust_state = WIND;
+				sFWHA01_t.adjust_key_mode = SELECT_WIND;
+			}
+			else if(sFWHA01_t.set_adjust_key_mode == SELECT_CH)
+			{
+				sFWHA01_t.adjust_key_mode = SELECT_CH;
+			}
+			
+		}
+		
+		else if (sFWHA01_t.page == SET_LANGUAGE_PAGE_CN)
+        {
+            sFWHA01_t.page  = SET_LANGUAGE_PAGE_ENG;
+            sFWHA01_t.language_state = ENGLISH;
+        }
+        else if (sFWHA01_t.page == SET_LANGUAGE_PAGE_ENG)
+        {
+            sFWHA01_t.page  = SET_LANGUAGE_PAGE_CN;
+            sFWHA01_t.language_state = CHINESE;
+        }
+		
+        else if (sFWHA01_t.page == SET_TEMP_CAL_PAGE_CN)
+        {
+			if(sFWHA01_t.set_cal == SET_RETURN_CAL)
+			{
+				sFWHA01_t.set_cal = SET_SELECT_CAL;
+				sFWHA01_t.page = SET_SELECT_TEMP_CAL_PAGE_CN;
+			}
+        }
+		 else if (sFWHA01_t.page == SET_SELECT_TEMP_CAL_PAGE_CN)
+        {
+			if(sFWHA01_t.set_cal == SET_SELECT_CAL)
+			{
+				sFWHA01_t.set_cal = SET_RETURN_CAL;
+				sFWHA01_t.page = SET_TEMP_CAL_PAGE_CN;
+			}
+			else if(sFWHA01_t.set_cal == SET_CAL)
+			{
+				 ec11_handle_event = SET_TEMP_CAL_ADD;
+			}
+        }
+		   
+        else if (sFWHA01_t.page == SET_TEMP_LOCK_PAGE_CN)
+        {
+            ec11_handle_event = SET_TEMP_LOCK;
+        }
+        else if (sFWHA01_t.page == SET_SLEEP_PAGE_CN)
+        {
+           ec11_handle_event = SET_SLEEP_MODE;
+        }
+        
+        
+        else if (sFWHA01_t.page == SET_RESET_PAGE_CN)
+        {
+           ec11_handle_event = SET_RESET_MODE;
+        }
+
+		
         sbeep.cmd = BEEP_SHORT;
         break;
 
     case EC11_ANALYZE_CCW:
-		if(sFWHA01_t.run_mode == Cold_Mode)
+         if ((sFWHA01_t.page == WORK_PAGE || sFWHA01_t.page == CURVE_PAGE))
+        {
+            if(sFWHA01_t.run_mode == Cold_Mode)
 		{
 			air_ec11_handle_event = COLD_AIR_REDUCE;
 		}
 		else
 			air_ec11_handle_event = AIR_REDUCE;
+        }
+		else if (sFWHA01_t.page >= SELECT_SET_WORK_PAGE_CN && sFWHA01_t.page <= SELECT_EXIT_MENU_PAGE_CN)
+        {
+            ec11_handle_event = PAGE_REDUCE;
+        }
+		else if (sFWHA01_t.page == SET_RUN_PAGE_CN)
+        {
+            ec11_handle_event = SET_RUN_MODE;
+        }
+		
+        else if (sFWHA01_t.page == SET_UNIT_PAGE_CN)
+        {
+            ec11_handle_event = SET_TEMP_UNIT;
+        }
+		
+		else if (sFWHA01_t.page == SET_SPEAK_PAGE_CN)
+        {
+            ec11_handle_event = SET_SPEAK_MODE;
+        }
+		
+		else if (sFWHA01_t.page == SET_KEY_PAGE_CN)
+        {
+            sFWHA01_t.set_key_mode--;
+			if(sFWHA01_t.set_key_mode < LONGKEY_MODE)
+			{
+				sFWHA01_t.set_key_mode = RETURN_MENU;
+			}
+        }
+		else if (sFWHA01_t.page == SET_LONG_KEY_PAGE_CN)
+		{
+			sFWHA01_t.set_long_key_mode--;
+			if(sFWHA01_t.set_long_key_mode < COLDWIND_MODE)
+				sFWHA01_t.set_long_key_mode = POWER_MODE;			
+			
+			if(sFWHA01_t.set_long_key_mode == COLDWIND_MODE)
+			{
+				sFWHA01_t.long_key_mode = COLDWIND_MODE;
+			}
+			else if(sFWHA01_t.set_long_key_mode == POWER_MODE)
+			{
+				sFWHA01_t.long_key_mode = POWER_MODE;
+			}
+		}
+		else if (sFWHA01_t.page == SET_SHORT_KEY_PAGE_CN)
+		{
+			sFWHA01_t.set_short_key_mode--;
+			if(sFWHA01_t.set_short_key_mode < CHANNEL_SWITCHING)
+				sFWHA01_t.set_short_key_mode = POWER_MODE;			
+			
+			if(sFWHA01_t.set_short_key_mode == CHANNEL_SWITCHING)
+			{
+				sFWHA01_t.short_key_mode = CHANNEL_SWITCHING;
+			}
+			else if(sFWHA01_t.set_short_key_mode == COLDWIND_MODE)
+			{
+				sFWHA01_t.short_key_mode = COLDWIND_MODE;
+			}
+			else if(sFWHA01_t.set_short_key_mode == POWER_MODE)
+			{
+				sFWHA01_t.short_key_mode = POWER_MODE;
+			}
+		}
+		else if (sFWHA01_t.page == SET_KEY_MODE_PAGE_CN)
+		{
+			sFWHA01_t.set_adjust_key_mode--;
+			if(sFWHA01_t.set_adjust_key_mode < SELECT_TEMP)
+				sFWHA01_t.set_adjust_key_mode = SELECT_CH;		
+			
+			if(sFWHA01_t.set_adjust_key_mode == SELECT_TEMP)
+			{
+				adjust_state = TEMP;
+				sFWHA01_t.adjust_key_mode = SELECT_TEMP;
+			}
+			else if(sFWHA01_t.set_adjust_key_mode == SELECT_WIND)
+			{
+				adjust_state = WIND;
+				sFWHA01_t.adjust_key_mode = SELECT_WIND;
+			}
+			else if(sFWHA01_t.set_adjust_key_mode == SELECT_CH)
+			{
+				sFWHA01_t.adjust_key_mode = SELECT_CH;
+			}
+		}
+		
+		
+		else if (sFWHA01_t.page == SET_LANGUAGE_PAGE_CN)
+        {
+            sFWHA01_t.page  = SET_LANGUAGE_PAGE_ENG;
+            sFWHA01_t.language_state = ENGLISH;
+        }
+        else if (sFWHA01_t.page == SET_LANGUAGE_PAGE_ENG)
+        {
+            sFWHA01_t.page  = SET_LANGUAGE_PAGE_CN;
+            sFWHA01_t.language_state = CHINESE;
+        }
+		
+        else if (sFWHA01_t.page == SET_TEMP_CAL_PAGE_CN)
+        {
+			if(sFWHA01_t.set_cal == SET_RETURN_CAL)
+			{
+				sFWHA01_t.set_cal = SET_SELECT_CAL;
+				sFWHA01_t.page = SET_SELECT_TEMP_CAL_PAGE_CN;
+				
+			}
+        }
+		 else if (sFWHA01_t.page == SET_SELECT_TEMP_CAL_PAGE_CN)
+        {
+			if(sFWHA01_t.set_cal == SET_SELECT_CAL)
+			{
+				sFWHA01_t.set_cal = SET_RETURN_CAL;
+				sFWHA01_t.page = SET_TEMP_CAL_PAGE_CN;
+			}
+			else if(sFWHA01_t.set_cal == SET_CAL)
+			{
+				 ec11_handle_event = SET_TEMP_CAL_REDUCE;
+			}
+        }
+		   
+        else if (sFWHA01_t.page == SET_TEMP_LOCK_PAGE_CN)
+        {
+            ec11_handle_event = SET_TEMP_LOCK;
+        }
+        else if (sFWHA01_t.page == SET_SLEEP_PAGE_CN)
+        {
+           ec11_handle_event = SET_SLEEP_MODE;
+        }
+        
+        
+        if (sFWHA01_t.page == SET_RESET_PAGE_CN)
+        {
+			ec11_handle_event = SET_RESET_MODE;
+         
+        }
         sbeep.cmd = BEEP_SHORT;
         break;
 
@@ -70,13 +340,156 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
 		sbeep.cmd = BEEP_SHORT;
         break;
     case EC11_ANALYZE_SHORT_CLICK:
+		 if (sFWHA01_t.page != WORK_PAGE                   && 
+				sFWHA01_t.page != CURVE_PAGE                  &&
+				sFWHA01_t.page != SELECT_EXIT_MENU_PAGE_CN    &&
+				sFWHA01_t.page != SET_RESET_DONE_PAGE_CN      &&
+				sFWHA01_t.page != SET_RESET_PAGE_CN      &&
+				sFWHA01_t.page != SET_SELECT_TEMP_CAL_PAGE_CN &&
+				sFWHA01_t.page != SET_KEY_PAGE_CN &&
+				sFWHA01_t.page != SET_LONG_KEY_PAGE_CN &&
+				sFWHA01_t.page != SET_SHORT_KEY_PAGE_CN &&
+				sFWHA01_t.page != SET_KEY_MODE_PAGE_CN)
+        {
+            ec11_handle_event = ENTER_SETS;
+        }
+        else if (sFWHA01_t.page == SELECT_EXIT_MENU_PAGE_CN)
+        {
+            ec11_handle_event = EXIT_MENU;
+        }
+		
+		else if(sFWHA01_t.page == SET_KEY_PAGE_CN)
+		{
+			if(sFWHA01_t.set_key_mode == LONGKEY_MODE)
+			{
+				sFWHA01_t.page = SET_LONG_KEY_PAGE_CN;
+				sFWHA01_t.set_long_key_mode = sFWHA01_t.long_key_mode;
+			}
+			else if(sFWHA01_t.set_key_mode == SHORTKEY_MODE)
+			{
+				sFWHA01_t.page = SET_SHORT_KEY_PAGE_CN;
+				sFWHA01_t.set_short_key_mode = sFWHA01_t.short_key_mode;
+			}
+			else if(sFWHA01_t.set_key_mode == ADJUSTKEY_MODE)
+			{
+				sFWHA01_t.page = SET_KEY_MODE_PAGE_CN;
+				sFWHA01_t.set_adjust_key_mode = sFWHA01_t.adjust_key_mode;
+			}
+			else if(sFWHA01_t.set_key_mode == RETURN_MENU)
+			{
+				sFWHA01_t.page = SELECT_SET_KEY_PAGE_CN;
+				sFWHA01_t.long_key_mode = sFWHA01_t.set_long_key_mode;
+				sFWHA01_t.short_key_mode = sFWHA01_t.set_short_key_mode;
+				sFWHA01_t.adjust_key_mode = sFWHA01_t.set_adjust_key_mode;
+			}
+		}
+		
+		else if(sFWHA01_t.page == SET_LONG_KEY_PAGE_CN ||
+				sFWHA01_t.page == SET_SHORT_KEY_PAGE_CN ||
+				sFWHA01_t.page == SET_KEY_MODE_PAGE_CN)
+		{
+			sFWHA01_t.page = SET_KEY_PAGE_CN;
+			sFWHA01_t.long_key_mode = sFWHA01_t.set_long_key_mode;
+			sFWHA01_t.short_key_mode = sFWHA01_t.set_short_key_mode;
+			sFWHA01_t.adjust_key_mode = sFWHA01_t.set_adjust_key_mode;
+		}
+		
+		else if(sFWHA01_t.page == SET_RESET_PAGE_CN)
+		{
+			if(sFWHA01_t.set_reset1 == RESET_RETURN)
+			{
+				sFWHA01_t.page = SELECT_SET_RESET_PAGE_CN;
+			}
+			else if(sFWHA01_t.set_reset1 == RESET_CONFIRN)
+			{
+				sFWHA01_t.page = SET_RESET_DONE_PAGE_CN;
+				ec11_handle_event = RESET_HA01_VALUE;
+			}
+		}
+		
+		else if(sFWHA01_t.page == SET_RESET_DONE_PAGE_CN)
+		{
+			if(sFWHA01_t.work_mode == WORK_CURVE)
+			{
+				sFWHA01_t.page = CURVE_PAGE;
+			}
+			else if(sFWHA01_t.work_mode == WORK_NORMAL)
+			{
+				sFWHA01_t.page = WORK_PAGE;
+			}
+		}
+        else if (sFWHA01_t.page == SET_SELECT_TEMP_CAL_PAGE_CN)
+        {
+            if (sFWHA01_t.set_cal == SET_SELECT_CAL)
+            {
+				sFWHA01_t.set_cal = SET_CAL;
+				sFWHA01_t.system_parameter.cal_temp_c_display = sFWHA01_t.system_parameter.set_temp;
+				sFWHA01_t.system_parameter.cal_temp_f_display = sFWHA01_t.system_parameter.set_temp_f_display;
+				sFWHA01_t.system_parameter.last_cal_temp_c_display = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_cal_temp_f_display = RESET_VALUE;
+            }
+            else
+            {
+				sFWHA01_t.set_cal = SET_SELECT_CAL;
+				sFWHA01_t.system_parameter.cal_data += sFWHA01_t.system_parameter.set_temp - sFWHA01_t.system_parameter.cal_temp_c_display;
+
+				if (sFWHA01_t.system_parameter.cal_data >= MAX_CAL_TEMP)
+				{
+					sFWHA01_t.system_parameter.cal_data = MAX_CAL_TEMP;
+				}
+				if (sFWHA01_t.system_parameter.cal_data<= MIN_CAL_TEMP)
+				{
+					sFWHA01_t.system_parameter.cal_data = MIN_CAL_TEMP;
+				}
+				sFWHA01_t.system_parameter.last_cal_temp_c_display = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_cal_temp_f_display = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_cal_temp_c_display = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_cal_temp_f_display = RESET_VALUE;
+            }
+        }
+		sbeep.cmd = BEEP_SHORT;
         break;
     case EC11_ANALYZE_DOUBLE_CLICK:
+		 if (sFWHA01_t.page == WORK_PAGE || sFWHA01_t.page == CURVE_PAGE)
+        {
+            if (sFWHA01_t.page == WORK_PAGE )
+            {
+                sFWHA01_t.page = CURVE_PAGE;
+                sFWHA01_t.work_mode = WORK_CURVE;
+				
+            }
+            else if (sFWHA01_t.page == CURVE_PAGE)
+            {
+                sFWHA01_t.page = WORK_PAGE;
+                sFWHA01_t.work_mode = WORK_NORMAL;
+            }
+			sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
+			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+			sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+            sbeep.cmd = BEEP_SHORT;
+        }
         break;
     case EC11_ANALYZE_LONG_PRESS:
+		if (first_state == false)
+        {
+            first_state = true;
+
+            if (sFWHA01_t.page == WORK_PAGE || sFWHA01_t.page == CURVE_PAGE)
+            {
+                ec11_handle_event = ENTER_MENU;
+            }
+            else if (sFWHA01_t.page >= SELECT_SET_WORK_PAGE_CN && sFWHA01_t.page <= SET_SUPPORT_PAGE_CN || sFWHA01_t.page == SET_SELECT_TEMP_CAL_PAGE_CN)
+            {
+				if(sFWHA01_t.reset_flag == false)
+                ec11_handle_event = EXIT_MENU;
+            }
+
+            sbeep.cmd = BEEP_LONG;
+        }
         break;
 
     case EC11_ANALYZE_LONG_RELEASE:
+		first_state = false;
         break;
     case EC11_ANALYZE_KEY_CW:
         // 按下并顺时针旋转
@@ -134,19 +547,57 @@ void temp_ec11_get_event(EC11_AnalyzeResult state_temp)
 		{
 			sFWHA01_t.set_long_key_mode++;
 			if(sFWHA01_t.set_long_key_mode > POWER_MODE)
-				sFWHA01_t.set_long_key_mode = COLDWIND_MODE;			
+				sFWHA01_t.set_long_key_mode = COLDWIND_MODE;		
+
+			if(sFWHA01_t.set_long_key_mode == COLDWIND_MODE)
+			{
+				sFWHA01_t.long_key_mode = COLDWIND_MODE;
+			}
+			else if(sFWHA01_t.set_long_key_mode == POWER_MODE)
+			{
+				sFWHA01_t.long_key_mode = POWER_MODE;
+			}
 		}
 		else if (sFWHA01_t.page == SET_SHORT_KEY_PAGE_CN)
 		{
 			sFWHA01_t.set_short_key_mode++;
 			if(sFWHA01_t.set_short_key_mode > POWER_MODE)
-				sFWHA01_t.set_short_key_mode = CHANNEL_SWITCHING;			
+				sFWHA01_t.set_short_key_mode = CHANNEL_SWITCHING;		
+
+			if(sFWHA01_t.set_short_key_mode == CHANNEL_SWITCHING)
+			{
+				sFWHA01_t.short_key_mode = CHANNEL_SWITCHING;
+			}
+			else if(sFWHA01_t.set_short_key_mode == COLDWIND_MODE)
+			{
+				sFWHA01_t.short_key_mode = COLDWIND_MODE;
+			}
+			else if(sFWHA01_t.set_short_key_mode == POWER_MODE)
+			{
+				sFWHA01_t.short_key_mode = POWER_MODE;
+			}
 		}
 		else if (sFWHA01_t.page == SET_KEY_MODE_PAGE_CN)
 		{
 			sFWHA01_t.set_adjust_key_mode++;
 			if(sFWHA01_t.set_adjust_key_mode > SELECT_CH)
-				sFWHA01_t.set_adjust_key_mode = SELECT_TEMP;			
+				sFWHA01_t.set_adjust_key_mode = SELECT_TEMP;		
+
+			if(sFWHA01_t.set_adjust_key_mode == SELECT_TEMP)
+			{
+				adjust_state = TEMP;
+				sFWHA01_t.adjust_key_mode = SELECT_TEMP;
+			}
+			else if(sFWHA01_t.set_adjust_key_mode == SELECT_WIND)
+			{
+				adjust_state = WIND;
+				sFWHA01_t.adjust_key_mode = SELECT_WIND;
+			}
+			else if(sFWHA01_t.set_adjust_key_mode == SELECT_CH)
+			{
+				sFWHA01_t.adjust_key_mode = SELECT_CH;
+			}
+			
 		}
 		
 		else if (sFWHA01_t.page == SET_LANGUAGE_PAGE_CN)
@@ -237,18 +688,55 @@ void temp_ec11_get_event(EC11_AnalyzeResult state_temp)
 			sFWHA01_t.set_long_key_mode--;
 			if(sFWHA01_t.set_long_key_mode < COLDWIND_MODE)
 				sFWHA01_t.set_long_key_mode = POWER_MODE;			
+			
+			if(sFWHA01_t.set_long_key_mode == COLDWIND_MODE)
+			{
+				sFWHA01_t.long_key_mode = COLDWIND_MODE;
+			}
+			else if(sFWHA01_t.set_long_key_mode == POWER_MODE)
+			{
+				sFWHA01_t.long_key_mode = POWER_MODE;
+			}
 		}
 		else if (sFWHA01_t.page == SET_SHORT_KEY_PAGE_CN)
 		{
 			sFWHA01_t.set_short_key_mode--;
 			if(sFWHA01_t.set_short_key_mode < CHANNEL_SWITCHING)
 				sFWHA01_t.set_short_key_mode = POWER_MODE;			
+			
+			if(sFWHA01_t.set_short_key_mode == CHANNEL_SWITCHING)
+			{
+				sFWHA01_t.short_key_mode = CHANNEL_SWITCHING;
+			}
+			else if(sFWHA01_t.set_short_key_mode == COLDWIND_MODE)
+			{
+				sFWHA01_t.short_key_mode = COLDWIND_MODE;
+			}
+			else if(sFWHA01_t.set_short_key_mode == POWER_MODE)
+			{
+				sFWHA01_t.short_key_mode = POWER_MODE;
+			}
 		}
 		else if (sFWHA01_t.page == SET_KEY_MODE_PAGE_CN)
 		{
 			sFWHA01_t.set_adjust_key_mode--;
 			if(sFWHA01_t.set_adjust_key_mode < SELECT_TEMP)
-				sFWHA01_t.set_adjust_key_mode = SELECT_CH;			
+				sFWHA01_t.set_adjust_key_mode = SELECT_CH;		
+			
+			if(sFWHA01_t.set_adjust_key_mode == SELECT_TEMP)
+			{
+				adjust_state = TEMP;
+				sFWHA01_t.adjust_key_mode = SELECT_TEMP;
+			}
+			else if(sFWHA01_t.set_adjust_key_mode == SELECT_WIND)
+			{
+				adjust_state = WIND;
+				sFWHA01_t.adjust_key_mode = SELECT_WIND;
+			}
+			else if(sFWHA01_t.set_adjust_key_mode == SELECT_CH)
+			{
+				sFWHA01_t.adjust_key_mode = SELECT_CH;
+			}
 		}
 		
 		
@@ -1179,7 +1667,7 @@ void ec11_event_handle(void)
 		sFWHA01_t.sleep_state = SLEEP_OPEN;
 		sFWHA01_t.set_sleep_state = sFWHA01_t.sleep_state;
 		sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
-		
+		sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
 		sFWHA01_t.long_key_mode = COLDWIND_MODE;
 		sFWHA01_t.set_long_key_mode = COLDWIND_MODE;
 		sFWHA01_t.short_key_mode = CHANNEL_SWITCHING;

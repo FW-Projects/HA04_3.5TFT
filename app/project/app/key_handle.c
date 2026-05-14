@@ -4,8 +4,7 @@
 #include "HA01_handle.h"
 #include "beep_handle.h"
 #define KEY_COUNT 6
-#define TEMP 0
-#define WIND 1
+
 KEY_DEFINE(key_ch1, GPIOC, GPIO_PINS_6, 0);
 
 KEY_DEFINE(key_ch2, GPIOC, GPIO_PINS_7, 0);
@@ -26,7 +25,7 @@ key_event_t key_event[KEY_COUNT];
 static bool set_done = false;
 static bool last_key_adjust_state = false;  //按键调节温度或风量标志
 static int out_times = 80; 
-static bool adjust_state = TEMP;
+uint8_t adjust_state = TEMP;
 static  handle_event event = END_EVENT;
 static bool channel_state = false;
 void get_key(void);
@@ -94,6 +93,7 @@ void get_key(void)
 			set_done = true;
 			sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch1_set_temp;
 			sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch1_set_air; 
+			sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 			sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
@@ -140,6 +140,7 @@ void get_key(void)
 			set_done = true;
 			sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch2_set_temp;
 			sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch2_set_air; 
+			sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 			sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
@@ -186,6 +187,7 @@ void get_key(void)
 			set_done = true;
 			sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch3_set_temp;
 			sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch3_set_air; 
+			sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 			sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
@@ -243,7 +245,10 @@ void get_key(void)
 				}
 			}
 			else
+			{
+				adjust_state = TEMP;
 				event = TEMP_ADD_EVENT;
+			}
 		}
 		else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
 		{
@@ -259,7 +264,10 @@ void get_key(void)
 				}
 			}
 			else
+			{
+				adjust_state = WIND;
 				event = WIND_ADD_EVENT;
+			}
 		}
 		else if(sFWHA01_t.adjust_key_mode == SELECT_CH)
 		{
@@ -270,16 +278,19 @@ void get_key(void)
 			{
 				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch1_set_temp;
 				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch1_set_air;
+				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 			}
 			else if(sFWHA01_t.general_parameter.ch == 2)
 			{
 				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch2_set_temp;
 				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch2_set_air; 
+				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 			}
 			else if(sFWHA01_t.general_parameter.ch == 3)
 			{
 				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch3_set_temp;
 				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch3_set_air; 
+				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 			}
 			sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
@@ -312,7 +323,10 @@ void get_key(void)
 				}
 			}
 			else
+			{
+				adjust_state = TEMP;
 				event = TEMP_ADD_FIVE_EVENT;
+			}
 		}
 		else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
 		{
@@ -328,7 +342,10 @@ void get_key(void)
 				}
 			}
 			else
+			{
+				adjust_state = WIND;
 				event = WIND_ADD_FIVE_EVENT;
+			}
 		}
 	break;
 
@@ -355,7 +372,10 @@ void get_key(void)
 				}
 			}
 			else
+			{
+				adjust_state = TEMP;
 				event = TEMP_REDUCE_EVENT;
+			}
 		}
 		else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
 		{
@@ -371,7 +391,10 @@ void get_key(void)
 				}
 			}
 			else
+			{
+				adjust_state = WIND;
 				event = WIND_REDUCE_EVENT;
+			}
 		}
 		else if(sFWHA01_t.adjust_key_mode == SELECT_CH)
 		{
@@ -387,16 +410,19 @@ void get_key(void)
 			{
 				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch1_set_temp;
 				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch1_set_air;
+				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 			}
 			else if(sFWHA01_t.general_parameter.ch == 2)
 			{
 				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch2_set_temp;
 				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch2_set_air; 
+				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 			}
 			else if(sFWHA01_t.general_parameter.ch == 3)
 			{
 				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch3_set_temp;
 				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch3_set_air; 
+				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 			}
 			sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
@@ -426,7 +452,10 @@ void get_key(void)
 				}
 			}
 			else
+			{
+				adjust_state = TEMP;
 				event = TEMP_REDUCE_FIVE_EVENT;
+			}
 		}
 		else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
 		{
@@ -442,7 +471,10 @@ void get_key(void)
 				}
 			}
 			else
+			{
 				event = WIND_REDUCE_FIVE_EVENT;
+				adjust_state = WIND;
+			}
 		}
 	break;
     default:
@@ -460,7 +492,29 @@ void get_key(void)
 			{
 				out_times = 80;
 				channel_state = true;
-				adjust_state = !adjust_state;
+				
+				if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
+				{
+					adjust_state++;
+					if(adjust_state >= 2)
+					{
+						last_key_adjust_state = false;
+						channel_state = false;
+					}
+				}
+				else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
+				{
+					if(adjust_state == WIND)
+						adjust_state = TEMP;
+					else if(adjust_state == TEMP)
+					{
+						adjust_state = 2;
+						last_key_adjust_state = false;
+						channel_state = false;
+					}
+				}
+					
+				
 				if(adjust_state == TEMP)
 				{
 					actual_wind_refesh_time = 0x00;
@@ -479,6 +533,14 @@ void get_key(void)
 					sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE;
 					sFWHA01_t.system_parameter.last_actual_temp_f_display = RESET_VALUE;
 				}
+				else
+				{
+					sFWHA01_t.general_parameter.set_temp_time = 0x00;
+					sFWHA01_t.general_parameter.set_wind_time = 0x00;
+					sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp_f_display = RESET_VALUE;
+				}
 			}
 			else
 			{
@@ -489,16 +551,19 @@ void get_key(void)
 				{
 					sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch1_set_temp;
 					sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch1_set_air;
+					sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 				}
 				else if(sFWHA01_t.general_parameter.ch == 2)
 				{
 					sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch2_set_temp;
 					sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch2_set_air; 
+					sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 				}
 				else if(sFWHA01_t.general_parameter.ch == 3)
 				{
 					sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch3_set_temp;
 					sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch3_set_air; 
+					sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 				}
 				sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
 				sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;

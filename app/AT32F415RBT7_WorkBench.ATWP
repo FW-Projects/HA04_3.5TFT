@@ -84,6 +84,17 @@
             <ParametersSub name="OC4ImmediatelyMode_PWM" value="TRUE"/>
         </Parameters>
     </TMR5>
+    <TMR9>
+        <Mode>
+            <ModeSub name="Channel1 mode" value="Input_direct_mode"/>
+            <ModeSub name="Activated" value="TRUE"/>
+        </Mode>
+        <Parameters>
+            <ParametersSub name="DividerValue" value="11"/>
+            <ParametersSub name="Period" value="59999"/>
+            <ParametersSub name="InputPolarity_CH1" value="TMR_INPUT_BOTH_EDGE"/>
+        </Parameters>
+    </TMR9>
     <USART1>
         <Mode>
             <ModeSub name="Mode" value="Asynchronous"/>
@@ -112,7 +123,8 @@
         <CRM_IRQHandler>0;0;0;0;0</CRM_IRQHandler>
         <DMA1_Channel1_IRQHandler>0;0;0;0;0</DMA1_Channel1_IRQHandler>
         <ADC1_IRQHandler>0;0;0;0;0</ADC1_IRQHandler>
-        <TMR2_GLOBAL_IRQHandler>1;0;0;0;0</TMR2_GLOBAL_IRQHandler>
+        <TMR1_BRK_TMR9_IRQHandler>1;0;0;0;0</TMR1_BRK_TMR9_IRQHandler>
+        <TMR2_GLOBAL_IRQHandler>0;0;0;0;0</TMR2_GLOBAL_IRQHandler>
         <SPI1_IRQHandler>0;0;0;0;0</SPI1_IRQHandler>
         <USART1_IRQHandler>0;0;0;0;0</USART1_IRQHandler>
         <TMR5_GLOBAL_IRQHandler>1;0;0;0;0</TMR5_GLOBAL_IRQHandler>
@@ -273,6 +285,7 @@
         <PinSub pinname="PC2" signalname="GPIO_Input" signaltype="3"/>
         <PinSub pinname="PC3" signalname="GPIO_Input" signaltype="3"/>
         <PinSub pinname="PA1" signalname="TMR2_CH2" signaltype="3"/>
+        <PinSub pinname="PA2" signalname="TMR9_CH1" signaltype="3"/>
         <PinSub pinname="PA3" signalname="TMR5_CH4" signaltype="3"/>
         <PinSub pinname="PF4" signalname="GPIO_Output" signaltype="3"/>
         <PinSub pinname="PF5" signalname="GPIO_Input" signaltype="3"/>

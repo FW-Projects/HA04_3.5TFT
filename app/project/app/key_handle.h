@@ -19,6 +19,8 @@ typedef enum
 
 } handle_event;
 
+extern uint8_t adjust_state;
+
 void KeyProc(void);
 void key_handle(void);
 #endif

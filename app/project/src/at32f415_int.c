@@ -68,7 +68,7 @@
 
 /* private variables ---------------------------------------------------------*/
 /* add user code begin private variables */
-__IO float tmr2_ch1_readvalue = 0;
+__IO float tmr9_ch1_readvalue = 0;
 __IO uint16_t adc1_ordinary_value = 0;
 /* add user code end private variables */
 
@@ -287,20 +287,20 @@ void SysTick_Handler(void)
 		if(sFWHA01_t.system_parameter.waken_time_count != 0)
 			sFWHA01_t.system_parameter.waken_time_count--;
 	}
-	ec11_run_time--;
-	if(ec11_run_time == 0)
-	{
-		ec11_run_time = 1;
-		ec11_handle();
-	}
+//	ec11_run_time--;
+//	if(ec11_run_time == 0)
+//	{
+//		ec11_run_time = 1;
+//		ec11_handle();
+//	}
 	
 	    /* get fan speed */
     get_fan_speed_time--;
 
     if (0 == get_fan_speed_time)
     {
-        sFWHA01_t.system_parameter.actual_air = tmr2_ch1_readvalue;
-        tmr2_ch1_readvalue = 0;
+        sFWHA01_t.system_parameter.actual_air = tmr9_ch1_readvalue;
+        tmr9_ch1_readvalue = 0;
         get_fan_speed_time = TIME_1S;
     }
 	
@@ -327,25 +327,27 @@ void SysTick_Handler(void)
 }
 
 /**
-  * @brief  this function handles TMR2 handler.
+  * @brief  this function handles TMR1 Brake and TMR9 handler.
   * @param  none
   * @retval none
   */
-void TMR2_GLOBAL_IRQHandler(void)
+void TMR1_BRK_TMR9_IRQHandler(void)
 {
-  /* add user code begin TMR2_GLOBAL_IRQ 0 */
+  /* add user code begin TMR1_BRK_TMR9_IRQ 0 */
+	if(tmr_interrupt_flag_get(TMR9, TMR_C1_FLAG) != RESET)
+	{
+		/* add user code begin TMR2_TMR_C3_FLAG */
+		tmr9_ch1_readvalue++;
+		/* clear flag */
+		tmr_flag_clear(TMR9, TMR_C1_FLAG);
+		/* add user code end TMR2_TMR_C3_FLAG */
+	}
+  /* add user code end TMR1_BRK_TMR9_IRQ 0 */
 
-  /* add user code end TMR2_GLOBAL_IRQ 0 */
 
+  /* add user code begin TMR1_BRK_TMR9_IRQ 1 */
 
-  /* add user code begin TMR2_GLOBAL_IRQ 1 */
-	if (tmr_interrupt_flag_get(TMR2, TMR_C1_FLAG) != RESET)
-    {
-        tmr2_ch1_readvalue++;
-        tmr_flag_clear(TMR2, TMR_C1_FLAG);
-    }
-	
-  /* add user code end TMR2_GLOBAL_IRQ 1 */
+  /* add user code end TMR1_BRK_TMR9_IRQ 1 */
 }
 
 /**

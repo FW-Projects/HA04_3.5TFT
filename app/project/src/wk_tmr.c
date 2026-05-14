@@ -86,14 +86,6 @@ void wk_tmr2_init(void)
 
   tmr_counter_enable(TMR2, TRUE);
 
-  /**
-   * Users need to configure TMR2 interrupt functions according to the actual application.
-   * 1. Call the below function to enable the corresponding TMR2 interrupt.
-   *     --tmr_interrupt_enable(...)
-   * 2. Add the user's interrupt handler code into the below function in the at32f415_int.c file.
-   *     --void TMR2_GLOBAL_IRQHandler(void)
-   */
-
   /* add user code begin tmr2_init 2 */
 tmr_interrupt_enable(TMR2, TMR_C1_INT, TRUE);
   /* add user code end tmr2_init 2 */
@@ -168,6 +160,61 @@ void wk_tmr5_init(void)
   tmr_interrupt_enable(TMR5,TMR_OVF_INT,TRUE);
 
   /* add user code end tmr5_init 2 */
+}
+
+/**
+  * @brief  init tmr9 function.
+  * @param  none
+  * @retval none
+  */
+void wk_tmr9_init(void)
+{
+  /* add user code begin tmr9_init 0 */
+
+  /* add user code end tmr9_init 0 */
+
+  gpio_init_type gpio_init_struct;
+  tmr_input_config_type  tmr_input_struct;
+  gpio_default_para_init(&gpio_init_struct);
+
+  /* add user code begin tmr9_init 1 */
+
+  /* add user code end tmr9_init 1 */
+
+  /* configure the CH1 pin */
+  gpio_init_struct.gpio_pins = GPIO_PINS_2;
+  gpio_init_struct.gpio_mode = GPIO_MODE_INPUT;
+  gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+  gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
+  gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+  gpio_init(GPIOA, &gpio_init_struct);
+
+  /* configure counter settings */
+  tmr_cnt_dir_set(TMR9, TMR_COUNT_UP);
+  tmr_clock_source_div_set(TMR9, TMR_CLOCK_DIV1);
+  tmr_period_buffer_enable(TMR9, FALSE);
+  tmr_base_init(TMR9, 59999, 11);
+
+  /* configure channel 1 input settings */
+  tmr_input_struct.input_channel_select = TMR_SELECT_CHANNEL_1;
+  tmr_input_struct.input_mapped_select = TMR_CC_CHANNEL_MAPPED_DIRECT;
+  tmr_input_struct.input_polarity_select = TMR_INPUT_BOTH_EDGE;
+  tmr_input_struct.input_filter_value = 0;
+  tmr_input_channel_init(TMR9, &tmr_input_struct, TMR_CHANNEL_INPUT_DIV_1);
+
+  tmr_counter_enable(TMR9, TRUE);
+
+  /**
+   * Users need to configure TMR9 interrupt functions according to the actual application.
+   * 1. Call the below function to enable the corresponding TMR9 interrupt.
+   *     --tmr_interrupt_enable(...)
+   * 2. Add the user's interrupt handler code into the below function in the at32f415_int.c file.
+   *     --void TMR1_BRK_TMR9_IRQHandler(void)
+   */
+
+  /* add user code begin tmr9_init 2 */
+	tmr_interrupt_enable(TMR9, TMR_C1_INT, TRUE);
+  /* add user code end tmr9_init 2 */
 }
 
 /* add user code begin 1 */
