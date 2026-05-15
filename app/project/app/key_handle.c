@@ -231,122 +231,131 @@ void get_key(void)
     case KEY_SHORT_PRESS:
         set_done = true;
 		sbeep.cmd = BEEP_SHORT;
-		if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
-		{	
-			if(channel_state == true)
-			{
-				if(adjust_state == TEMP)
+		if(sFWHA01_t.run_mode != Cold_Mode)
+		{
+			if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
+			{	
+				if(channel_state == true)
 				{
+					if(adjust_state == TEMP)
+					{
+						event = TEMP_ADD_EVENT;
+					}
+					else if(adjust_state == WIND)
+					{
+						event = WIND_ADD_EVENT;
+					}
+				}
+				else
+				{
+					adjust_state = TEMP;
 					event = TEMP_ADD_EVENT;
 				}
-				else if(adjust_state == WIND)
+			}
+			else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
+			{
+				if(channel_state == true)
 				{
+					if(adjust_state == TEMP)
+					{
+						event = TEMP_ADD_EVENT;
+					}
+					else if(adjust_state == WIND)
+					{
+						event = WIND_ADD_EVENT;
+					}
+				}
+				else
+				{
+					adjust_state = WIND;
 					event = WIND_ADD_EVENT;
 				}
 			}
-			else
+			else if(sFWHA01_t.adjust_key_mode == SELECT_CH)
 			{
-				adjust_state = TEMP;
-				event = TEMP_ADD_EVENT;
-			}
-		}
-		else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
-		{
-			if(channel_state == true)
-			{
-				if(adjust_state == TEMP)
+				sFWHA01_t.general_parameter.ch++;
+				if(sFWHA01_t.general_parameter.ch > 3)
+					sFWHA01_t.general_parameter.ch = 1;
+				if(sFWHA01_t.general_parameter.ch == 1)
 				{
-					event = TEMP_ADD_EVENT;
+					sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch1_set_temp;
+					sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch1_set_air;
+					sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 				}
-				else if(adjust_state == WIND)
+				else if(sFWHA01_t.general_parameter.ch == 2)
 				{
-					event = WIND_ADD_EVENT;
+					sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch2_set_temp;
+					sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch2_set_air; 
+					sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
 				}
-			}
-			else
-			{
-				adjust_state = WIND;
-				event = WIND_ADD_EVENT;
+				else if(sFWHA01_t.general_parameter.ch == 3)
+				{
+					sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch3_set_temp;
+					sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch3_set_air; 
+					sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
+				}
+				sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_set_temp = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_set_temp_f_display = RESET_VALUE;
+				sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
+				sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+				
 			}
 		}
-		else if(sFWHA01_t.adjust_key_mode == SELECT_CH)
-		{
-			sFWHA01_t.general_parameter.ch++;
-			if(sFWHA01_t.general_parameter.ch > 3)
-				sFWHA01_t.general_parameter.ch = 1;
-			if(sFWHA01_t.general_parameter.ch == 1)
-			{
-				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch1_set_temp;
-				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch1_set_air;
-				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
-			}
-			else if(sFWHA01_t.general_parameter.ch == 2)
-			{
-				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch2_set_temp;
-				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch2_set_air; 
-				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
-			}
-			else if(sFWHA01_t.general_parameter.ch == 3)
-			{
-				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch3_set_temp;
-				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch3_set_air; 
-				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
-			}
-			sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_set_temp = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_set_temp_f_display = RESET_VALUE;
-			sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
-			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
-			
-		}
-     
+		else
+			event = COLD_WIND_ADD;
 
         break;
 
     case KEY_LONG_PRESS_CONTINUE:
         set_done = true;
 		sbeep.cmd = BEEP_SHORT;
-		if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
-		{	
-			if(channel_state == true)
-			{
-				if(adjust_state == TEMP)
-				{
-					event = TEMP_ADD_FIVE_EVENT;
-				}
-				else if(adjust_state == WIND)
-				{
-					event = WIND_ADD_FIVE_EVENT;
-				}
-			}
-			else
-			{
-				adjust_state = TEMP;
-				event = TEMP_ADD_FIVE_EVENT;
-			}
-		}
-		else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
+		if(sFWHA01_t.run_mode != Cold_Mode)
 		{
-			if(channel_state == true)
-			{
-				if(adjust_state == TEMP)
+			if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
+			{	
+				if(channel_state == true)
 				{
+					if(adjust_state == TEMP)
+					{
+						event = TEMP_ADD_FIVE_EVENT;
+					}
+					else if(adjust_state == WIND)
+					{
+						event = WIND_ADD_FIVE_EVENT;
+					}
+				}
+				else
+				{
+					adjust_state = TEMP;
 					event = TEMP_ADD_FIVE_EVENT;
 				}
-				else if(adjust_state == WIND)
+			}
+			else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
+			{
+				if(channel_state == true)
 				{
+					if(adjust_state == TEMP)
+					{
+						event = TEMP_ADD_FIVE_EVENT;
+					}
+					else if(adjust_state == WIND)
+					{
+						event = WIND_ADD_FIVE_EVENT;
+					}
+				}
+				else
+				{
+					adjust_state = WIND;
 					event = WIND_ADD_FIVE_EVENT;
 				}
 			}
-			else
-			{
-				adjust_state = WIND;
-				event = WIND_ADD_FIVE_EVENT;
-			}
 		}
+		else
+			event = COLD_WIND_ADD_FIVE;	
 	break;
 
     default:
@@ -358,123 +367,135 @@ void get_key(void)
     case KEY_SHORT_PRESS:
         set_done = true;
 		sbeep.cmd = BEEP_SHORT;
-		if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
-		{	
-			if(channel_state == true)
-			{
-				if(adjust_state == TEMP)
+		if(sFWHA01_t.run_mode != Cold_Mode)
+		{
+			if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
+			{	
+				if(channel_state == true)
 				{
+					if(adjust_state == TEMP)
+					{
+						event = TEMP_REDUCE_EVENT;
+					}
+					else if(adjust_state == WIND)
+					{
+						event = WIND_REDUCE_EVENT;
+					}
+				}
+				else
+				{
+					adjust_state = TEMP;
 					event = TEMP_REDUCE_EVENT;
 				}
-				else if(adjust_state == WIND)
+			}
+			else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
+			{
+				if(channel_state == true)
 				{
+					if(adjust_state == TEMP)
+					{
+						event = TEMP_REDUCE_EVENT;
+					}
+					else if(adjust_state == WIND)
+					{
+						event = WIND_REDUCE_EVENT;
+					}
+				}
+				else
+				{
+					adjust_state = WIND;
 					event = WIND_REDUCE_EVENT;
 				}
 			}
-			else
+			else if(sFWHA01_t.adjust_key_mode == SELECT_CH)
 			{
-				adjust_state = TEMP;
-				event = TEMP_REDUCE_EVENT;
-			}
-		}
-		else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
-		{
-			if(channel_state == true)
-			{
-				if(adjust_state == TEMP)
-				{
-					event = TEMP_REDUCE_EVENT;
-				}
-				else if(adjust_state == WIND)
-				{
-					event = WIND_REDUCE_EVENT;
-				}
-			}
-			else
-			{
-				adjust_state = WIND;
-				event = WIND_REDUCE_EVENT;
-			}
-		}
-		else if(sFWHA01_t.adjust_key_mode == SELECT_CH)
-		{
-			if(sFWHA01_t.general_parameter.ch == 0)
-				sFWHA01_t.general_parameter.ch = 3;
-			else
-			{
-				sFWHA01_t.general_parameter.ch--;
-				if(sFWHA01_t.general_parameter.ch < 1)
+				if(sFWHA01_t.general_parameter.ch == 0)
 					sFWHA01_t.general_parameter.ch = 3;
+				else
+				{
+					sFWHA01_t.general_parameter.ch--;
+					if(sFWHA01_t.general_parameter.ch < 1)
+						sFWHA01_t.general_parameter.ch = 3;
+				}
+				if(sFWHA01_t.general_parameter.ch == 1)
+				{
+					sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch1_set_temp;
+					sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch1_set_air;
+					sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
+				}
+				else if(sFWHA01_t.general_parameter.ch == 2)
+				{
+					sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch2_set_temp;
+					sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch2_set_air; 
+					sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
+				}
+				else if(sFWHA01_t.general_parameter.ch == 3)
+				{
+					sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch3_set_temp;
+					sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch3_set_air; 
+					sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
+				}
+				sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_set_temp = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_set_temp_f_display = RESET_VALUE;
+				sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
+				sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
 			}
-			if(sFWHA01_t.general_parameter.ch == 1)
-			{
-				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch1_set_temp;
-				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch1_set_air;
-				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
-			}
-			else if(sFWHA01_t.general_parameter.ch == 2)
-			{
-				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch2_set_temp;
-				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch2_set_air; 
-				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
-			}
-			else if(sFWHA01_t.general_parameter.ch == 3)
-			{
-				sFWHA01_t.system_parameter.set_temp = sFWHA01_t.system_parameter.ch3_set_temp;
-				sFWHA01_t.system_parameter.air_data = sFWHA01_t.system_parameter.ch3_set_air; 
-				sFWHA01_t.system_parameter.set_temp_f_display = (sFWHA01_t.system_parameter.set_temp * 9 / 5) + 32;
-			}
-			sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_set_temp = RESET_VALUE;
-			sFWHA01_t.system_parameter.last_set_temp_f_display = RESET_VALUE;
-			sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
-			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
 		}
+		else
+			event = COLD_WIND_REDUCE;
         break;
 
     case KEY_LONG_PRESS_CONTINUE:
         set_done = true;
 		sbeep.cmd = BEEP_SHORT;
-		if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
-		{	
-			if(channel_state == true)
-			{
-				if(adjust_state == TEMP)
+		if(sFWHA01_t.run_mode != Cold_Mode)
+		{
+			if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
+			{	
+				if(channel_state == true)
 				{
+					if(adjust_state == TEMP)
+					{
+						event = TEMP_REDUCE_FIVE_EVENT;
+					}
+					else if(adjust_state == WIND)
+					{
+						event = WIND_REDUCE_FIVE_EVENT;
+					}
+				}
+				else
+				{
+					adjust_state = TEMP;
 					event = TEMP_REDUCE_FIVE_EVENT;
 				}
-				else if(adjust_state == WIND)
+			}
+			else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
+			{
+				if(channel_state == true)
+				{
+					if(adjust_state == TEMP)
+					{
+						event = TEMP_REDUCE_FIVE_EVENT;
+					}
+					else if(adjust_state == WIND)
+					{
+						event = WIND_REDUCE_FIVE_EVENT;
+					}
+				}
+				else
 				{
 					event = WIND_REDUCE_FIVE_EVENT;
+					adjust_state = WIND;
 				}
-			}
-			else
-			{
-				adjust_state = TEMP;
-				event = TEMP_REDUCE_FIVE_EVENT;
 			}
 		}
-		else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
+		else
 		{
-			if(channel_state == true)
-			{
-				if(adjust_state == TEMP)
-				{
-					event = TEMP_REDUCE_FIVE_EVENT;
-				}
-				else if(adjust_state == WIND)
-				{
-					event = WIND_REDUCE_FIVE_EVENT;
-				}
-			}
-			else
-			{
-				event = WIND_REDUCE_FIVE_EVENT;
-				adjust_state = WIND;
-			}
+			event = COLD_WIND_REDUCE_FIVE;
 		}
 	break;
     default:
@@ -577,26 +598,159 @@ void get_key(void)
 		}
 		else if(sFWHA01_t.short_key_mode == COLDWIND_MODE)
 		{
-			if(sFWHA01_t.run_mode == Standard_Mode || sFWHA01_t.run_mode == Power_Mode)
+			if(last_key_adjust_state == true)
 			{
-				sFWHA01_t.before_cold_run_mode = sFWHA01_t.run_mode;
-				sFWHA01_t.run_mode = Cold_Mode;
+				out_times = 80;
+				channel_state = true;
+				
+				if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
+				{
+					adjust_state++;
+					if(adjust_state >= 2)
+					{
+						last_key_adjust_state = false;
+						channel_state = false;
+					}
+				}
+				else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
+				{
+					if(adjust_state == WIND)
+						adjust_state = TEMP;
+					else if(adjust_state == TEMP)
+					{
+						adjust_state = 2;
+						last_key_adjust_state = false;
+						channel_state = false;
+					}
+				}
+					
+				
+				if(adjust_state == TEMP)
+				{
+					actual_wind_refesh_time = 0x00;
+					sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
+					sFWHA01_t.general_parameter.set_wind_time = 0x00;
+					sFWHA01_t.system_parameter.last_set_temp = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_set_temp_f_display = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
+				}
+				else if(adjust_state == WIND)
+				{
+					actual_temp_refesh_time = 0x00;
+					sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+					sFWHA01_t.general_parameter.set_temp_time = 0x00;
+					sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp_f_display = RESET_VALUE;
+				}
+				else
+				{
+					sFWHA01_t.general_parameter.set_temp_time = 0x00;
+					sFWHA01_t.general_parameter.set_wind_time = 0x00;
+					sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp_f_display = RESET_VALUE;
+				}
 			}
-			else if(sFWHA01_t.run_mode == Cold_Mode)
-			{
-				sFWHA01_t.run_mode = sFWHA01_t.before_cold_run_mode;
-//				sFWHA01_t.run_mode = Standard_Mode;
+			else
+			{	
+				if(sFWHA01_t.run_mode == Standard_Mode || sFWHA01_t.run_mode == Power_Mode)
+				{
+					sFWHA01_t.before_cold_run_mode = sFWHA01_t.run_mode;
+					sFWHA01_t.run_mode = Cold_Mode;
+				}
+				else if(sFWHA01_t.run_mode == Cold_Mode)
+				{
+					sFWHA01_t.run_mode = sFWHA01_t.before_cold_run_mode;
+	//				sFWHA01_t.run_mode = Standard_Mode;
+				}
+				sFWHA01_t.system_parameter.last_cold_mode_set_air = 0x00;
+				sFWHA01_t.system_parameter.last_curve_cold_mode_air_data = 0x00;
+				sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
 			}
-			sFWHA01_t.system_parameter.last_cold_mode_set_air = 0x00;
-			sFWHA01_t.system_parameter.last_curve_cold_mode_air_data = 0x00;
-			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
 		}
 		else if(sFWHA01_t.short_key_mode == POWER_MODE)
 		{
-			if(sFWHA01_t.run_mode == Standard_Mode)
-				sFWHA01_t.run_mode = Power_Mode;
-			else if(sFWHA01_t.run_mode == Power_Mode)
-				sFWHA01_t.run_mode = Standard_Mode;
+			if(last_key_adjust_state == true)
+			{
+				out_times = 80;
+				channel_state = true;
+				
+				if(sFWHA01_t.adjust_key_mode == SELECT_TEMP)
+				{
+					adjust_state++;
+					if(adjust_state >= 2)
+					{
+						last_key_adjust_state = false;
+						channel_state = false;
+					}
+				}
+				else if(sFWHA01_t.adjust_key_mode == SELECT_WIND)
+				{
+					if(adjust_state == WIND)
+						adjust_state = TEMP;
+					else if(adjust_state == TEMP)
+					{
+						adjust_state = 2;
+						last_key_adjust_state = false;
+						channel_state = false;
+					}
+				}
+					
+				if(adjust_state == TEMP)
+				{
+					actual_wind_refesh_time = 0x00;
+					sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
+					sFWHA01_t.general_parameter.set_wind_time = 0x00;
+					sFWHA01_t.system_parameter.last_set_temp = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_set_temp_f_display = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
+				}
+				else if(adjust_state == WIND)
+				{
+					actual_temp_refesh_time = 0x00;
+					sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+					sFWHA01_t.general_parameter.set_temp_time = 0x00;
+					sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp_f_display = RESET_VALUE;
+				}
+				else
+				{
+					sFWHA01_t.general_parameter.set_temp_time = 0x00;
+					sFWHA01_t.general_parameter.set_wind_time = 0x00;
+					sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_actual_temp_f_display = RESET_VALUE;
+				}
+			}
+			else
+			{
+				if(sFWHA01_t.run_mode == Cold_Mode)
+				{
+					if(sFWHA01_t.before_cold_run_mode == Power_Mode)
+					{
+						sFWHA01_t.before_cold_run_mode = Standard_Mode;
+					}
+					else if(sFWHA01_t.before_cold_run_mode == Standard_Mode)
+						sFWHA01_t.before_cold_run_mode = Power_Mode;
+					sFWHA01_t.run_mode = Cold_Mode;
+					first_draw = false;
+					sFWHA01_t.last_run_mode = RESET_VALUE;
+					sFWHA01_t.system_parameter.last_cold_mode_set_air = 0x00;
+					sFWHA01_t.system_parameter.last_curve_cold_mode_air_data = 0x00;
+					sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+				}
+				else
+				{
+					if(sFWHA01_t.run_mode == Standard_Mode)
+						sFWHA01_t.run_mode = Power_Mode;
+					else if(sFWHA01_t.run_mode == Power_Mode)
+						sFWHA01_t.run_mode = Standard_Mode;
+					first_draw = false;
+					sFWHA01_t.last_run_mode = RESET_VALUE;
+				}
+			}
 		}
         break;
 
@@ -618,6 +772,7 @@ void get_key(void)
 			sFWHA01_t.system_parameter.last_cold_mode_set_air = 0x00;
 			sFWHA01_t.system_parameter.last_curve_cold_mode_air_data = 0x00;
 			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+			
 		}
 		else if(sFWHA01_t.long_key_mode == POWER_MODE)
 		{
@@ -910,6 +1065,101 @@ void event_handle(void)
 			}
 			event = END_EVENT;
 			break;
+		case COLD_WIND_ADD:
+			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+			if(sFWHA01_t.system_parameter.cold_mode_set_air + 1 > MAX_SET_AIR)
+			{
+				sFWHA01_t.system_parameter.cold_mode_set_air = MAX_SET_AIR;
+				sFWHA01_t.system_parameter.last_cold_mode_set_air = 0;
+			}
+			else
+			{
+				sFWHA01_t.system_parameter.cold_mode_set_air++;
+			}
+			if(sFWHA01_t.general_parameter.ch != 0)
+			{
+				if(sFWHA01_t.general_parameter.ch == 1)
+					sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
+				if(sFWHA01_t.general_parameter.ch == 2)
+					sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
+				if(sFWHA01_t.general_parameter.ch == 3)
+					sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
+				sFWHA01_t.general_parameter.ch = 0;
+			}	
+			event = END_EVENT;
+			break;
+		case COLD_WIND_REDUCE:
+			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+			if(sFWHA01_t.system_parameter.cold_mode_set_air - 1 < MIN_SET_AIR)
+			{
+				sFWHA01_t.system_parameter.cold_mode_set_air = MIN_SET_AIR;
+				sFWHA01_t.system_parameter.last_cold_mode_set_air = 0;
+			}
+			else
+			{
+				sFWHA01_t.system_parameter.cold_mode_set_air--;
+			}
+			if(sFWHA01_t.general_parameter.ch != 0)
+			{
+				if(sFWHA01_t.general_parameter.ch == 1)
+					sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
+				if(sFWHA01_t.general_parameter.ch == 2)
+					sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
+				if(sFWHA01_t.general_parameter.ch == 3)
+					sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
+				sFWHA01_t.general_parameter.ch = 0;
+			}
+			event = END_EVENT;
+			break;
+			 
+		case COLD_WIND_ADD_FIVE:
+			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+			if(sFWHA01_t.system_parameter.cold_mode_set_air + 5 > MAX_SET_AIR)
+			{
+				sFWHA01_t.system_parameter.cold_mode_set_air = MAX_SET_AIR;
+				sFWHA01_t.system_parameter.last_cold_mode_set_air = 0;
+			}
+			else
+			{
+				sFWHA01_t.system_parameter.cold_mode_set_air += 5;
+			}
+			if(sFWHA01_t.general_parameter.ch != 0)
+			{
+				if(sFWHA01_t.general_parameter.ch == 1)
+					sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
+				if(sFWHA01_t.general_parameter.ch == 2)
+					sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
+				if(sFWHA01_t.general_parameter.ch == 3)
+					sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
+				sFWHA01_t.general_parameter.ch = 0;
+			}
+			 event = END_EVENT;
+			break;
+			
+		case COLD_WIND_REDUCE_FIVE:
+			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+			if(sFWHA01_t.system_parameter.cold_mode_set_air - 5 < MIN_SET_AIR)
+			{
+				sFWHA01_t.system_parameter.cold_mode_set_air = MIN_SET_AIR;
+				sFWHA01_t.system_parameter.last_cold_mode_set_air = 0;
+			}
+			else
+			{
+				sFWHA01_t.system_parameter.cold_mode_set_air -= 5;
+			}
+			if(sFWHA01_t.general_parameter.ch != 0)
+			{
+				if(sFWHA01_t.general_parameter.ch == 1)
+					sFWHA01_t.system_parameter.last_ch1_set_air = RESET_VALUE;
+				if(sFWHA01_t.general_parameter.ch == 2)
+					sFWHA01_t.system_parameter.last_ch2_set_air = RESET_VALUE;
+				if(sFWHA01_t.general_parameter.ch == 3)
+					sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
+				sFWHA01_t.general_parameter.ch = 0;
+			}
+			 event = END_EVENT;
+			break;
+
 		 default:break;
 		 
 	 }

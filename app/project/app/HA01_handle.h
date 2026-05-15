@@ -24,7 +24,7 @@
 
 #define PID_RANGE 200
 
-#define MAX_SET_AIR 200
+#define MAX_SET_AIR 160
 #define MIN_SET_AIR 5
 
 #define MAX_ACTUAL_AIR 534
@@ -35,8 +35,8 @@
 
 #define ERROR_TIME 200
 
-#define MAX_PWM_OUTPUT (35000)
-//#define MAX_PWM_OUTPUT (48000-1)
+//#define MAX_PWM_OUTPUT (35000)
+#define MAX_PWM_OUTPUT (48000-1)
 #define ACTUAL_TEMP_REFRESH_TIME 20
 
 #define SET_TEMP_SHOW_TIMES 1000
@@ -350,6 +350,7 @@ typedef enum
 	
 	REFRESH_SLEEP_ICON,
 	REFRESH_COLDWIND_ICON,
+	WORK_PAGE_ENG,
 	REFRESH_SLEEP_ICON_ENG
 	
 } page_e;

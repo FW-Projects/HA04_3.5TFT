@@ -1867,10 +1867,13 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			uiPic_Addr = PIC_ADDRESS_122;
 			break;	
 		case 123:
-			uiPic_Addr = PIC_ADDRESS_126;
+			uiPic_Addr = PIC_ADDRESS_123;
 			break;	
 		case 124:
 			uiPic_Addr = PIC_ADDRESS_124;
+			break;	
+		case 126:
+			uiPic_Addr = PIC_ADDRESS_126;
 			break;	
 		}
 	}

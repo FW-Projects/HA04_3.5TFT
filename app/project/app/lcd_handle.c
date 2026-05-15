@@ -21,9 +21,9 @@ static float display_air = 0;
 static float display_temp = 0;
 static float display_value = 0;
 static uint8_t last_sleep_state = 0;
-static int16_t last_output_value = -1;  // 用 -1 确保第一次刷新
+int16_t last_output_value = -1;  // 用 -1 确保第一次刷新
 uint8_t last_coldwind_state = 0;
-
+uint8_t first_draw = false;
 static number temp_actual =
 	{
 		.x = 85,
@@ -77,7 +77,7 @@ static number vision_2 =
 static number vision_1 =
 	{
 		.x = 236,
-		.y = 128,
+		.y = 131,
 		//	.num = 'v:1.10',
 		.len = 7,
 		.fc = WHITE,
@@ -270,7 +270,7 @@ static number temp_main_curve =
 
 static number air_main_curve =
 	{
-		.x = 405,
+		.x = 406,
 		.y = 205,
 		.len = 3,
 		.fc = WHITE,
@@ -691,45 +691,41 @@ void show_icon(void)
 				last_coldwind_state = sFWHA01_t.run_mode;
 				if(sFWHA01_t.page == WORK_PAGE && sFWHA01_t.run_mode == Cold_Mode)
 				{
-					if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP)
-					{
-						if(sFWHA01_t.language_state == CHINESE)
-							TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,REFRESH_SLEEP_ICON);
-						else if(sFWHA01_t.language_state == CHINESE)
-							TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,REFRESH_SLEEP_ICON_ENG);
-						TranferPicturetoTFT_LCD(145,80,190,35,COLD_MODE_ICON_CN);
-					}
-					else
-						TranferPicturetoTFT_LCD(145,80,190,35,COLD_MODE_ICON_CN);
+					if(sFWHA01_t.language_state == CHINESE)
+						TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,REFRESH_SLEEP_ICON);
+					else if(sFWHA01_t.language_state == ENGLISH)
+						TranferPicturetoTFT_LCD(sleep_icon.x1,sleep_icon.y1,sleep_icon.length,sleep_icon.winth,REFRESH_SLEEP_ICON_ENG);
+					TranferPicturetoTFT_LCD(145,80,190,35,COLD_MODE_ICON_CN);
+
 				}
 			}
 			
 			
-			if(sFWHA01_t.general_parameter.save_ch_flag == true)
-			{
-				TranferPicturetoTFT_LCD(165,135,150,68,SAVE_ICON_CN);
-				display_times--;
-				if(display_times <= 0)	
-				{
-					if(sFWHA01_t.page == CURVE_PAGE)
-					{
-						display_times = 25;
-					}
-					else
-					{
-						display_times = SAVE_CH_TIME;
-					}
-					
-					sFWHA01_t.general_parameter.save_ch_flag = false;
-					
-					sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
-					sFWHA01_t.system_parameter.last_sleep_air_data = RESET_VALUE;
-					sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE; 
-					sFWHA01_t.system_parameter.last_actual_temp_f_display = RESET_VALUE;
-					actual_temp_refesh_time = 0x00;
-					sFWHA01_t.last_page = RESET_VALUE;
-				}
-			}
+//			if(sFWHA01_t.general_parameter.save_ch_flag == true)
+//			{
+//				TranferPicturetoTFT_LCD(165,135,150,68,SAVE_ICON_CN);
+//				display_times--;
+//				if(display_times <= 0)	
+//				{
+//					if(sFWHA01_t.page == CURVE_PAGE)
+//					{
+//						display_times = 25;
+//					}
+//					else
+//					{
+//						display_times = SAVE_CH_TIME;
+//					}
+//					
+//					sFWHA01_t.general_parameter.save_ch_flag = false;
+//					
+//					sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
+//					sFWHA01_t.system_parameter.last_sleep_air_data = RESET_VALUE;
+//					sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE; 
+//					sFWHA01_t.system_parameter.last_actual_temp_f_display = RESET_VALUE;
+//					actual_temp_refesh_time = 0x00;
+//					sFWHA01_t.last_page = RESET_VALUE;
+//				}
+//			}
 			 show_step = 0;
         break;
 			default:
@@ -899,7 +895,7 @@ void show_curve(HA01_Handle *this)
 
             if (this->Work_handle_state == HANDLE_WORKING &&
                 this->handle_position == IN_POSSITION &&
-                this->sleep_state == SLEEP_OPEN)
+                this->sleep_state == SLEEP_OPEN && sFWHA01_t.general_parameter.set_wind_time == 0x00)
             {
                 air_value = sFWHA01_t.system_parameter.sleep_air_data;
             }
@@ -910,7 +906,7 @@ void show_curve(HA01_Handle *this)
                             : sFWHA01_t.system_parameter.air_data;
             }
 
-            DrawProgressBar(441, 90, 454, 256, 15, 15, air_value * 0.5, 0x4c38, 0x18a3, AIR_BAR_ICON);
+            DrawProgressBar(441, 90, 454, 256, 15, 15, air_value * 0.625, 0x045f, 0x18a3, AIR_BAR_ICON);  //   0x4c38
         }
 
         return;
@@ -983,7 +979,10 @@ static void show_output(HA01_Handle *this)
 
     // 只处理工作页
     if (this->page != WORK_PAGE)
+	{
+		last_output_value = -1;
         return;
+	}
 
     // 休眠或唤醒状态直接清零输出
     if (this->Work_handle_state == HANDLE_SLEEP || this->Work_handle_state == HANDLE_WAKEN)
@@ -1107,29 +1106,28 @@ static void show_temp(void)
 						int cal = (sFWHA01_t.temp_unit == FAHRENHEIT && sFWHA01_t.system_parameter.cal_data != 0) ?
 						  9 * sFWHA01_t.system_parameter.cal_data / 5 + 32 :
 						  -sFWHA01_t.system_parameter.cal_data;
-
-						if (sFWHA01_t.temp_unit == FAHRENHEIT)
-							sFWHA01_t.system_parameter.actual_temp_f_display = 9 * sFWHA01_t.system_parameter.actual_temp / 5 + 32;
-
-						if (sFWHA01_t.run_mode == Power_Mode)
+						if(sFWHA01_t.run_mode == Power_Mode)
 						{
 							if(sFWHA01_t.temp_unit == FAHRENHEIT)
 							{
-								disp_actual =  sFWHA01_t.system_parameter.actual_temp_f_display - 122 + cal;
+								sFWHA01_t.system_parameter.actual_temp_f_display = 9 * sFWHA01_t.system_parameter.actual_temp / 5 + 32;
+								disp_actual = sFWHA01_t.system_parameter.actual_temp_f_display  - 122 + cal;
 								if(disp_actual < sFWHA01_t.system_parameter.cpu_temp_f)
 									disp_actual = sFWHA01_t.system_parameter.cpu_temp_f;
 							}
 							else
 							{
-								disp_actual = sFWHA01_t.system_parameter.actual_temp - POWER_TEMP + cal;
+								disp_actual = sFWHA01_t.system_parameter.actual_temp  - POWER_TEMP+ cal;
 								if(disp_actual < sFWHA01_t.system_parameter.cpu_temp)
 									disp_actual = sFWHA01_t.system_parameter.cpu_temp;
 							}
+							
 						}
 						else
 						{
 							if(sFWHA01_t.temp_unit == FAHRENHEIT)
 							{
+								sFWHA01_t.system_parameter.actual_temp_f_display = 9 * sFWHA01_t.system_parameter.actual_temp / 5 + 32;
 								disp_actual = sFWHA01_t.system_parameter.actual_temp_f_display + cal;
 								if(disp_actual < sFWHA01_t.system_parameter.cpu_temp_f)
 									disp_actual = sFWHA01_t.system_parameter.cpu_temp_f;
@@ -1141,7 +1139,6 @@ static void show_temp(void)
 									disp_actual = sFWHA01_t.system_parameter.cpu_temp;
 							}
 						}
-
 						actual_temp_refesh_time = (sFWHA01_t.page == CURVE_PAGE || sFWHA01_t.page == LOGO) ? 20 :
 											 (sFWHA01_t.Work_handle_state == HANDLE_SLEEP) ? 0 : ACTUAL_TEMP_REFRESH_TIME;
 
@@ -1229,7 +1226,7 @@ static void show_temp(void)
 						first_in = true;
 						sFWHA01_t.system_parameter.last_air_data_actual = sFWHA01_t.system_parameter.air_data;
 						sFWHA01_t.system_parameter.last_sleep_air_data = sFWHA01_t.system_parameter.sleep_air_data; 
-						if (sFWHA01_t.handle_position == IN_POSSITION && sFWHA01_t.sleep_state== SLEEP_OPEN) 
+						if (sFWHA01_t.handle_position == IN_POSSITION && sFWHA01_t.sleep_state== SLEEP_OPEN && sFWHA01_t.Work_handle_state != HANDLE_SLEEP) 
 						{ 
 							display_value = sFWHA01_t.system_parameter.sleep_air_data; 
 						} 
@@ -1568,6 +1565,7 @@ void page_switch(void)
         sFWHA01_t.last_page = sFWHA01_t.page;
 
         // ====================== 一次性重置所有显示缓存 ======================
+		last_output_value = -1;
         sFWHA01_t.system_parameter.last_set_temp = RESET_VALUE;
         sFWHA01_t.system_parameter.last_actual_temp = RESET_VALUE;
         sFWHA01_t.system_parameter.last_set_sleep_time = RESET_VALUE;
@@ -1644,8 +1642,6 @@ void page_switch(void)
 
 void show_navigation_bar(void)
 {
-    static bool first_draw = false;
-
     // 首次绘制导航栏
     if (!first_draw)
     {
@@ -1674,7 +1670,7 @@ void show_navigation_bar(void)
     // 显示电源模式图标
     if (sFWHA01_t.last_run_mode != sFWHA01_t.run_mode)
     {
-        if (sFWHA01_t.run_mode == Power_Mode)
+        if (sFWHA01_t.run_mode == Power_Mode || sFWHA01_t.before_cold_run_mode == Power_Mode)
         {
             TranferPicturetoTFT_LCD(power_icon.x1, power_icon.y1, power_icon.length, power_icon.winth, POWER_ICON);
         }

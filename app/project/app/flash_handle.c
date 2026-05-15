@@ -380,7 +380,7 @@ void check_data_all(void)
 		sFWHA01_t.display_lock_state = UNLOCK;
 	}
 	
-	if(sFWHA01_t.sleep_state != SLEEP_CLOSE && sFWHA01_t.sleep_state != SLEEP_OPEN)
+	if(sFWHA01_t.sleep_state != SLEEP_OPEN)
 	{
 		sFWHA01_t.sleep_state = SLEEP_OPEN;
 	}

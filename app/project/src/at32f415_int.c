@@ -287,12 +287,12 @@ void SysTick_Handler(void)
 		if(sFWHA01_t.system_parameter.waken_time_count != 0)
 			sFWHA01_t.system_parameter.waken_time_count--;
 	}
-//	ec11_run_time--;
-//	if(ec11_run_time == 0)
-//	{
-//		ec11_run_time = 1;
-//		ec11_handle();
-//	}
+	ec11_run_time--;
+	if(ec11_run_time == 0)
+	{
+		ec11_run_time = 1;
+		ec11_handle();
+	}
 	
 	    /* get fan speed */
     get_fan_speed_time--;
@@ -308,7 +308,7 @@ void SysTick_Handler(void)
     if (first_in == false)
     {
         adc1_ordinary_value = get_adcval(ADC_CHANNEL_16);
-        sFWHA01_t.system_parameter.cpu_temp = (ADC_TEMP_BASE - (double)adc1_ordinary_value * ADC_VREF / 4096) / ADC_TEMP_SLOPE ;
+        sFWHA01_t.system_parameter.cpu_temp = (ADC_TEMP_BASE - (double)adc1_ordinary_value * ADC_VREF / 4096) / ADC_TEMP_SLOPE + 6;
 		sFWHA01_t.system_parameter.cpu_temp_f = (sFWHA01_t.system_parameter.cpu_temp * 9 / 5) + 32;
       
         if (sFWHA01_t.system_parameter.cpu_temp <= 50 && sFWHA01_t.system_parameter.cpu_temp > 0)

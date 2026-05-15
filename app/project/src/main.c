@@ -63,7 +63,7 @@
 
 /* private define ------------------------------------------------------------*/
 /* add user code begin private define */
-#define FEED_DOG_TIME 100
+#define FEED_DOG_TIME 1000
 #define SPI1_RD_GPIO_PORT GPIOF
 #define SPI1_RD_PIN GPIO_PINS_5
 /* add user code end private define */
@@ -166,7 +166,7 @@ int main(void)
   /* add user code begin 2 */
   /* 优化方向：1.提高定时器分辨率 2.更换合适滤波算法 3.让小数点参与到运算中,减少输入误差 */
 //  PID_Init(&handle_pid,1000,4,33000, MAX_PWM_OUTPUT);
-  PID_Init(&handle_pid,800,4,20000, MAX_PWM_OUTPUT);
+  PID_Init(&handle_pid,860,4,45000, MAX_PWM_OUTPUT);
 
   tmt_init();
   
@@ -178,7 +178,7 @@ int main(void)
   tmt.create(output_task, OUTPUT_HANDLE_TIME);
   tmt.create(flash_task, FLASH_HANDLE_TIME);
   tmt.create(work_task, WORK_HANDLE_TIME);
-  tmt.create(ec11_task, EC11_TASK_TIME);
+//  tmt.create(ec11_task, EC11_TASK_TIME);
   tmt.create(key_task, KEY_HANDLE_TIME);
   filter_init(&handle_temp, ADC_CHANNEL_10);
   FWHA01_Init(&sFWHA01_t);

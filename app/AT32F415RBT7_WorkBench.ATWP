@@ -77,8 +77,8 @@
             <ModeSub name="Enable One cycle mode" value="TRUE"/>
         </Mode>
         <Parameters>
-            <ParametersSub name="DividerValue" value="149"/>
-            <ParametersSub name="Period" value="59999"/>
+            <ParametersSub name="DividerValue" value="77"/>
+            <ParametersSub name="Period" value="59815"/>
             <ParametersSub name="ClockDivision" value="TMR_CLOCK_DIV4"/>
             <ParametersSub name="OCMode_4" value="TMR_OUTPUT_CONTROL_PWM_MODE_A"/>
             <ParametersSub name="OC4ImmediatelyMode_PWM" value="TRUE"/>
@@ -108,7 +108,7 @@
             <ModeSub name="WDT_State" value="TRUE"/>
         </Mode>
         <Parameters>
-            <ParametersSub name="Reload" value="99"/>
+            <ParametersSub name="Prescaler" value="WDT_CLK_DIV_16"/>
         </Parameters>
     </WDT>
     <DMA>

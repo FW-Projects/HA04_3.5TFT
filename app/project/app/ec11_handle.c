@@ -123,8 +123,7 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
 				sFWHA01_t.adjust_key_mode = SELECT_CH;
 			}
 			
-		}
-		
+		}	
 		else if (sFWHA01_t.page == SET_LANGUAGE_PAGE_CN)
         {
             sFWHA01_t.page  = SET_LANGUAGE_PAGE_ENG;
@@ -134,8 +133,7 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
         {
             sFWHA01_t.page  = SET_LANGUAGE_PAGE_CN;
             sFWHA01_t.language_state = CHINESE;
-        }
-		
+        }	
         else if (sFWHA01_t.page == SET_TEMP_CAL_PAGE_CN)
         {
 			if(sFWHA01_t.set_cal == SET_RETURN_CAL)
@@ -156,7 +154,6 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
 				 ec11_handle_event = SET_TEMP_CAL_ADD;
 			}
         }
-		   
         else if (sFWHA01_t.page == SET_TEMP_LOCK_PAGE_CN)
         {
             ec11_handle_event = SET_TEMP_LOCK;
@@ -165,14 +162,10 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
         {
            ec11_handle_event = SET_SLEEP_MODE;
         }
-        
-        
         else if (sFWHA01_t.page == SET_RESET_PAGE_CN)
         {
            ec11_handle_event = SET_RESET_MODE;
         }
-
-		
         sbeep.cmd = BEEP_SHORT;
         break;
 
@@ -180,11 +173,11 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
          if ((sFWHA01_t.page == WORK_PAGE || sFWHA01_t.page == CURVE_PAGE))
         {
             if(sFWHA01_t.run_mode == Cold_Mode)
-		{
-			air_ec11_handle_event = COLD_AIR_REDUCE;
-		}
-		else
-			air_ec11_handle_event = AIR_REDUCE;
+			{
+				air_ec11_handle_event = COLD_AIR_REDUCE;
+			}
+			else
+				air_ec11_handle_event = AIR_REDUCE;
         }
 		else if (sFWHA01_t.page >= SELECT_SET_WORK_PAGE_CN && sFWHA01_t.page <= SELECT_EXIT_MENU_PAGE_CN)
         {
@@ -322,21 +315,27 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
         break;
 
     case EC11_ANALYZE_FAST_CW:
-		if(sFWHA01_t.run_mode == Cold_Mode)
-		{
-			air_ec11_handle_event = COLD_AIR_ADD_FIVE;
-		}
-		else
-			air_ec11_handle_event = AIR_ADD_FIVE;
+		if ((sFWHA01_t.page == WORK_PAGE || sFWHA01_t.page == CURVE_PAGE))
+        {
+            if(sFWHA01_t.run_mode == Cold_Mode)
+			{
+				air_ec11_handle_event = COLD_AIR_ADD_FIVE;
+			}
+			else
+				air_ec11_handle_event = AIR_ADD_FIVE;
+        }
 		sbeep.cmd = BEEP_SHORT;
         break;
     case EC11_ANALYZE_FAST_CCW:
-		if(sFWHA01_t.run_mode == Cold_Mode)
-		{
-			air_ec11_handle_event = COLD_AIR_REDUCE_FIVE;
-		}
-		else
-			air_ec11_handle_event = AIR_REDUCE_FIVE;
+		if ((sFWHA01_t.page == WORK_PAGE || sFWHA01_t.page == CURVE_PAGE))
+        {
+            if(sFWHA01_t.run_mode == Cold_Mode)
+			{
+				air_ec11_handle_event = COLD_AIR_REDUCE_FIVE;
+			}
+			else
+				air_ec11_handle_event = AIR_REDUCE_FIVE;
+        }
 		sbeep.cmd = BEEP_SHORT;
         break;
     case EC11_ANALYZE_SHORT_CLICK:
@@ -466,6 +465,7 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
 			sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
 			sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+			last_coldwind_state = RESET_VALUE;
             sbeep.cmd = BEEP_SHORT;
         }
         break;
@@ -943,6 +943,7 @@ void temp_ec11_get_event(EC11_AnalyzeResult state_temp)
 			sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
 			sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+			last_coldwind_state = RESET_VALUE;
             sbeep.cmd = BEEP_SHORT;
         }
         break;
@@ -1022,12 +1023,21 @@ void ec11_event_handle(void)
         {
             sFWHA01_t.page = CURVE_PAGE;
         }
-		sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
-		sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
+		
 		actual_temp_refesh_time = 0x00;
 //		sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 		if(sFWHA01_t.run_mode == Cold_Mode)
+		{
 			last_coldwind_state = RESET_VALUE;
+			sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+			sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+		}
+		else
+		{
+			sFWHA01_t.general_parameter.set_wind_time = 0x00;
+			sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+			sFWHA01_t.system_parameter.last_air_data_actual = RESET_VALUE;
+		}
         ec11_handle_event = EC11_END_EVENT;
         break;
 
@@ -1440,6 +1450,13 @@ void ec11_event_handle(void)
 				{
 					sFWHA01_t.before_cold_run_mode = Power_Mode;
 					sFWHA01_t.set_run_mode = Power_Mode;
+					first_draw = false;
+					sFWHA01_t.last_run_mode = RESET_VALUE;
+				}
+				else
+				{
+					sFWHA01_t.set_run_mode = Power_Mode;
+					sFWHA01_t.run_mode = Power_Mode;
 				}
 
 			}
@@ -1449,6 +1466,13 @@ void ec11_event_handle(void)
 				{
 					sFWHA01_t.before_cold_run_mode = Standard_Mode;
 					sFWHA01_t.set_run_mode = Standard_Mode;
+					first_draw = false;
+					sFWHA01_t.last_run_mode = RESET_VALUE;
+				}
+				else
+				{
+					sFWHA01_t.set_run_mode = Standard_Mode;
+					sFWHA01_t.run_mode = Standard_Mode;
 				}
 			}
         ec11_handle_event = EC11_END_EVENT;

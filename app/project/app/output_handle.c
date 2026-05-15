@@ -47,6 +47,8 @@ static void get_handle_position(HA01_Handle *this)
 
 static void get_handle_work_state(HA01_Handle *this)
 {
+	static uint8_t first_n = false;
+	static float act_temp = 0x00;
     switch (this->Work_handle_state)
     {
     case HANDLE_SLEEP:
@@ -58,12 +60,18 @@ static void get_handle_work_state(HA01_Handle *this)
 				sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
 				sFWHA01_t.system_parameter.last_curve_air_data = 0x00;
 				sFWHA01_t.system_parameter.last_air_data = 0x00;
-//				sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
-//				sFWHA01_t.system_parameter.last_set_temp = 0x00;
-//				sFWHA01_t.system_parameter.last_set_temp_f_display = 0x00;
+				sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
+				sFWHA01_t.system_parameter.last_set_temp = 0x00;
+				sFWHA01_t.system_parameter.last_set_temp_f_display = 0x00;
 			}
 			else if (this->handle_position == IN_POSSITION)
 			{
+				if(first_n == false)
+				{
+					first_n = true;
+					this->system_parameter.last_air_data = 0x00;
+					this->system_parameter.last_curve_air_data = 0x00;
+				}
 				this->Work_handle_state = HANDLE_SLEEP;
 			}
 		}
@@ -83,7 +91,17 @@ static void get_handle_work_state(HA01_Handle *this)
                 this->sleep_state == SLEEP_OPEN &&
 				this->run_mode != Cold_Mode)
         {
-            if (this->system_parameter.actual_temp <= 70)
+			this->last_handle_position = IN_POSSITION;
+			if(sFWHA01_t.run_mode == Power_Mode)
+			{
+				act_temp =this->system_parameter.actual_temp - POWER_TEMP;		
+			}
+			else
+			{
+				act_temp = this->system_parameter.actual_temp;
+				
+			}
+            if (act_temp <= 70)
             {
                 this->system_parameter.sleep_time++;
 
@@ -92,6 +110,7 @@ static void get_handle_work_state(HA01_Handle *this)
                     this->Work_handle_state = HANDLE_SLEEP;
                     this->system_parameter.sleep_time = 0;
 					sFWHA01_t.fan_run_flag = false;
+					sFWHA01_t.system_parameter.last_air_data_actual = 0x00;
                     sbeep.cmd = BEEP_LONG;
                     break;
                 }
@@ -100,6 +119,19 @@ static void get_handle_work_state(HA01_Handle *this)
 		else if(this->sleep_state == SLEEP_CLOSE)
 		{
 			  this->Work_handle_state = HANDLE_WORKING;
+		}
+		else if (this->handle_position == NOT_IN_POSSITION)
+		{
+			if(this->last_handle_position == IN_POSSITION)
+			{
+				
+				this->last_handle_position  = NOT_IN_POSSITION;
+				sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
+				sFWHA01_t.general_parameter.set_wind_time = SET_TEMP_SHOW_TIMES;
+				sFWHA01_t.system_parameter.last_set_temp = RESET_VALUE;
+				sFWHA01_t.system_parameter.last_air_data = RESET_VALUE;
+			}
+			
 		}
         break;
 	case HANDLE_WAKEN:
@@ -270,7 +302,7 @@ static void get_handle_error_state(HA01_Handle *this)
 					if (fan_run_flag == false)
 					{
 						/* open fan output with a half of max set val*/
-						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13 + 30);
+						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13);
 					}
 				}
 				else if (this->system_parameter.actual_temp >= 70 && this->system_parameter.actual_temp < 250)
@@ -279,7 +311,8 @@ static void get_handle_error_state(HA01_Handle *this)
 					{
 						/* open fan output with actual temp change*/
 						this->system_parameter.sleep_air_data = this->system_parameter.actual_temp * 0.4;
-						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13 + 30);
+//						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13 + 30);
+						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data);
 					}
 				}
 				else
@@ -419,9 +452,14 @@ void pwm_control(HA01_Handle *this)
     static uint16_t delay_time = 0;
     static bool change_flag = false;
 //    static uint32_t hight_kd = 35000;
-	static uint32_t hight_kd = 35000;
-    static uint32_t low_kd = 5000;
-
+//	static uint32_t hight_kd = 35000;
+//    static uint32_t low_kd = 10000;
+//	static float low_ki = 3;
+//	static float hight_ki = 4;
+	static uint32_t hight_kd = 18000;
+    static uint32_t low_kd = 10000;
+	static float low_ki = 3;
+	static float hight_ki = 4;
     if (change_flag)
     {
 		if(handle_pid.Kd<= low_kd)
@@ -430,6 +468,7 @@ void pwm_control(HA01_Handle *this)
     else
     {
         handle_pid.Kd = hight_kd;
+		handle_pid.Ki = hight_ki;
     }
 	
 	if(sFWHA01_t.run_mode == Power_Mode)
@@ -470,15 +509,24 @@ void pwm_control(HA01_Handle *this)
 				if (temp <= (set_temp + 5) && temp >= (set_temp - 5))
 				{
 					delay_time++;
-					if (delay_time >= 15)
+					if (delay_time >= 60)
 					{
-						if(handle_pid.Kd-5000<=low_kd)
+						if(handle_pid.Kd-2000<=low_kd)
 						{
 							handle_pid.Kd = low_kd;
+							
+							if (handle_pid.Ki - 0.1 <= low_ki)
+							{
+								handle_pid.Ki = low_ki;
+							}
+							else
+							{
+								handle_pid.Ki -= 0.1;
+							}
 						}
 						else
 						{
-							handle_pid.Kd -= 5000;
+							handle_pid.Kd -= 2000;
 							
 						}
 						

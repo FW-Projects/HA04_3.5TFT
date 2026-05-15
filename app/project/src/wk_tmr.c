@@ -123,7 +123,7 @@ void wk_tmr5_init(void)
   tmr_cnt_dir_set(TMR5, TMR_COUNT_UP);
   tmr_clock_source_div_set(TMR5, TMR_CLOCK_DIV4);
   tmr_period_buffer_enable(TMR5, FALSE);
-  tmr_base_init(TMR5, 59999, 149);
+  tmr_base_init(TMR5, 59815, 77);
 
   /* configure primary mode settings */
   tmr_sub_sync_mode_set(TMR5, FALSE);
