@@ -64,6 +64,7 @@ void FlashProc(void)
 	static uint8_t last_longkey_mode;
 	static uint8_t last_shortkey_mode;
 	static uint8_t last_adjustkey_mode;
+	static uint16_t last_cold_set_wind;
     static uint16_t flash_version = 0;
     static uint8_t flash_count = 0;
     static uint16_t a_ver;
@@ -137,7 +138,8 @@ void FlashProc(void)
 				last_run_mode != sFWHA01_t.run_mode							 ||
 				last_longkey_mode != sFWHA01_t.long_key_mode                 ||
 				last_shortkey_mode != sFWHA01_t.short_key_mode               ||
-				last_adjustkey_mode != sFWHA01_t.adjust_key_mode 	)
+				last_adjustkey_mode != sFWHA01_t.adjust_key_mode 	         ||
+				last_cold_set_wind != sFWHA01_t.system_parameter.cold_mode_set_air)
         {
             flash_unlock();
 
@@ -194,6 +196,7 @@ void FlashProc(void)
 			flash_halfword_program(A_LONGKEY_MODE_ADDRESS, sFWHA01_t.long_key_mode);
 			flash_halfword_program(A_SHORTKEY_MODE_ADDRESS, sFWHA01_t.short_key_mode);
 			flash_halfword_program(A_ADJUSTKEY_MODE_ADDRESS, sFWHA01_t.adjust_key_mode);
+			flash_halfword_program(A_COLD_WIND_DATA, sFWHA01_t.system_parameter.cold_mode_set_air);
         }
         else
         {
@@ -208,6 +211,7 @@ void FlashProc(void)
 			flash_halfword_program(B_LONGKEY_MODE_ADDRESS, sFWHA01_t.long_key_mode);
 			flash_halfword_program(B_SHORTKEY_MODE_ADDRESS, sFWHA01_t.short_key_mode);
 			flash_halfword_program(B_ADJUSTKEY_MODE_ADDRESS, sFWHA01_t.adjust_key_mode);
+			flash_halfword_program(B_COLD_WIND_DATA, sFWHA01_t.system_parameter.cold_mode_set_air);
         }
 		last_work_mode = sFWHA01_t.work_mode;
 		last_temp_unit_mode = sFWHA01_t.temp_unit;
@@ -220,6 +224,7 @@ void FlashProc(void)
 		last_longkey_mode = sFWHA01_t.long_key_mode;  
         last_shortkey_mode = sFWHA01_t.short_key_mode;  
         last_adjustkey_mode = sFWHA01_t.adjust_key_mode;
+		last_cold_set_wind = sFWHA01_t.system_parameter.cold_mode_set_air;
 		sflash.state ++;
 		break;
     case FLASH_FINSH:
@@ -262,6 +267,7 @@ void get_data_from_a(void)
 	sFWHA01_t.long_key_mode = flash_wred_halfword(A_LONGKEY_MODE_ADDRESS);  
     sFWHA01_t.short_key_mode = flash_wred_halfword(A_SHORTKEY_MODE_ADDRESS);  
 	sFWHA01_t.adjust_key_mode = flash_wred_halfword(A_ADJUSTKEY_MODE_ADDRESS); 
+	sFWHA01_t.system_parameter.cold_mode_set_air = flash_wred_halfword(A_COLD_WIND_DATA); 
 }
 void get_data_from_b(void)
 {
@@ -285,12 +291,14 @@ void get_data_from_b(void)
 	sFWHA01_t.long_key_mode = flash_wred_halfword(B_LONGKEY_MODE_ADDRESS);  
     sFWHA01_t.short_key_mode = flash_wred_halfword(B_SHORTKEY_MODE_ADDRESS);  
 	sFWHA01_t.adjust_key_mode = flash_wred_halfword(B_ADJUSTKEY_MODE_ADDRESS); 
+	sFWHA01_t.system_parameter.cold_mode_set_air = flash_wred_halfword(B_COLD_WIND_DATA); 
 }
 
 void get_reset_data(void)
 {
 	sFWHA01_t.system_parameter.set_temp = 380;
 	sFWHA01_t.system_parameter.air_data= 80;
+	sFWHA01_t.system_parameter.cold_mode_set_air= 100;
 	sFWHA01_t.system_parameter.ch1_set_temp = 320;
 	sFWHA01_t.system_parameter.ch1_set_air = 50;
 	sFWHA01_t.system_parameter.ch2_set_temp = 350;
@@ -322,6 +330,11 @@ void check_data_all(void)
 	if(sFWHA01_t.system_parameter.air_data > MAX_SET_AIR || sFWHA01_t.system_parameter.air_data < MIN_SET_AIR)
 	{
 		sFWHA01_t.system_parameter.air_data = 80;
+	}
+	
+	if(sFWHA01_t.system_parameter.cold_mode_set_air > MAX_SET_AIR || sFWHA01_t.system_parameter.cold_mode_set_air < MIN_SET_AIR)
+	{
+		sFWHA01_t.system_parameter.cold_mode_set_air = 100;
 	}
 	
 	if(sFWHA01_t.system_parameter.ch1_set_temp > MAX_SET_TEMP || sFWHA01_t.system_parameter.ch1_set_temp < MIN_SET_TEMP)
@@ -404,4 +417,5 @@ void check_data_all(void)
 	{
 		sFWHA01_t.adjust_key_mode = SELECT_TEMP;
 	}
+	
 }
