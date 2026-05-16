@@ -106,6 +106,7 @@ void check_flash_updata(void);
   * @retval none
   */
 int main(void)
+
 {
   /* add user code begin 1 */
 	nvic_vector_table_set(NVIC_VECTTAB_FLASH, 0x4000);
@@ -166,7 +167,7 @@ int main(void)
   /* add user code begin 2 */
   /* 优化方向：1.提高定时器分辨率 2.更换合适滤波算法 3.让小数点参与到运算中,减少输入误差 */
 //  PID_Init(&handle_pid,1000,4,33000, MAX_PWM_OUTPUT);
-  PID_Init(&handle_pid,860,4,45000, MAX_PWM_OUTPUT);
+  PID_Init(&handle_pid,800,4,35000, MAX_PWM_OUTPUT);
 
   tmt_init();
   
@@ -183,8 +184,8 @@ int main(void)
   filter_init(&handle_temp, ADC_CHANNEL_10);
   FWHA01_Init(&sFWHA01_t);
   LCD_Init(); 
-   TranferPicturetoTFT_LCD(94, 134, 292, 51, LOGO);
-  TranferPicturetoTFT_LCD(94, 134, 292, 51, LOGO);
+   TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
+  TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
   check_flash_updata();
   /* 等待系统上电稳定延时 */
   wk_delay_ms(1000);

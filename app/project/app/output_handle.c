@@ -3,7 +3,7 @@
 #include "PID_operation.h"
 #include "adc.h"
 #include "adc_filter.h"
-
+#include "lcd_handle.h"
 //#include "perf_counter.h"
 static void get_handle_position(HA01_Handle *this);
 static void get_handle_work_state(HA01_Handle *this);
@@ -29,8 +29,7 @@ void output_handle(void)
 	
     get_handle_position(&sFWHA01_t);
     get_handle_work_state(&sFWHA01_t);
-    get_handle_error_state(&sFWHA01_t);
-//    fan_control(&sFWHA01_t);
+ //    fan_control(&sFWHA01_t);
 }
 
 static void get_handle_position(HA01_Handle *this)
@@ -91,6 +90,7 @@ static void get_handle_work_state(HA01_Handle *this)
                 this->sleep_state == SLEEP_OPEN &&
 				this->run_mode != Cold_Mode)
         {
+			lock_temp_flag = false;
 			this->last_handle_position = IN_POSSITION;
 			if(sFWHA01_t.run_mode == Power_Mode)
 			{
@@ -451,15 +451,14 @@ void pwm_control(HA01_Handle *this)
     static float last_set_temp = 0;
     static uint16_t delay_time = 0;
     static bool change_flag = false;
-//    static uint32_t hight_kd = 35000;
-//	static uint32_t hight_kd = 35000;
+	static uint32_t hight_kd = 25000;
+    static uint32_t low_kd = 15000;
+	static float low_ki = 3;
+	static float hight_ki = 4;
+//	static uint32_t hight_kd = 18000;
 //    static uint32_t low_kd = 10000;
 //	static float low_ki = 3;
 //	static float hight_ki = 4;
-	static uint32_t hight_kd = 18000;
-    static uint32_t low_kd = 10000;
-	static float low_ki = 3;
-	static float hight_ki = 4;
     if (change_flag)
     {
 		if(handle_pid.Kd<= low_kd)
@@ -509,6 +508,7 @@ void pwm_control(HA01_Handle *this)
 				if (temp <= (set_temp + 5) && temp >= (set_temp - 5))
 				{
 					delay_time++;
+
 					if (delay_time >= 60)
 					{
 						if(handle_pid.Kd-2000<=low_kd)

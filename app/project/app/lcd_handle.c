@@ -24,6 +24,8 @@ static uint8_t last_sleep_state = 0;
 int16_t last_output_value = -1;  // 用 -1 确保第一次刷新
 uint8_t last_coldwind_state = 0;
 uint8_t first_draw = false;
+uint8_t lock_temp_flag = false;
+
 static number temp_actual =
 	{
 		.x = 85,
@@ -1052,8 +1054,7 @@ static void show_temp(void)
     static uint8_t first_in = 0;
     static int disp_actual = 0;
 	static uint8_t show_step = 0;
-	
-	
+	static int temp_to_display = 0x00;
 	switch(show_step)
 	{
 		case 0:
@@ -1111,13 +1112,13 @@ static void show_temp(void)
 							if(sFWHA01_t.temp_unit == FAHRENHEIT)
 							{
 								sFWHA01_t.system_parameter.actual_temp_f_display = 9 * sFWHA01_t.system_parameter.actual_temp / 5 + 32;
-								disp_actual = sFWHA01_t.system_parameter.actual_temp_f_display  - 122 + cal;
+								disp_actual = sFWHA01_t.system_parameter.actual_temp_f_display  - 122  + cal;
 								if(disp_actual < sFWHA01_t.system_parameter.cpu_temp_f)
 									disp_actual = sFWHA01_t.system_parameter.cpu_temp_f;
 							}
 							else
 							{
-								disp_actual = sFWHA01_t.system_parameter.actual_temp  - POWER_TEMP+ cal;
+								disp_actual = sFWHA01_t.system_parameter.actual_temp  - POWER_TEMP + cal;
 								if(disp_actual < sFWHA01_t.system_parameter.cpu_temp)
 									disp_actual = sFWHA01_t.system_parameter.cpu_temp;
 							}
@@ -1143,20 +1144,32 @@ static void show_temp(void)
 											 (sFWHA01_t.Work_handle_state == HANDLE_SLEEP) ? 0 : ACTUAL_TEMP_REFRESH_TIME;
 
 						// 更新实际温度显示
+
 						if (sFWHA01_t.system_parameter.last_actual_temp != sFWHA01_t.system_parameter.actual_temp ||
 							sFWHA01_t.system_parameter.last_actual_temp_f_display != sFWHA01_t.system_parameter.actual_temp_f_display)
 						{
 							sFWHA01_t.system_parameter.last_actual_temp = sFWHA01_t.system_parameter.actual_temp;
 							sFWHA01_t.system_parameter.last_actual_temp_f_display = sFWHA01_t.system_parameter.actual_temp_f_display;
 
-							int temp_to_display = disp_actual;
-							if (sFWHA01_t.display_lock_state == LOCK)
+							if (sFWHA01_t.display_lock_state == LOCK && sFWHA01_t.run_mode != Cold_Mode)
 							{
-								if (disp_actual >= (sFWHA01_t.system_parameter.set_temp - LOCK_RANGE) &&
-									disp_actual <= (sFWHA01_t.system_parameter.set_temp + LOCK_RANGE))
+								if(lock_temp_flag == false)
+								{
+									temp_to_display = disp_actual;
+									if (disp_actual >= (sFWHA01_t.system_parameter.set_temp - LOCK_RANGE) &&
+										disp_actual <= (sFWHA01_t.system_parameter.set_temp + LOCK_RANGE))
+									{
+										lock_temp_flag = true;
+									}
+								}
+								else
 								{
 									temp_to_display = (sFWHA01_t.temp_unit == FAHRENHEIT) ? sFWHA01_t.system_parameter.set_temp_f_display : sFWHA01_t.system_parameter.set_temp;
 								}
+							}
+							else
+							{
+								temp_to_display = disp_actual;
 							}
 
 							if (sFWHA01_t.page == WORK_PAGE)
@@ -1220,8 +1233,7 @@ static void show_temp(void)
 				}
 				else
 				{
-					if ((sFWHA01_t.system_parameter.last_air_data_actual != sFWHA01_t.system_parameter.air_data || sFWHA01_t.system_parameter.last_sleep_air_data != sFWHA01_t.system_parameter.sleep_air_data) && 
-						sFWHA01_t.general_parameter.save_ch_flag == false) 
+					if ((sFWHA01_t.system_parameter.last_air_data_actual != sFWHA01_t.system_parameter.air_data || sFWHA01_t.system_parameter.last_sleep_air_data != sFWHA01_t.system_parameter.sleep_air_data))
 					{
 						first_in = true;
 						sFWHA01_t.system_parameter.last_air_data_actual = sFWHA01_t.system_parameter.air_data;
@@ -1496,12 +1508,13 @@ void page_switch(void)
         {
             reset_time = RESET_TIME;
             sFWHA01_t.reset_flag = false;
+			sFWHA01_t.page = SELECT_SET_RESET_PAGE_CN;
 
-            // 工作模式 <-> 页面自动翻转
-            if (sFWHA01_t.work_mode == WORK_CURVE)
-                sFWHA01_t.page = WORK_PAGE;
-            else if (sFWHA01_t.work_mode == WORK_NORMAL)
-                sFWHA01_t.page = CURVE_PAGE;
+//            // 工作模式 <-> 页面自动翻转
+//            if (sFWHA01_t.work_mode == WORK_CURVE)
+//                sFWHA01_t.page = WORK_PAGE;
+//            else if (sFWHA01_t.work_mode == WORK_NORMAL)
+//                sFWHA01_t.page = CURVE_PAGE;
         }
     }
 

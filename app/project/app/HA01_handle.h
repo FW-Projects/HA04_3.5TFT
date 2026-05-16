@@ -41,7 +41,7 @@
 
 #define SET_TEMP_SHOW_TIMES 1000
 
-#define LOCK_RANGE 20
+#define LOCK_RANGE 10
 
 #define SLEEP_TIME 50
 

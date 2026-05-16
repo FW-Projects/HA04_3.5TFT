@@ -18,4 +18,5 @@
   ..\..\libraries\drivers\inc\at32f415_usart.h \
   ..\..\libraries\drivers\inc\at32f415_wdt.h ..\app\beep_handle.h \
   ..\device\beep.h ..\system\PID_operation.h ..\device\adc.h \
-  ..\inc\wk_system.h ..\device\adc_filter.h
+  ..\inc\wk_system.h ..\device\adc_filter.h ..\app\lcd_handle.h \
+  ..\device\lcd.h ..\inc\at32f415_wk_config.h

@@ -131,6 +131,7 @@ extern uint8_t set_speak_flag;
 extern int16_t c;  // 用 -1 确保第一次刷新
 
 extern  uint8_t first_draw;
+extern uint8_t lock_temp_flag;
 /* 显示校准温度值 */
 extern int16_t external_temp;
 extern int16_t external_temp_f;

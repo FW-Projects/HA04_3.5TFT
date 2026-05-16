@@ -12,6 +12,8 @@ static air_ec11_event_e air_ec11_handle_event = AIR_EC11_END_EVENT;
 EC11_AnalyzeResult temp_analyze_result;
 EC11_AnalyzeResult air_analyze_result;
 
+static uint8_t cal_temp_state = 0x00;
+
 void ec11_handle(void)
 {
 	EC11_ScanResult temp_scan_result = EC11_Scan(&temp_ec11);
@@ -152,6 +154,7 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
 			else if(sFWHA01_t.set_cal == SET_CAL)
 			{
 				 ec11_handle_event = SET_TEMP_CAL_ADD;
+				
 			}
         }
         else if (sFWHA01_t.page == SET_TEMP_LOCK_PAGE_CN)
@@ -1023,7 +1026,13 @@ void ec11_event_handle(void)
         {
             sFWHA01_t.page = CURVE_PAGE;
         }
-		
+		if(cal_temp_state == 1)
+		{
+			sFWHA01_t.run_mode = Power_Mode;
+			cal_temp_state = 0;
+			first_draw = false;
+			sFWHA01_t.last_run_mode = RESET_VALUE;
+		}
 		actual_temp_refesh_time = 0x00;
 //		sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 		if(sFWHA01_t.run_mode == Cold_Mode)
@@ -1082,6 +1091,13 @@ void ec11_event_handle(void)
         {
 			sFWHA01_t.set_cal = SET_RETURN_CAL;
 			sFWHA01_t.page = SET_TEMP_CAL_PAGE_CN;
+			if(sFWHA01_t.run_mode == Power_Mode)
+			{
+				sFWHA01_t.run_mode = Standard_Mode;
+				cal_temp_state = 1;
+				first_draw = false;
+				sFWHA01_t.last_run_mode = RESET_VALUE;
+			}
         }   
 		
 		else if (sFWHA01_t.page == SELECT_SET_TEMP_LOCK_PAGE_CN)
@@ -1179,6 +1195,13 @@ void ec11_event_handle(void)
 			if(sFWHA01_t.set_cal == SET_RETURN_CAL)
 			{
 				sFWHA01_t.page = SELECT_SET_TEMP_CAL_PAGE_CN;
+				if(cal_temp_state == 1)
+				{
+					sFWHA01_t.run_mode = Power_Mode;
+					cal_temp_state = 0;
+					first_draw = false;
+					sFWHA01_t.last_run_mode = RESET_VALUE;
+				}
 			}
 		}
 		else if(sFWHA01_t.page == SET_SELECT_TEMP_CAL_PAGE_CN)
@@ -1258,6 +1281,7 @@ void ec11_event_handle(void)
     case TEMP_ADD:
 		if (sFWHA01_t.handle_error_state == HANDLE_OK)
 		{
+			lock_temp_flag = false;
 			sbeep.cmd = BEEP_SHORT;
 			sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 			if (sFWHA01_t.temp_unit == CELSIUS)
@@ -1305,6 +1329,7 @@ void ec11_event_handle(void)
     case TEMP_REDUCE:
 		if (sFWHA01_t.handle_error_state == HANDLE_OK)
 		{
+			lock_temp_flag = false;
 			sbeep.cmd = BEEP_SHORT;
 			sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 			if (sFWHA01_t.temp_unit == CELSIUS)
@@ -1352,6 +1377,7 @@ void ec11_event_handle(void)
     case TEMP_ADD_FIVE:
 		if (sFWHA01_t.handle_error_state == HANDLE_OK)
 		{
+			lock_temp_flag = false;
 			sbeep.cmd = BEEP_SHORT;
 			sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 			if (sFWHA01_t.temp_unit == CELSIUS)
@@ -1399,6 +1425,7 @@ void ec11_event_handle(void)
     case TEMP_REDUCE_FIVE:
 		if (sFWHA01_t.handle_error_state == HANDLE_OK)
 		{
+			lock_temp_flag = false;
 			sbeep.cmd = BEEP_SHORT;
 			sFWHA01_t.general_parameter.set_temp_time = SET_TEMP_SHOW_TIMES;
 			if (sFWHA01_t.temp_unit == CELSIUS)
@@ -1697,8 +1724,8 @@ void ec11_event_handle(void)
 		sFWHA01_t.speak_state = SPEAKER_OPEN;
 		sFWHA01_t.set_speak_state = sFWHA01_t.speak_state;
 	
-//		sFWHA01_t.language_state = CHINESE;
-//	    sFWHA01_t.set_language_state = sFWHA01_t.language_state; 
+		sFWHA01_t.language_state = CHINESE;
+	    sFWHA01_t.set_language_state = sFWHA01_t.language_state; 
 	
         sFWHA01_t.display_lock_state = LOCK;
 		sFWHA01_t.set_display_lock_state = sFWHA01_t.display_lock_state;
@@ -1713,6 +1740,7 @@ void ec11_event_handle(void)
 		sFWHA01_t.set_short_key_mode = CHANNEL_SWITCHING;
 		sFWHA01_t.adjust_key_mode = SELECT_TEMP;
 		sFWHA01_t.set_adjust_key_mode = SELECT_TEMP;
+		
 		
         /* reset other data */
         
