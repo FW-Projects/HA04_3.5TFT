@@ -146,13 +146,13 @@ void pc_event_handle(void)
         pc_data.tx_buff[PC_DATA_LEN_H] =  0x00;
         pc_data.tx_buff[PC_DATA_LEN_L] =  0x0A;
 	
-        pc_data.tx_buff[PC_DATA1_LEN_H] = 0x02;
+        pc_data.tx_buff[PC_DATA1_LEN_H] = 0x01;
         pc_data.tx_buff[PC_DATA1_LEN_L] = 0x00;
-        pc_data.tx_buff[PC_DATA2_LEN_H] = 0x02;
+        pc_data.tx_buff[PC_DATA2_LEN_H] = 0x04;
 	
-        pc_data.tx_buff[PC_DATA2_LEN_L] = 0x02;
-        pc_data.tx_buff[PC_DATA3_LEN_H] = 0x01;
-        pc_data.tx_buff[PC_DATA3_LEN_L] = 0x00;
+        pc_data.tx_buff[PC_DATA2_LEN_L] = 0x01;
+        pc_data.tx_buff[PC_DATA3_LEN_H] = 0x00;
+        pc_data.tx_buff[PC_DATA3_LEN_L] = 0x01;
 	
         pc_data.tx_buff[PC_DATA4_LEN_H] = 0x00;
         pc_data.tx_buff[PC_DATA4_LEN_L] = 0x00;
