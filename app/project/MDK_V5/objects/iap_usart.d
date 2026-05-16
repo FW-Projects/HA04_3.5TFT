@@ -1,4 +1,4 @@
-./objects/at32f415_int.o: ..\src\at32f415_int.c ..\inc\at32f415_int.h \
+./objects/iap_usart.o: ..\device\iap_usart.c ..\device\iap_usart.h \
   ..\..\libraries\cmsis\cm4\device_support\at32f415.h \
   ..\..\libraries\cmsis\cm4\core_support\core_cm4.h \
   ..\..\libraries\cmsis\cm4\device_support\system_at32f415.h \
@@ -15,7 +15,4 @@
   ..\..\libraries\drivers\inc\at32f415_spi.h \
   ..\..\libraries\drivers\inc\at32f415_tmr.h \
   ..\..\libraries\drivers\inc\at32f415_usart.h \
-  ..\..\libraries\drivers\inc\at32f415_wdt.h ..\inc\wk_system.h \
-  ..\system\tmt.h ..\app\HA01_handle.h ..\app\output_handle.h \
-  ..\device\adc_filter.h ..\app\ec11_handle.h ..\device\EncoderEC11.h \
-  ..\app\beep_handle.h ..\device\beep.h ..\device\at32_Usart.h
+  ..\..\libraries\drivers\inc\at32f415_wdt.h

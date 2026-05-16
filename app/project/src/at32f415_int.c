@@ -39,6 +39,7 @@
 #include "ec11_handle.h"
 #include "output_handle.h"
 #include "beep_handle.h"
+#include "at32_Usart.h"
 /* add user code end private includes */
 
 /* private typedef -----------------------------------------------------------*/
@@ -324,6 +325,7 @@ void SysTick_Handler(void)
 
   /* add user code begin SysTick_IRQ 1 */
 	tmt.tick();
+	USART1_TimeOutCounter();
   /* add user code end SysTick_IRQ 1 */
 }
 
@@ -350,6 +352,7 @@ void TMR1_BRK_TMR9_IRQHandler(void)
 
   /* add user code end TMR1_BRK_TMR9_IRQ 1 */
 }
+
 
 /**
   * @brief  this function handles TMR5 handler.

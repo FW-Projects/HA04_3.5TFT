@@ -16,4 +16,4 @@
   ..\..\libraries\drivers\inc\at32f415_tmr.h \
   ..\..\libraries\drivers\inc\at32f415_usart.h \
   ..\..\libraries\drivers\inc\at32f415_wdt.h ..\device\util_queue.h \
-  ..\device\userconfig.h
+  ..\app\userconfig.h

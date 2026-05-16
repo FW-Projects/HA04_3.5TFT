@@ -23,4 +23,5 @@
   ..\device\beep.h ..\app\output_handle.h ..\app\HA01_handle.h \
   ..\app\flash_handle.h ..\device\flash.h ..\app\work_handle.h \
   ..\device\at32_spiflash.h ..\system\PID_operation.h \
-  ..\app\ec11_handle.h ..\device\EncoderEC11.h ..\device\adc_filter.h
+  ..\app\ec11_handle.h ..\device\EncoderEC11.h ..\device\adc_filter.h \
+  ..\app\PC_comm_handle.h ..\device\at32_Usart.h ..\app\iap.h

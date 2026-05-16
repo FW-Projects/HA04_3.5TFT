@@ -126,7 +126,7 @@
         <TMR1_BRK_TMR9_IRQHandler>1;0;0;0;0</TMR1_BRK_TMR9_IRQHandler>
         <TMR2_GLOBAL_IRQHandler>0;0;0;0;0</TMR2_GLOBAL_IRQHandler>
         <SPI1_IRQHandler>0;0;0;0;0</SPI1_IRQHandler>
-        <USART1_IRQHandler>0;0;0;0;0</USART1_IRQHandler>
+        <USART1_IRQHandler>1;0;0;0;0</USART1_IRQHandler>
         <TMR5_GLOBAL_IRQHandler>1;0;0;0;0</TMR5_GLOBAL_IRQHandler>
     </NVIC>
     <GPIO>

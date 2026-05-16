@@ -1,7 +1,7 @@
 /**
   **************************************************************************
-  * @file     iap.h
-  * @brief    iap header file
+  * @file     iap_usart.h
+  * @brief    usart header file
   **************************************************************************
   *                       Copyright notice & Disclaimer
   *
@@ -22,14 +22,16 @@
   **************************************************************************
   */
 
-#ifndef __IAP_H__
-#define __IAP_H__
+#ifndef __IAP_USART_H
+#define __IAP_USART_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "at32f415.h"
+
+extern uint8_t iap_flag;
 
 /** @addtogroup UTILITIES_examples
   * @{
@@ -42,16 +44,11 @@ extern "C" {
 /** @defgroup app_led3_definition
   * @{
   */
-#define IAP_HANDLE_TIME          200
-/* app starting address */
-#define APP_START_ADDR          0x08002000
 
-/* the previous sector of app starting address is iap upgrade flag */
-#define IAP_UPGRADE_FLAG_ADDR    (APP_START_ADDR - 0x800)
-
-/* when app received cmd 0x5aa5 from pc-tool, will set up the flag,
-indicates that an app upgrade will follow, see iap application note for more details */
-#define IAP_UPGRADE_FLAG         0x41544B38
+#define IAP_REV_FLAG_NO     0
+#define IAP_REV_FLAG_5A     1
+#define IAP_REV_FLAG_DONE   2
+#define IAP_REV_FLAG_ERROR  3
 
 /**
   * @}
@@ -61,8 +58,9 @@ indicates that an app upgrade will follow, see iap application note for more det
   * @{
   */
 
-void iap_command_handle(void);
-void iap_init(void);
+void uart_init(uint32_t baudrate);
+void back_ok(void);
+void back_err(void);
 
 /**
   * @}
@@ -81,3 +79,5 @@ void iap_init(void);
 #endif
 
 #endif
+
+

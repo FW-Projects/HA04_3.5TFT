@@ -2,11 +2,11 @@
 #include "util_queue.h"
 #include "userconfig.h"
 
-#define USART_RXFLAG_IDLE 0
-#define USART_RXFLAG_BUSY 1
+#define USART_RXFLAG_IDLE 	0
+#define USART_RXFLAG_BUSY 	1
 #define USART_RXFLAG_FINISH 2
-#define USART_TXFLAG_IDLE 0
-#define USART_TXFLAG_BUSY 1
+#define USART_TXFLAG_IDLE 	0
+#define USART_TXFLAG_BUSY 	1
 #define USART_DELAYTIME 4
 
 typedef struct
@@ -28,45 +28,54 @@ usartbuffer_t tUsart3Buffer;
 usartbuffer_t tUart4Buffer;
 usartbuffer_t tUart5Buffer;
 #if (defined USART1_ENABLE) && (USART1_ENABLE == TRUE)
-#define USART1_RX_BUFFER_MAX 1024
-#define USART1_TX_BUFFER_MAX 1024
+#define USART1_RX_BUFFER_MAX			1024
+#define USART1_TX_BUFFER_MAX			1024
 uint8_t chUsart1TxBuffer[USART1_TX_BUFFER_MAX];
 uint8_t chUsart1RxBuffer[USART1_TX_BUFFER_MAX];
 #endif
 
 #if (defined USART2_ENABLE) && (USART2_ENABLE == TRUE)
-#define USART2_RX_BUFFER_MAX 1024
-#define USART2_TX_BUFFER_MAX 1024
+#define USART2_RX_BUFFER_MAX			1024
+#define USART2_TX_BUFFER_MAX			1024
 uint8_t chUsart2TxBuffer[USART2_TX_BUFFER_MAX];
 uint8_t chUsart2RxBuffer[USART2_TX_BUFFER_MAX];
 #endif
 
 #if (defined USART3_ENABLE) && (USART3_ENABLE == TRUE)
-#define USART3_RX_BUFFER_MAX 1024
-#define USART3_TX_BUFFER_MAX 1024
+#define USART3_RX_BUFFER_MAX			1024
+#define USART3_TX_BUFFER_MAX			1024
 uint8_t chUsart3TxBuffer[USART3_TX_BUFFER_MAX];
 uint8_t chUsart3RxBuffer[USART3_TX_BUFFER_MAX];
 #endif
 
+
+
 #if (defined UART4_ENABLE) && (UART4_ENABLE == TRUE)
-#define UART4_RX_BUFFER_MAX 1024
-#define UART4_TX_BUFFER_MAX 1024
+#define UART4_RX_BUFFER_MAX			1024
+#define UART4_TX_BUFFER_MAX			1024
 uint8_t chUart4TxBuffer[UART4_TX_BUFFER_MAX];
 uint8_t chUart4RxBuffer[UART4_TX_BUFFER_MAX];
 #endif
 
+
 #if (defined UART5_ENABLE) && (UART5_ENABLE == TRUE)
-#define UART5_RX_BUFFER_MAX 1024
-#define UART5_TX_BUFFER_MAX 1024
+#define UART5_RX_BUFFER_MAX			1024
+#define UART5_TX_BUFFER_MAX			1024
 uint8_t chUart5TxBuffer[UART5_TX_BUFFER_MAX];
 uint8_t chUart5RxBuffer[UART5_TX_BUFFER_MAX];
 #endif
 
+
+
+
+
+
+
 #if USART1_RS485_ENABLE
-#define USART1_ENABLE_PORT GPIOA
-#define USART1_ENABLE_PIN GPIO_Pins_12
-#define USART1_SEND_ENABLE gpio_bits_set(USART1_ENABLE_PORT, USART1_ENABLE_PIN)
-#define USART1_RECEIVE_ENABLE gpio_bits_reset(USART1_ENABLE_PORT, USART1_ENABLE_PIN)
+#define USART1_ENABLE_PORT 		GPIOA
+#define USART1_ENABLE_PIN 		GPIO_Pins_12
+#define USART1_SEND_ENABLE 		gpio_bits_set(USART1_ENABLE_PORT, USART1_ENABLE_PIN)
+#define USART1_RECEIVE_ENABLE   gpio_bits_reset(USART1_ENABLE_PORT, USART1_ENABLE_PIN)
 #endif
 
 void BSP_UsartInit(void)
@@ -146,9 +155,9 @@ uint16_t usart_sendData(uint8_t chUsartNum, uint8_t *pchSendData, uint16_t hwLen
         if (queue_write((util_queue_t *)&ptUsartBuffer->tTXQueue, *(pchSendData + hwCounter)) != QUEUE_OK)
         {
             return hwCounter;
-        }       
+        }
     }
- 
+
     if (ptUsartBuffer->chTXFlag == USART_TXFLAG_BUSY)
     {
         return hwCounter;
@@ -162,6 +171,7 @@ uint16_t usart_sendData(uint8_t chUsartNum, uint8_t *pchSendData, uint16_t hwLen
     ptUsartBuffer->chTXFlag = USART_TXFLAG_BUSY;
     return hwCounter;
 }
+
 
 uint16_t usart_receiveData(uint8_t chUsartNum, uint8_t *pchReceiveData)
 {
@@ -204,7 +214,8 @@ uint16_t usart_receiveData(uint8_t chUsartNum, uint8_t *pchReceiveData)
             hwCounter++;
             pchReceiveData++;
         }
-    } while (tQueueStatus != QUEUE_EMPTY);
+    }
+    while (tQueueStatus != QUEUE_EMPTY);
 
     ptUsartBuffer->chRXFlag = USART_RXFLAG_IDLE;
     return hwCounter;
@@ -326,8 +337,21 @@ void UART5_TimeOutCounter(void)
 #ifdef USART1_ENABLE
 void USART1_IRQHandler(void)
 {
-    uint8_t chData;
-
+   uint8_t chData;
+	
+   uint16_t received_data;
+   uint16_t status_flag = usart_flag_get(USART1, USART_ROERR_FLAG);
+   if (status_flag & USART_ROERR_FLAG) 
+   {
+        received_data = usart_data_receive(USART1); 
+        return;
+   }
+   if (status_flag & USART_FERR_FLAG) {
+        received_data = usart_data_receive(USART1); 
+        return;
+    }
+	
+	
     if (USART1->ctrl1_bit.rdbfien != RESET)
     {
         if (usart_flag_get(USART1, USART_RDBF_FLAG) != RESET)
@@ -365,7 +389,17 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
     uint8_t chData;
-
+	uint16_t received_data;
+   uint16_t status_flag = usart_flag_get(USART1, USART_ROERR_FLAG);
+   if (status_flag & USART_ROERR_FLAG) 
+   {
+        received_data = usart_data_receive(USART1); 
+        return;
+   }
+   if (status_flag & USART_FERR_FLAG) {
+        received_data = usart_data_receive(USART1); 
+        return;
+    }
     if (USART2->ctrl1_bit.rdbfien != RESET)
     {
         if (usart_flag_get(USART2, USART_RDBF_FLAG) != RESET)
@@ -400,7 +434,17 @@ void USART2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
     uint8_t chData;
-
+	uint16_t received_data;
+   uint16_t status_flag = usart_flag_get(USART1, USART_ROERR_FLAG);
+   if (status_flag & USART_ROERR_FLAG) 
+   {
+        received_data = usart_data_receive(USART1); 
+        return;
+   }
+   if (status_flag & USART_FERR_FLAG) {
+        received_data = usart_data_receive(USART1); 
+        return;
+    }
     if (USART3->ctrl1_bit.rdbfien != RESET)
     {
         if (usart_flag_get(USART3, USART_RDBF_FLAG) != RESET)
@@ -436,7 +480,17 @@ void USART3_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
     uint8_t chData;
-
+	uint16_t received_data;
+   uint16_t status_flag = usart_flag_get(USART1, USART_ROERR_FLAG);
+   if (status_flag & USART_ROERR_FLAG) 
+   {
+        received_data = usart_data_receive(USART1); 
+        return;
+   }
+   if (status_flag & USART_FERR_FLAG) {
+        received_data = usart_data_receive(USART1); 
+        return;
+    }
     if (UART4->ctrl1_bit.rdbfien != RESET)
     {
         if (usart_flag_get(UART4, USART_RDBF_FLAG) != RESET)
@@ -472,7 +526,23 @@ void UART4_IRQHandler(void)
 void UART5_IRQHandler(void)
 {
     uint8_t chData;
-
+	uint16_t received_data;
+   uint16_t status_flag = usart_flag_get(USART1, USART_ROERR_FLAG);
+   if (status_flag & USART_ROERR_FLAG) 
+   {
+        received_data = usart_data_receive(USART1); 
+        return;
+   }
+   if (status_flag & USART_FERR_FLAG) {
+        received_data = usart_data_receive(USART1); 
+        return;
+    }
+   
+	
+	
+	
+	
+	
     if (UART5->ctrl1_bit.rdbfien != RESET)
     {
         if (usart_flag_get(UART5, USART_RDBF_FLAG) != RESET)

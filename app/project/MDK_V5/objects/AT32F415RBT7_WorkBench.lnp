@@ -46,6 +46,7 @@
 ".\objects\util_queue.o"
 ".\objects\lcd.o"
 ".\objects\encoderec11.o"
+".\objects\iap_usart.o"
 ".\objects\pid_operation.o"
 ".\objects\tmt.o"
 --library_type=microlib --strict --scatter ".\objects\AT32F415RBT7_WorkBench.sct"

@@ -19,8 +19,9 @@ uint8_t actual_temp_refesh_time = 0;
 uint8_t actual_wind_refesh_time = 0;
 static float display_air = 0;
 static float display_temp = 0;
-static float display_value = 0;
+float wind_to_display = 0;
 static uint8_t last_sleep_state = 0;
+int temp_to_display = 0x00;
 int16_t last_output_value = -1;  // 用 -1 确保第一次刷新
 uint8_t last_coldwind_state = 0;
 uint8_t first_draw = false;
@@ -1054,7 +1055,7 @@ static void show_temp(void)
     static uint8_t first_in = 0;
     static int disp_actual = 0;
 	static uint8_t show_step = 0;
-	static int temp_to_display = 0x00;
+	
 	switch(show_step)
 	{
 		case 0:
@@ -1240,18 +1241,18 @@ static void show_temp(void)
 						sFWHA01_t.system_parameter.last_sleep_air_data = sFWHA01_t.system_parameter.sleep_air_data; 
 						if (sFWHA01_t.handle_position == IN_POSSITION && sFWHA01_t.sleep_state== SLEEP_OPEN && sFWHA01_t.Work_handle_state != HANDLE_SLEEP) 
 						{ 
-							display_value = sFWHA01_t.system_parameter.sleep_air_data; 
+							wind_to_display = sFWHA01_t.system_parameter.sleep_air_data; 
 						} 
 						else 
-							display_value = sFWHA01_t.system_parameter.air_data; 
+							wind_to_display = sFWHA01_t.system_parameter.air_data; 
 						if (sFWHA01_t.page == CURVE_PAGE) 
 						{ 
-							LCD_ShowIntNum(air_main_curve.x, air_main_curve.y, display_value, air_main_curve.len, air_main.fc, air_main_curve.bc, air_main_curve.sizey, 0);
+							LCD_ShowIntNum(air_main_curve.x, air_main_curve.y, wind_to_display, air_main_curve.len, air_main.fc, air_main_curve.bc, air_main_curve.sizey, 0);
 						} 
 						else if (sFWHA01_t.page == WORK_PAGE) 
 						{ 
 							TranferPicturetoTFT_LCD(set_air_icon.x1, set_air_icon.y1, set_air_icon.length, set_air_icon.winth, UNSELECT_OUTPUT_FAN_ICON_CN); 
-							LCD_ShowIntNum(air_main.x, air_main.y, display_value, air_main.len, air_main.fc, air_main.bc, air_main.sizey, 0); 
+							LCD_ShowIntNum(air_main.x, air_main.y, wind_to_display, air_main.len, air_main.fc, air_main.bc, air_main.sizey, 0); 
 						}
 					}
 				}

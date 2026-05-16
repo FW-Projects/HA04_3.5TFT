@@ -275,7 +275,7 @@
               </OCR_RVCT3>
               <OCR_RVCT4>
                 <Type>1</Type>
-                <StartAddress>0x8004000</StartAddress>
+                <StartAddress>0x8002000</StartAddress>
                 <Size>0x20000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
@@ -447,6 +447,11 @@
               <FileName>wk_crc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\wk_crc.c</FilePath>
+            </File>
+            <File>
+              <FileName>userconfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\app\userconfig.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -693,6 +698,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>iap_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\device\iap_usart.c</FilePath>
             </File>
           </Files>
         </Group>

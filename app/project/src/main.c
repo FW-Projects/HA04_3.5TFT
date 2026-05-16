@@ -52,6 +52,8 @@
 #include "ec11_handle.h"
 #include "lcd.h"
 #include "adc_filter.h"
+#include "PC_comm_handle.h"
+#include "iap.h"
 //#include "perf_counter.h"
 //#include "EventRecorder.h"
 /* add user code end private includes */
@@ -93,6 +95,9 @@ void work_task(void);
 void ec11_task(void);
 void feed_dog_task(void);
 void check_flash_updata(void);
+void pc_task(void);
+void iap_task(void);
+
 /* add user code end function prototypes */
 
 /* private user code ---------------------------------------------------------*/
@@ -106,10 +111,9 @@ void check_flash_updata(void);
   * @retval none
   */
 int main(void)
-
 {
   /* add user code begin 1 */
-	nvic_vector_table_set(NVIC_VECTTAB_FLASH, 0x4000);
+	nvic_vector_table_set(NVIC_VECTTAB_FLASH, 0x2000);
   /* add user code end 1 */
 
   /* system clock config. */
@@ -173,17 +177,19 @@ int main(void)
   
     
   /* ∂¡»°W25Q128 ID */
-  
+  tmt.create(iap_task, IAP_HANDLE_TIME);
   tmt.create(feed_dog_task, FEED_DOG_TIME);
   tmt.create(lcd_task, LCD_HANDLE_TIME);
   tmt.create(output_task, OUTPUT_HANDLE_TIME);
   tmt.create(flash_task, FLASH_HANDLE_TIME);
   tmt.create(work_task, WORK_HANDLE_TIME);
-//  tmt.create(ec11_task, EC11_TASK_TIME);
   tmt.create(key_task, KEY_HANDLE_TIME);
+  tmt.create(pc_task, PC_HANDLE_TIME);
   filter_init(&handle_temp, ADC_CHANNEL_10);
   FWHA01_Init(&sFWHA01_t);
   LCD_Init(); 
+  iap_init();
+	BSP_UsartInit();
    TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
   TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
   check_flash_updata();
@@ -200,6 +206,12 @@ int main(void)
 }
 
   /* add user code begin 4 */
+
+void iap_task(void)
+{
+    iap_command_handle();
+}
+
 
 void check_flash_updata(void)
 {
@@ -227,6 +239,11 @@ void ec11_task(void)
 	ec11_handle();
 }
 
+
+void pc_task(void)
+{
+	pc_comm_handle();
+}
 
 
 void lcd_task(void)
