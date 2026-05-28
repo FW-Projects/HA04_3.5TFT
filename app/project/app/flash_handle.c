@@ -65,6 +65,7 @@ void FlashProc(void)
 	static uint8_t last_shortkey_mode;
 	static uint8_t last_adjustkey_mode;
 	static uint16_t last_cold_set_wind;
+	static uint8_t last_model;
     static uint16_t flash_version = 0;
     static uint8_t flash_count = 0;
     static uint16_t a_ver;
@@ -197,6 +198,7 @@ void FlashProc(void)
 			flash_halfword_program(A_SHORTKEY_MODE_ADDRESS, sFWHA01_t.short_key_mode);
 			flash_halfword_program(A_ADJUSTKEY_MODE_ADDRESS, sFWHA01_t.adjust_key_mode);
 			flash_halfword_program(A_COLD_WIND_DATA, sFWHA01_t.system_parameter.cold_mode_set_air);
+//			flash_halfword_program(A_MODEL, sFWHA01_t.model);
         }
         else
         {
@@ -212,6 +214,7 @@ void FlashProc(void)
 			flash_halfword_program(B_SHORTKEY_MODE_ADDRESS, sFWHA01_t.short_key_mode);
 			flash_halfword_program(B_ADJUSTKEY_MODE_ADDRESS, sFWHA01_t.adjust_key_mode);
 			flash_halfword_program(B_COLD_WIND_DATA, sFWHA01_t.system_parameter.cold_mode_set_air);
+//			flash_halfword_program(B_MODEL, sFWHA01_t.model);
         }
 		last_work_mode = sFWHA01_t.work_mode;
 		last_temp_unit_mode = sFWHA01_t.temp_unit;
@@ -225,6 +228,7 @@ void FlashProc(void)
         last_shortkey_mode = sFWHA01_t.short_key_mode;  
         last_adjustkey_mode = sFWHA01_t.adjust_key_mode;
 		last_cold_set_wind = sFWHA01_t.system_parameter.cold_mode_set_air;
+//		last_model = sFWHA01_t.model;
 		sflash.state ++;
 		break;
     case FLASH_FINSH:
@@ -268,6 +272,7 @@ void get_data_from_a(void)
     sFWHA01_t.short_key_mode = flash_wred_halfword(A_SHORTKEY_MODE_ADDRESS);  
 	sFWHA01_t.adjust_key_mode = flash_wred_halfword(A_ADJUSTKEY_MODE_ADDRESS); 
 	sFWHA01_t.system_parameter.cold_mode_set_air = flash_wred_halfword(A_COLD_WIND_DATA); 
+//	sFWHA01_t.model = flash_wred_halfword(A_MODEL); 
 }
 void get_data_from_b(void)
 {
@@ -292,6 +297,7 @@ void get_data_from_b(void)
     sFWHA01_t.short_key_mode = flash_wred_halfword(B_SHORTKEY_MODE_ADDRESS);  
 	sFWHA01_t.adjust_key_mode = flash_wred_halfword(B_ADJUSTKEY_MODE_ADDRESS); 
 	sFWHA01_t.system_parameter.cold_mode_set_air = flash_wred_halfword(B_COLD_WIND_DATA); 
+//	sFWHA01_t.model = flash_wred_halfword(B_MODEL); 
 }
 
 void get_reset_data(void)
@@ -310,12 +316,13 @@ void get_reset_data(void)
 	sFWHA01_t.speak_state = SPEAKER_OPEN;
 	sFWHA01_t.language_state = CHINESE;
 	sFWHA01_t.system_parameter.cal_data = 0;
-	sFWHA01_t.display_lock_state = UNLOCK;
+	sFWHA01_t.display_lock_state = LOCK;
 	sFWHA01_t.sleep_state = SLEEP_OPEN;
 	sFWHA01_t.run_mode = Standard_Mode;
 	sFWHA01_t.long_key_mode = COLDWIND_MODE;
 	sFWHA01_t.short_key_mode = CHANNEL_SWITCHING;
 	sFWHA01_t.adjust_key_mode = SELECT_TEMP;
+//	sFWHA01_t.model = HA04;
 	
 }
 
@@ -417,5 +424,10 @@ void check_data_all(void)
 	{
 		sFWHA01_t.adjust_key_mode = SELECT_TEMP;
 	}
-	
+		
+//	if(sFWHA01_t.model != HA04 && sFWHA01_t.model != HA05)
+//	{
+//		sFWHA01_t.model = HA04;
+//	}	
+//	
 }

@@ -1659,7 +1659,10 @@ void show_navigation_bar(void)
     // 首次绘制导航栏
     if (!first_draw)
     {
-        TranferPicturetoTFT_LCD(0, 0, 480, 30, NAVIGATION_BAR);
+		if(sFWHA01_t.model == HA04)
+			TranferPicturetoTFT_LCD(0, 0, 480, 30, NAVIGATION_BAR);
+		else if(sFWHA01_t.model == HA05)
+			TranferPicturetoTFT_LCD(0, 0, 480, 30, NAVIGATION_BAR_HA05);
         LCD_VISION(vision_2.x, vision_2.y, vision_2.len, vision_2.fc, vision_2.bc, vision_2.sizey);
         sFWHA01_t.last_speak_state = RESET_VALUE;
         first_draw = true;

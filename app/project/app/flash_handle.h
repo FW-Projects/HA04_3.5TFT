@@ -6,6 +6,10 @@
 #define DATA_SIZE 2
 #define FLASH_MENBER 22
 
+#define MODEL_ADDR             (0x08000000 + 1024 * 123)   /* ÉÈÇø123 */
+
+
+
 /* Ö÷´æ´¢µØÖ· */
 #define A_SET_TEMP_ADDRESS (0x08000000 + 1024 * 124)
 #define A_SET_AIR_ADDRESS A_SET_TEMP_ADDRESS + DATA_SIZE

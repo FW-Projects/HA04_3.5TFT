@@ -1623,6 +1623,12 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 124:
 			uiPic_Addr = PIC_ADDRESS_124;
 			break;	
+		case 127:
+			uiPic_Addr = PIC_ADDRESS_127;
+			break;	
+		case 128:
+			uiPic_Addr = PIC_ADDRESS_128;
+			break;	
 		}
 	}
 	else if(sFWHA01_t.language_state == ENGLISH)
@@ -1874,6 +1880,12 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			break;	
 		case 126:
 			uiPic_Addr = PIC_ADDRESS_126;
+			break;	
+		case 127:
+			uiPic_Addr = PIC_ADDRESS_127;
+			break;	
+		case 128:
+			uiPic_Addr = PIC_ADDRESS_128;
 			break;	
 		}
 	}
@@ -2167,7 +2179,7 @@ void LCD_VISION(uint16_t x, uint16_t y,  uint8_t len, uint16_t fc, uint16_t bc, 
 				LCD_ShowChar(x + t * sizex, y, '.', fc, bc, sizey, 0);
 				break;
 			case 6:
-				LCD_ShowChar(x + t * sizex, y, '4', fc, bc, sizey, 0);
+				LCD_ShowChar(x + t * sizex, y, '5', fc, bc, sizey, 0);
 				break;
 		}
         

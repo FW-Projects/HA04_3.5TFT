@@ -85,7 +85,12 @@
 #define SET_SUPPORT_PICTURE_CN 26 
 
 
-
+typedef enum
+{
+    HA04 = 0,
+	HA05,
+}
+model_e;
 
 typedef enum
 {
@@ -351,7 +356,11 @@ typedef enum
 	REFRESH_SLEEP_ICON,
 	REFRESH_COLDWIND_ICON,
 	WORK_PAGE_ENG,
-	REFRESH_SLEEP_ICON_ENG
+	REFRESH_SLEEP_ICON_ENG,
+	
+	NAVIGATION_BAR_HA05,
+	LOGO_HA05
+	
 	
 } page_e;
 
@@ -497,6 +506,9 @@ typedef struct
     bool reset_flag;
     bool init_flag;
 	bool fan_run_flag;
+	
+    model_e model;
+
 
 } HA01_Handle;
 
