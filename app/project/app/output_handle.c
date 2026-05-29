@@ -29,6 +29,8 @@ void output_handle(void)
 	
     get_handle_position(&sFWHA01_t);
     get_handle_work_state(&sFWHA01_t);
+	get_handle_error_state(&sFWHA01_t);
+	
  //    fan_control(&sFWHA01_t);
 }
 

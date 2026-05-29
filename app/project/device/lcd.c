@@ -1629,6 +1629,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 		case 128:
 			uiPic_Addr = PIC_ADDRESS_128;
 			break;	
+		case 129:
+			uiPic_Addr = PIC_ADDRESS_129;
+			break;	
 		}
 	}
 	else if(sFWHA01_t.language_state == ENGLISH)
@@ -1886,6 +1889,9 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
 			break;	
 		case 128:
 			uiPic_Addr = PIC_ADDRESS_128;
+			break;	
+		case 129:
+			uiPic_Addr = PIC_ADDRESS_130;
 			break;	
 		}
 	}

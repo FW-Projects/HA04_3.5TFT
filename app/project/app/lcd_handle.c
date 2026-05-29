@@ -273,7 +273,7 @@ static number temp_main_curve =
 
 static number air_main_curve =
 	{
-		.x = 406,
+		.x = 404,
 		.y = 205,
 		.len = 3,
 		.fc = WHITE,
@@ -1613,7 +1613,7 @@ void page_switch(void)
         sFWHA01_t.system_parameter.last_ch3_set_air = RESET_VALUE;
 
         // ====================== 高效刷屏（只刷一次） ======================
-        if (sFWHA01_t.page >= SET_RUN_PAGE_CN && sFWHA01_t.page <= SET_SUPPORT_PAGE_ENG)
+        if ((sFWHA01_t.page >= SET_RUN_PAGE_CN && sFWHA01_t.page <= SET_SUPPORT_PAGE_ENG) || sFWHA01_t.page == SET_SUPPORT_PAGE_CN_HA05 || sFWHA01_t.page == SET_SUPPORT_PAGE_ENG_HA05)
         {
             // 设置页：只第一次刷背景，后续只刷小窗口
             if (first_s == false)
@@ -1638,7 +1638,7 @@ void page_switch(void)
             {
                 TranferPicturetoTFT_LCD(72, 88, 336, 130, sFWHA01_t.page);
             }
-            else if (sFWHA01_t.page == SET_SUPPORT_PAGE_CN || sFWHA01_t.page == SET_SUPPORT_PAGE_ENG)
+            else if (sFWHA01_t.page == SET_SUPPORT_PAGE_CN || sFWHA01_t.page == SET_SUPPORT_PAGE_ENG || sFWHA01_t.page == SET_SUPPORT_PAGE_CN_HA05 || sFWHA01_t.page == SET_SUPPORT_PAGE_ENG_HA05)
             {
                 TranferPicturetoTFT_LCD(9, 87, 462, 132, sFWHA01_t.page);
             }

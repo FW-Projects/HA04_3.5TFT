@@ -481,7 +481,7 @@ void air_ec11_get_event(EC11_AnalyzeResult state_air)
             {
                 ec11_handle_event = ENTER_MENU;
             }
-            else if (sFWHA01_t.page >= SELECT_SET_WORK_PAGE_CN && sFWHA01_t.page <= SET_SUPPORT_PAGE_CN || sFWHA01_t.page == SET_SELECT_TEMP_CAL_PAGE_CN)
+            else if (sFWHA01_t.page >= SELECT_SET_WORK_PAGE_CN && sFWHA01_t.page <= SET_SUPPORT_PAGE_CN || sFWHA01_t.page == SET_SELECT_TEMP_CAL_PAGE_CN || sFWHA01_t.page == SET_SUPPORT_PAGE_CN_HA05)
             {
 				if(sFWHA01_t.reset_flag == false)
                 ec11_handle_event = EXIT_MENU;
@@ -961,7 +961,7 @@ void temp_ec11_get_event(EC11_AnalyzeResult state_temp)
             {
                 ec11_handle_event = ENTER_MENU;
             }
-            else if (sFWHA01_t.page >= SELECT_SET_WORK_PAGE_CN && sFWHA01_t.page <= SET_SUPPORT_PAGE_CN || sFWHA01_t.page == SET_SELECT_TEMP_CAL_PAGE_CN)
+            else if (sFWHA01_t.page >= SELECT_SET_WORK_PAGE_CN && sFWHA01_t.page <= SET_SUPPORT_PAGE_CN || sFWHA01_t.page == SET_SELECT_TEMP_CAL_PAGE_CN || sFWHA01_t.page == SET_SUPPORT_PAGE_CN_HA05 )
             {
 				if(sFWHA01_t.reset_flag == false)
                 ec11_handle_event = EXIT_MENU;
@@ -1125,7 +1125,10 @@ void ec11_event_handle(void)
 		
 		else if (sFWHA01_t.page == SELECT_SET_SUPPORT_PAGE_CN)
         {
-           sFWHA01_t.page = SET_SUPPORT_PAGE_CN;
+			if(sFWHA01_t.model == HA04)
+				sFWHA01_t.page = SET_SUPPORT_PAGE_CN;
+			else if(sFWHA01_t.model == HA05)
+				sFWHA01_t.page = SET_SUPPORT_PAGE_CN_HA05;
         }
 		
 		else if(sFWHA01_t.page == SET_RUN_PAGE_CN)
@@ -1247,7 +1250,7 @@ void ec11_event_handle(void)
 			sFWHA01_t.page = SELECT_SET_VERSION_PAGE_CN;
 		}
 
-		else if(sFWHA01_t.page == SET_SUPPORT_PAGE_CN)
+		else if(sFWHA01_t.page == SET_SUPPORT_PAGE_CN || sFWHA01_t.page == SET_SUPPORT_PAGE_CN_HA05)
 		{
 			sFWHA01_t.page = SELECT_SET_SUPPORT_PAGE_CN;
 		} 
