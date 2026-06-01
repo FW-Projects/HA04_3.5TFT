@@ -33,7 +33,7 @@
 #define MAX_ACTUAL_TEMP 600
 #define MIN_ACTUAL_TEMP 70
 
-#define ERROR_TIME 200
+#define ERROR_TIME 130
 
 //#define MAX_PWM_OUTPUT (35000)
 #define MAX_PWM_OUTPUT (48000-1)

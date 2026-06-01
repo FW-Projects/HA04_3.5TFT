@@ -377,18 +377,6 @@ void LcdProc(void)
 		default:break;
 		
 	}
-//	page_switch();
-//	show_temp();
-//	show_work_state_icon(&sFWHA01_t);
-//	show_output(&sFWHA01_t);
-//	show_curve(&sFWHA01_t);
-//	show_channel_state();
-//	show_channel_value();
-//	show_cal_temp();
-//	number_change();
-//	show_icon();
-//	show_navigation_bar();
-//	show_fan(&sFWHA01_t);
 }
 
 void show_icon(void)
@@ -741,13 +729,13 @@ static void show_work_state_icon(HA01_Handle *this)
 	static uint8_t show_step = 0;
 	static page_e last_p = RESET_VALUE;
 	
-	if(this->handle_error_state != HANDLE_OK)
-	{
-		if(this->page != WORK_PAGE || this->page != CURVE_PAGE)
-		{
-			this->last_handle_error_state = RESET_VALUE;
-		}
-	}
+//	if(this->handle_error_state != HANDLE_OK)
+//	{
+//		if(this->page != WORK_PAGE || this->page != CURVE_PAGE)
+//		{
+//			this->last_handle_error_state = RESET_VALUE;
+//		}
+//	}
 	
 	if (this->page == WORK_PAGE || this->page == CURVE_PAGE)
 	{

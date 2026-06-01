@@ -1362,7 +1362,7 @@ void LCD_Init(void)
     LCD_WR_REG(0x11);
     wk_delay_ms(200);
 	LCD_Clear(BLACK);
-    LCD_WR_REG(0x29);
+    LCD_WR_REG(0x29);  
     gpio_bits_set(GPIOC, GPIO_PINS_4);
 
 }
@@ -1899,39 +1899,55 @@ void TranferPicturetoTFT_LCD(uint16_t x1, uint16_t y1, uint16_t width, uint16_t 
     height = height + y1;
     LCD_Address_Set(x1, y1, width - 1, height - 1);
 
-    while (uiDataLength)
+	while (uiDataLength)
     {
-        if (BLOCK_SIZE > uiDataLength)
+        uint32_t readSize = (uiDataLength > BLOCK_SIZE) ? BLOCK_SIZE : uiDataLength;
+        spiflash_read(Read_data, uiPic_Addr, readSize);  // 从Flash读取数据
+
+        // 将读取的数据以16位（RGB565）格式发送给LCD
+        for (uint32_t i = 0; i < readSize; i += 2)
         {
-            spiflash_read(Read_data, uiPic_Addr, (uiDataLength));
-
-            for (u32 i = 0; i < (uiDataLength); i += 2)
-            {
-                usPic_Data = Read_data[i];
-                usPic_Data <<= 8;
-                usPic_Data = usPic_Data + Read_data[i + 1];
-                LCD_WR_DATA(usPic_Data);
-            }
-
-            uiPic_Addr += uiDataLength;
-            uiDataLength -= uiDataLength;
+            uint16_t pixel = (Read_data[i] << 8) | Read_data[i + 1];
+            LCD_WR_DATA(pixel);
         }
-        else
-        {
-            spiflash_read(Read_data, uiPic_Addr, BLOCK_SIZE);
 
-            for (u32 i = 0; i < BLOCK_SIZE; i += 2)
-            {
-                usPic_Data = Read_data[i];
-                usPic_Data <<= 8;
-                usPic_Data = usPic_Data + Read_data[i + 1];
-                LCD_WR_DATA(usPic_Data);
-            }
-
-            uiPic_Addr += BLOCK_SIZE;
-            uiDataLength -= BLOCK_SIZE;
-        }
+        uiPic_Addr += readSize;
+        uiDataLength -= readSize;
     }
+	
+//    while (uiDataLength)
+//    {
+//        if (BLOCK_SIZE > uiDataLength)
+//        {
+//            spiflash_read(Read_data, uiPic_Addr, (uiDataLength));
+
+//            for (u32 i = 0; i < (uiDataLength); i += 2)
+//            {
+//                usPic_Data = Read_data[i];
+//                usPic_Data <<= 8;
+//                usPic_Data = usPic_Data + Read_data[i + 1];
+//                LCD_WR_DATA(usPic_Data);
+//            }
+
+//            uiPic_Addr += uiDataLength;
+//            uiDataLength -= uiDataLength;
+//        }
+//        else
+//        {
+//            spiflash_read(Read_data, uiPic_Addr, BLOCK_SIZE);
+
+//            for (u32 i = 0; i < BLOCK_SIZE; i += 2)
+//            {
+//                usPic_Data = Read_data[i];
+//                usPic_Data <<= 8;
+//                usPic_Data = usPic_Data + Read_data[i + 1];
+//                LCD_WR_DATA(usPic_Data);
+//            }
+
+//            uiPic_Addr += BLOCK_SIZE;
+//            uiDataLength -= BLOCK_SIZE;
+//        }
+//    }
 }
 
 /******************************************************************************
@@ -2185,7 +2201,7 @@ void LCD_VISION(uint16_t x, uint16_t y,  uint8_t len, uint16_t fc, uint16_t bc, 
 				LCD_ShowChar(x + t * sizex, y, '.', fc, bc, sizey, 0);
 				break;
 			case 6:
-				LCD_ShowChar(x + t * sizex, y, '5', fc, bc, sizey, 0);
+				LCD_ShowChar(x + t * sizex, y, '6', fc, bc, sizey, 0);
 				break;
 		}
         

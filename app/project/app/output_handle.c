@@ -264,7 +264,7 @@ static void get_handle_error_state(HA01_Handle *this)
 		if(sFWHA01_t.run_mode == Cold_Mode)
 		{
 			fan_run_flag = true;
-            tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.cold_mode_set_air * 1.13 + 30);
+            tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.cold_mode_set_air * 0.56 + 30);
 		}
 		else
 		{
@@ -304,7 +304,7 @@ static void get_handle_error_state(HA01_Handle *this)
 					if (fan_run_flag == false)
 					{
 						/* open fan output with a half of max set val*/
-						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13);
+						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 0.56 + 30);
 					}
 				}
 				else if (this->system_parameter.actual_temp >= 70 && this->system_parameter.actual_temp < 250)
@@ -335,14 +335,14 @@ static void get_handle_error_state(HA01_Handle *this)
 				}
 				
 				/* open fan output with user set val */
-				tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.air_data * 1.13 + 30);
+				tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.air_data * 0.56 + 30);
 			}
 		}
         break;
 
     case 1:
         /* open fan output with max set val */
-        tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, MAX_SET_AIR * 1.13 + 30);
+        tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, MAX_SET_AIR * 0.56 + 30);
 
         if (this->handle_error_state == HANDLE_OK)
         {
@@ -453,19 +453,20 @@ void pwm_control(HA01_Handle *this)
     static float last_set_temp = 0;
     static uint16_t delay_time = 0;
     static bool change_flag = false;
-	static uint32_t hight_kd = 25000;
-    static uint32_t low_kd = 15000;
-	static float low_ki = 3;
-	static float hight_ki = 4;
-//	static uint32_t hight_kd = 18000;
+//	static uint32_t hight_kd = 25000;
 //    static uint32_t low_kd = 10000;
 //	static float low_ki = 3;
 //	static float hight_ki = 4;
+	static uint32_t hight_kd = 19000;
+    static uint32_t low_kd = 1000;
+	static float low_ki = 2;
+	static float hight_ki = 3;
     if (change_flag)
     {
 		if(handle_pid.Kd<= low_kd)
 			handle_pid.Kd = low_kd;
     }
+	
     else
     {
         handle_pid.Kd = hight_kd;
@@ -480,9 +481,7 @@ void pwm_control(HA01_Handle *this)
 	{
 		set_temp = this->system_parameter.set_temp;
 	}
-	
-//	set_temp = this->system_parameter.set_temp;
-	
+		
     if (last_set_temp != set_temp)
     {
         handle_pid.SumError = handle_pid.SumError / 2;
@@ -490,7 +489,8 @@ void pwm_control(HA01_Handle *this)
         last_set_temp  = set_temp;
     }
 		
-    this->system_parameter.actual_temp = move_average_filter(&handle_temp) >> 2;
+//    this->system_parameter.actual_temp = move_average_filter(&handle_temp) >> 2;
+	this->system_parameter.actual_temp = get_adcval_average(ADC_CHANNEL_10,10) >> 2;
 //    temp = this->system_parameter.actual_temp + this->system_parameter.temp_linear_data - this->system_parameter.cal_data;
 	temp = this->system_parameter.actual_temp- this->system_parameter.cal_data;
 	

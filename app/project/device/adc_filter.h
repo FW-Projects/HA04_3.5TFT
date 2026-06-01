@@ -3,7 +3,7 @@
 
 #include "at32f415.h"
 
-#define WINDOW_SIZE 12
+#define WINDOW_SIZE 5
 typedef struct
 {
     float input_data[WINDOW_SIZE];

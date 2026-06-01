@@ -171,8 +171,8 @@ int main(void)
 
   /* add user code begin 2 */
   /* 优化方向：1.提高定时器分辨率 2.更换合适滤波算法 3.让小数点参与到运算中,减少输入误差 */
-//  PID_Init(&handle_pid,1000,4,33000, MAX_PWM_OUTPUT);
-  PID_Init(&handle_pid,800,4,35000, MAX_PWM_OUTPUT);
+//  PID_Init(&handle_pid,500,4,45000, MAX_PWM_OUTPUT);  //300度
+  PID_Init(&handle_pid,550,4,45000, MAX_PWM_OUTPUT);
 
   tmt_init();
   
@@ -188,16 +188,16 @@ int main(void)
   tmt.create(pc_task, PC_HANDLE_TIME);
   filter_init(&handle_temp, ADC_CHANNEL_10);
   FWHA01_Init(&sFWHA01_t);
-  LCD_Init(); 
   iap_init();
-	BSP_UsartInit();
-   TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
-  TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
+  BSP_UsartInit();
+  LCD_Init();
+  wk_delay_ms(200);
   check_flash_updata();
   check_and_show_modul();
   setting_modul();
+  
   /* 等待系统上电稳定延时 */
-  wk_delay_ms(1000);
+//  wk_delay_ms(500);
   /* add user code end 2 */
 
   while(1)
@@ -326,18 +326,17 @@ void check_and_show_modul(void)
         sFWHA01_t.model = HA04;
     }
 
-//    LCD_ShowPictureFromFlash(49, 100, PIC_LOGO);
-//	LCD_ShowPictureFromFlash(49, 100, PIC_LOGO);
-
     /* if modul is HA04 */
     if (sFWHA01_t.model == HA04)
     {
-        TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
+		TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
+		TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
     }
     /* if modul is HA05 */
     else if (sFWHA01_t.model == HA05)
     {
-        TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO_HA05);
+		TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO_HA05);
+		TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO_HA05);
     }
 }
 

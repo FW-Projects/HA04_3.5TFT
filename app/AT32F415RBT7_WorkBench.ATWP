@@ -77,7 +77,7 @@
             <ModeSub name="Enable One cycle mode" value="TRUE"/>
         </Mode>
         <Parameters>
-            <ParametersSub name="DividerValue" value="77"/>
+            <ParametersSub name="DividerValue" value="95"/>
             <ParametersSub name="Period" value="59815"/>
             <ParametersSub name="ClockDivision" value="TMR_CLOCK_DIV4"/>
             <ParametersSub name="OCMode_4" value="TMR_OUTPUT_CONTROL_PWM_MODE_A"/>
