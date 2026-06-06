@@ -153,24 +153,7 @@
           <Name>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0AT32F415_128 -FS08000000 -FL00020000 -FP0($$Device:-AT32F415RBT7$Flash\AT32F415_128.FLM))</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>75</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134243942</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\system\PID_operation.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\AT32F415RBT7_WorkBench\../src/at32f415_int.c\75</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
@@ -278,6 +261,11 @@
           <count>7</count>
           <WinNumber>2</WinNumber>
           <ItemText>handle_pid</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>sFWHA01_t.system_parameter.pwm_out</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

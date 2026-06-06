@@ -265,21 +265,21 @@ void SysTick_Handler(void)
 	}
 	
 	
-	if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP)
-	{
-		fan_control(&sFWHA01_t);
-		sFWHA01_t.fan_run_flag = true;
-	}
-	else
-	{
-		fan_run_time--;
-		if(fan_run_time == 0)
-		{
-			fan_run_time = 5;
-			fan_control(&sFWHA01_t);
-//			sFWHA01_t.fan_run_flag = false;
-		}
-	}
+//	if(sFWHA01_t.Work_handle_state == HANDLE_SLEEP)
+//	{
+//		fan_control(&sFWHA01_t);
+//		sFWHA01_t.fan_run_flag = true;
+//	}
+//	else
+//	{
+//		fan_run_time--;
+//		if(fan_run_time == 0)
+//		{
+//			fan_run_time = 5;
+//			fan_control(&sFWHA01_t);
+////			sFWHA01_t.fan_run_flag = false;
+//		}
+//	}
 	
 	
 	/* waken time = 3S*/
@@ -294,8 +294,8 @@ void SysTick_Handler(void)
 		ec11_run_time = 1;
 		ec11_handle();
 	}
-	
-	    /* get fan speed */
+
+	/* get fan speed */
     get_fan_speed_time--;
 
     if (0 == get_fan_speed_time)
@@ -354,6 +354,7 @@ void TMR1_BRK_TMR9_IRQHandler(void)
 }
 
 
+
 /**
   * @brief  this function handles TMR5 handler.
   * @param  none
@@ -363,7 +364,7 @@ void TMR5_GLOBAL_IRQHandler(void)
 {
   /* add user code begin TMR5_GLOBAL_IRQ 0 */
 
-	static char pid_run_time = 2; 
+	
 	if(tmr_flag_get(TMR5,TMR_OVF_FLAG) != RESET)
 	{ 
 		

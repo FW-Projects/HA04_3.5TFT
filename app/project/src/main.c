@@ -145,6 +145,26 @@ int main(void)
                         DMA1_CHANNEL1_BUFFER_SIZE);
   dma_channel_enable(DMA1_CHANNEL1, TRUE);
 
+  /* init dma1 channel2 */
+  wk_dma1_channel2_init();
+  /* config dma channel transfer parameter */
+  /* user need to modify define values DMAx_CHANNELy_XXX_BASE_ADDR and DMAx_CHANNELy_BUFFER_SIZE in at32xxx_wk_config.h */
+  wk_dma_channel_config(DMA1_CHANNEL2, 
+                        (uint32_t)&SPI1->dt, 
+                        DMA1_CHANNEL2_MEMORY_BASE_ADDR, 
+                        DMA1_CHANNEL2_BUFFER_SIZE);
+  dma_channel_enable(DMA1_CHANNEL2, FALSE);
+
+  /* init dma1 channel3 */
+  wk_dma1_channel3_init();
+  /* config dma channel transfer parameter */
+  /* user need to modify define values DMAx_CHANNELy_XXX_BASE_ADDR and DMAx_CHANNELy_BUFFER_SIZE in at32xxx_wk_config.h */
+  wk_dma_channel_config(DMA1_CHANNEL3,  	
+                        (uint32_t)&SPI1->dt, 
+                        DMA1_CHANNEL3_MEMORY_BASE_ADDR, 
+                        DMA1_CHANNEL3_BUFFER_SIZE);
+  dma_channel_enable(DMA1_CHANNEL3, FALSE);
+
   /* init usart1 function. */
   wk_usart1_init();
 
@@ -172,10 +192,9 @@ int main(void)
   /* add user code begin 2 */
   /* 优化方向：1.提高定时器分辨率 2.更换合适滤波算法 3.让小数点参与到运算中,减少输入误差 */
 //  PID_Init(&handle_pid,500,4,45000, MAX_PWM_OUTPUT);  //300度
-  PID_Init(&handle_pid,550,4,45000, MAX_PWM_OUTPUT);
-
+  PID_Init(&handle_pid,500,4,45000, MAX_PWM_OUTPUT);
+	
   tmt_init();
-  
     
   /* 读取W25Q128 ID */
   tmt.create(iap_task, IAP_HANDLE_TIME);
@@ -183,6 +202,7 @@ int main(void)
   tmt.create(lcd_task, LCD_HANDLE_TIME);
   tmt.create(output_task, OUTPUT_HANDLE_TIME);
   tmt.create(flash_task, FLASH_HANDLE_TIME);
+//  tmt.create(ec11_task, EC11_TASK_TIME);
   tmt.create(work_task, WORK_HANDLE_TIME);
   tmt.create(key_task, KEY_HANDLE_TIME);
   tmt.create(pc_task, PC_HANDLE_TIME);
@@ -190,7 +210,11 @@ int main(void)
   FWHA01_Init(&sFWHA01_t);
   iap_init();
   BSP_UsartInit();
+  spiflash_init();
   LCD_Init();
+  
+  LCD_Clear(BLACK);
+  gpio_bits_set(GPIOC, GPIO_PINS_4);
   wk_delay_ms(200);
   check_flash_updata();
   check_and_show_modul();
@@ -239,7 +263,9 @@ void key_task(void)
 
 void ec11_task(void)
 {	
+#if 1
 	ec11_handle();
+#endif
 }
 
 

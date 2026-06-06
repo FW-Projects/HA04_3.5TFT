@@ -30,7 +30,7 @@ void output_handle(void)
     get_handle_position(&sFWHA01_t);
     get_handle_work_state(&sFWHA01_t);
 	get_handle_error_state(&sFWHA01_t);
-	
+	fan_control(&sFWHA01_t);
  //    fan_control(&sFWHA01_t);
 }
 
@@ -453,26 +453,22 @@ void pwm_control(HA01_Handle *this)
     static float last_set_temp = 0;
     static uint16_t delay_time = 0;
     static bool change_flag = false;
-//	static uint32_t hight_kd = 25000;
-//    static uint32_t low_kd = 10000;
-//	static float low_ki = 3;
-//	static float hight_ki = 4;
-	static uint32_t hight_kd = 19000;
-    static uint32_t low_kd = 1000;
-	static float low_ki = 2;
-	static float hight_ki = 3;
+
+	static uint32_t hight_kd = 16000;
+    static uint32_t low_kd = 10000;
+	static float low_ki = 3;
+	static float hight_ki = 4;
     if (change_flag)
     {
 		if(handle_pid.Kd<= low_kd)
 			handle_pid.Kd = low_kd;
     }
-	
     else
     {
         handle_pid.Kd = hight_kd;
 		handle_pid.Ki = hight_ki;
     }
-	
+
 	if(sFWHA01_t.run_mode == Power_Mode)
 	{
 		set_temp = this->system_parameter.set_temp + POWER_TEMP;
@@ -484,13 +480,19 @@ void pwm_control(HA01_Handle *this)
 		
     if (last_set_temp != set_temp)
     {
-        handle_pid.SumError = handle_pid.SumError / 2;
+		PID_Clear_I(&handle_pid);
+//        handle_pid.SumError = handle_pid.SumError / 2;
         this->system_parameter.temp_linear_data = linear_correction(set_temp);
         last_set_temp  = set_temp;
     }
-		
-//    this->system_parameter.actual_temp = move_average_filter(&handle_temp) >> 2;
-	this->system_parameter.actual_temp = get_adcval_average(ADC_CHANNEL_10,10) >> 2;
+	
+//	this->system_parameter.actual_temp = get_adcval_average(ADC_CHANNEL_10,16) >> 2;
+
+//	this->system_parameter.actual_temp  = get_adcval_filtered(ADC_CHANNEL_10) >> 2;
+	
+	this->system_parameter.actual_temp = move_average_filter(&handle_temp) >> 2;
+	
+	
 //    temp = this->system_parameter.actual_temp + this->system_parameter.temp_linear_data - this->system_parameter.cal_data;
 	temp = this->system_parameter.actual_temp- this->system_parameter.cal_data;
 	

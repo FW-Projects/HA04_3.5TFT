@@ -22,7 +22,7 @@
 #define MAX_CAL_TEMP_F 212
 #define MIN_CAL_TEMP_F -212
 
-#define PID_RANGE 200
+#define PID_RANGE 100
 
 #define MAX_SET_AIR 160
 #define MIN_SET_AIR 5
@@ -33,10 +33,12 @@
 #define MAX_ACTUAL_TEMP 600
 #define MIN_ACTUAL_TEMP 70
 
-#define ERROR_TIME 130
+#define ERROR_TIME 250
 
 //#define MAX_PWM_OUTPUT (35000)
 #define MAX_PWM_OUTPUT (48000-1)
+
+
 #define ACTUAL_TEMP_REFRESH_TIME 20
 
 #define SET_TEMP_SHOW_TIMES 1000
