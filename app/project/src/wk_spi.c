@@ -92,7 +92,7 @@ void wk_spi1_init(void)
   /* add user code begin spi1_init 2 */
     /* add user code end spi1_init 2 */
 
-  spi_enable(SPI1, TRUE);
+//  spi_enable(SPI1, TRUE);
 
   /* add user code begin spi1_init 3 */
     /* add user code end spi1_init 3 */

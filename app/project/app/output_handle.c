@@ -480,8 +480,8 @@ void pwm_control(HA01_Handle *this)
 		
     if (last_set_temp != set_temp)
     {
-		PID_Clear_I(&handle_pid);
-//        handle_pid.SumError = handle_pid.SumError / 2;
+//		PID_Clear_I(&handle_pid);
+        handle_pid.SumError = handle_pid.SumError / 2;
         this->system_parameter.temp_linear_data = linear_correction(set_temp);
         last_set_temp  = set_temp;
     }
@@ -533,7 +533,6 @@ void pwm_control(HA01_Handle *this)
 							handle_pid.Kd -= 2000;
 							
 						}
-						
 						delay_time = 0;
 						change_flag = true;
 					}

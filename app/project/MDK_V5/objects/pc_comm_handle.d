@@ -18,4 +18,5 @@
   ..\..\libraries\drivers\inc\at32f415_usart.h \
   ..\..\libraries\drivers\inc\at32f415_wdt.h ..\device\at32_Usart.h \
   ..\app\iap.h ..\device\iap_usart.h ..\app\HA01_HANDLE.h \
-  ..\app\lcd_handle.h ..\device\lcd.h ..\inc\at32f415_wk_config.h
+  ..\app\lcd_handle.h ..\device\lcd.h ..\inc\at32f415_wk_config.h \
+  ..\device\at32_spiflash.h ..\inc\wk_system.h

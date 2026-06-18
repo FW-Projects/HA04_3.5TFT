@@ -1337,7 +1337,6 @@ static void show_channel_state(void)
 
         if (mismatch)
         {
-            // 重置 last_set_temp
 			sFWHA01_t.system_parameter.last_ch1_set_temp = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch1_set_temp_f_display = RESET_VALUE;
 			sFWHA01_t.system_parameter.last_ch2_set_temp = RESET_VALUE;
@@ -1373,10 +1372,8 @@ static void number_change(void)
         first_in = true;
     }
 
-    // 2?? 单位变化切换显示
     if (sFWHA01_t.last_temp_unit != sFWHA01_t.temp_unit)
     {
-        // 不管单位如何，都先更新华氏显示值
         sFWHA01_t.system_parameter.actual_temp_f_display = celsius_to_fahrenheit(sFWHA01_t.system_parameter.actual_temp);
         sFWHA01_t.system_parameter.set_temp_f_display = celsius_to_fahrenheit(sFWHA01_t.system_parameter.set_temp);
         sFWHA01_t.system_parameter.ch1_set_temp_f_display = celsius_to_fahrenheit(sFWHA01_t.system_parameter.ch1_set_temp);
@@ -1647,10 +1644,7 @@ void show_navigation_bar(void)
     // 首次绘制导航栏
     if (!first_draw)
     {
-		if(sFWHA01_t.model == HA04)
-			TranferPicturetoTFT_LCD(0, 0, 480, 30, NAVIGATION_BAR);
-		else if(sFWHA01_t.model == HA05)
-			TranferPicturetoTFT_LCD(0, 0, 480, 30, NAVIGATION_BAR_HA05);
+		TranferPicturetoTFT_LCD(0, 0, 480, 30, NAVIGATION_BAR);
         LCD_VISION(vision_2.x, vision_2.y, vision_2.len, vision_2.fc, vision_2.bc, vision_2.sizey);
         sFWHA01_t.last_speak_state = RESET_VALUE;
         first_draw = true;

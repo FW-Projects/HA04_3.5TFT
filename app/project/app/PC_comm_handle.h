@@ -13,9 +13,9 @@
 #define LOCAL_DEVECE_ID_1 0x01
 #define LOCAL_DEVECE_ID_2 0x03
 
-#define PC_RX_BUFF_SIZE  256
+#define PC_RX_BUFF_SIZE  1036
 #define PC_TX_BUFF_SIZE  256
-#define PC_CRC_BUFF_SIZE 256
+#define PC_CRC_BUFF_SIZE 258
 
 #define PC_CRC_SIZE      4
 #define PC_MAX_SEND_SIZE 22
@@ -81,6 +81,7 @@ typedef enum
 {
   CONNECT_PC_EVENT,
   IAP_EVENT,
+  FLASU_UPDATA_EVENT,
   PC_END_EVENT,
 }pc_event_e;
 
@@ -91,13 +92,22 @@ typedef struct PCObject
 {
     bool connect_flag;
     uint8_t rx_buff[PC_RX_BUFF_SIZE];
-    uint8_t read_size;
+    uint16_t read_size;
     uint8_t tx_buff[PC_TX_BUFF_SIZE];
     uint32_t check_crc_buff[PC_CRC_BUFF_SIZE];
 
 } PC_DATA_t;
-void pc_comm_handle(void);
 
+// 全局变量声明
+extern PC_DATA_t pc_data;
+extern pc_event_e pc_event;
+
+// 串口队列和发送控制变量（与中断中使用的同名）
+extern uint8_t *tx_buffer;                // 中断中使用的发送指针
+extern uint16_t tx_remain;                // 中断中使用的剩余字节数
+
+// 主处理函数
+void pc_comm_handle(void);
 #endif
 
 

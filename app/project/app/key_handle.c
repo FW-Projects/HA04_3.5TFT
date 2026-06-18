@@ -755,7 +755,7 @@ void get_key(void)
 						sFWHA01_t.run_mode = Power_Mode;
 					else if(sFWHA01_t.run_mode == Power_Mode)
 						sFWHA01_t.run_mode = Standard_Mode;
-					sFWHA01_t.before_cold_run_mode = sFWHA01_t.run_mode;
+//					sFWHA01_t.before_cold_run_mode = sFWHA01_t.run_mode;
 					first_draw = false;
 					sFWHA01_t.last_run_mode = RESET_VALUE;
 				}
@@ -776,6 +776,7 @@ void get_key(void)
 			else if(sFWHA01_t.run_mode == Cold_Mode)
 			{
 				sFWHA01_t.run_mode = sFWHA01_t.before_cold_run_mode;
+				sFWHA01_t.before_cold_run_mode = Cold_Mode;
 //				sFWHA01_t.run_mode = Standard_Mode;
 			}
 			sFWHA01_t.system_parameter.last_cold_mode_set_air = 0x00;
@@ -785,11 +786,24 @@ void get_key(void)
 		}
 		else if(sFWHA01_t.long_key_mode == POWER_MODE)
 		{
-			if(sFWHA01_t.run_mode == Standard_Mode)
-				sFWHA01_t.run_mode = Power_Mode;
-			else if(sFWHA01_t.run_mode == Power_Mode)
-				sFWHA01_t.run_mode = Standard_Mode;
-
+			if(sFWHA01_t.run_mode == Cold_Mode)
+			{
+				if(sFWHA01_t.before_cold_run_mode == Power_Mode)
+				{
+					sFWHA01_t.before_cold_run_mode = Standard_Mode;
+				}
+				else if(sFWHA01_t.before_cold_run_mode == Standard_Mode)
+					sFWHA01_t.before_cold_run_mode = Power_Mode;
+				first_draw = false;
+				sFWHA01_t.last_run_mode = RESET_VALUE;
+			}
+			else
+			{
+				if(sFWHA01_t.run_mode == Standard_Mode)
+					sFWHA01_t.run_mode = Power_Mode;
+				else if(sFWHA01_t.run_mode == Power_Mode)
+					sFWHA01_t.run_mode = Standard_Mode;
+			}
 		}
 	break;
 

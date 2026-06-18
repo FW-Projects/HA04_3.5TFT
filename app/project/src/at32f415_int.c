@@ -375,7 +375,10 @@ void TMR5_GLOBAL_IRQHandler(void)
 		else
 			sFWHA01_t.system_parameter.pwm_out = 0;
 
-		
+		if(sFWHA01_t.flash_updata)
+		{
+			sFWHA01_t.system_parameter.pwm_out = 0;
+		}
 		
 		if(sFWHA01_t.system_parameter.pwm_out <= 0)
 		{

@@ -169,7 +169,7 @@ int main(void)
   wk_usart1_init();
 
   /* init spi1 function. */
-  wk_spi1_init();
+//  wk_spi1_init();
 
   /* init adc1 function. */
   wk_adc1_init();
@@ -202,7 +202,6 @@ int main(void)
   tmt.create(lcd_task, LCD_HANDLE_TIME);
   tmt.create(output_task, OUTPUT_HANDLE_TIME);
   tmt.create(flash_task, FLASH_HANDLE_TIME);
-//  tmt.create(ec11_task, EC11_TASK_TIME);
   tmt.create(work_task, WORK_HANDLE_TIME);
   tmt.create(key_task, KEY_HANDLE_TIME);
   tmt.create(pc_task, PC_HANDLE_TIME);
@@ -212,16 +211,14 @@ int main(void)
   BSP_UsartInit();
   spiflash_init();
   LCD_Init();
-  
   LCD_Clear(BLACK);
-  gpio_bits_set(GPIOC, GPIO_PINS_4);
   wk_delay_ms(200);
+  gpio_bits_set(GPIOC, GPIO_PINS_4);
   check_flash_updata();
   check_and_show_modul();
-  setting_modul();
   
   /* 等待系统上电稳定延时 */
-//  wk_delay_ms(500);
+  wk_delay_ms(500);
   /* add user code end 2 */
 
   while(1)
@@ -256,17 +253,14 @@ void check_flash_updata(void)
 
 void key_task(void)
 {
+	if(sFWHA01_t.flash_updata)
+	{
+		return;
+	}
     if (sFWHA01_t.init_flag && sFWHA01_t.handle_error_state == HANDLE_OK)
         key_handle();
 }
 
-
-void ec11_task(void)
-{	
-#if 1
-	ec11_handle();
-#endif
-}
 
 
 void pc_task(void)
@@ -277,18 +271,34 @@ void pc_task(void)
 
 void lcd_task(void)
 {
-#if 1
-	if (sFWHA01_t.init_flag)
-		LcdProc();
-#endif
+	static bool is_first = false;
+	
+	if(sFWHA01_t.flash_updata)
+	{
+		if (is_first == false)
+		{
+			LCD_Clear(BLACK);
+			LCD_ShowString(176, 152, (uint8_t *)"updata flash....", RED, BLACK, 16, 0);
+			is_first = true;
+		}
+	}
+	else
+	{
+		if (sFWHA01_t.init_flag)
+			LcdProc();
+	}
+
 }
 
 void output_task(void)
 {
-#if 1
+	if(sFWHA01_t.flash_updata)
+	{
+		return;
+	}
+	
     if (sFWHA01_t.init_flag)
 		output_handle();
-#endif
 }
 
 void debug_task(void)
@@ -298,9 +308,11 @@ void debug_task(void)
 
 void flash_task(void)
 {
-	#if 1
+	if(sFWHA01_t.flash_updata)
+	{
+		return;
+	}
     FlashProc();
-	#endif
 }
 
 void work_task(void)
@@ -326,96 +338,10 @@ void feed_dog_task(void)
 
 void check_and_show_modul(void)
 {
-    volatile static uint16_t model = 0;
-
-    /* read modul */
-    model = flash_wred(MODEL_ADDR);
-
-    /* first run */
-    if (model == 0xffff  )
-    {
-        sFWHA01_t.model = HA04;
-        flash_unlock();
-        flash_sector_erase(MODEL_ADDR);
-        flash_halfword_program(MODEL_ADDR, sFWHA01_t.model);
-        flash_lock();
-    }
-    else 
-    {
-        sFWHA01_t.model = model;
-    }
-    
-
-    if (sFWHA01_t.model != HA04 &&
-            sFWHA01_t.model != HA05)
-    {
-        sFWHA01_t.model = HA04;
-    }
-
-    /* if modul is HA04 */
-    if (sFWHA01_t.model == HA04)
-    {
-		TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
-		TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
-    }
-    /* if modul is HA05 */
-    else if (sFWHA01_t.model == HA05)
-    {
-		TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO_HA05);
-		TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO_HA05);
-    }
-}
-
-
-void setting_modul(void)
-{
-    volatile static uint16_t ch1_press_time = 0;
-    volatile static uint16_t ch2_press_time = 0;
-    volatile static uint16_t ch3_press_time = 0;
-
-    /* wait for system ready */
-    for (uint16_t i = 0; i < 1500; i++)
-    {
-        wk_delay_ms(1);
-
-        if (false == gpio_input_data_bit_read(KEY_CH1_GPIO_PORT, KEY_CH1_PIN))
-        {
-            ch1_press_time++;
-        }
-        else
-        {
-            ch1_press_time = 0;
-        }
-
-        if (false == gpio_input_data_bit_read(KEY_CH2_GPIO_PORT, KEY_CH2_PIN))
-        {
-            ch2_press_time++;
-        }
-        else
-        {
-            ch2_press_time = 0;
-        }
-    }
-
-    /* change model */
-    if (ch1_press_time > 1200)
-    {
-        sFWHA01_t.model = HA04;
-    }
-    else if (ch2_press_time > 1200)
-    {
-        sFWHA01_t.model = HA05;
-    }
-
-    else
-    {
-        return;
-    }
-
-    flash_unlock();
-    flash_sector_erase(MODEL_ADDR);
-    flash_halfword_program(MODEL_ADDR, sFWHA01_t.model);
-    flash_lock();
+	
+	sFWHA01_t.model = HA04;
+    TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
+	TranferPicturetoTFT_LCD(0, 0, 480, 320, LOGO);
 }
 
 

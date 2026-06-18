@@ -3,6 +3,10 @@
 #include "at32f415.h"
 #include "stdbool.h"
 
+#define SOFTWARE_VERSTION "V1.0.7"
+#define HARDWARE_VERSTION "V1.0.1"
+
+
 #define CURVE_REFRESH_TIME 0
 #define CURVE_BUFF_SIZE 358
 
@@ -511,7 +515,7 @@ typedef struct
     bool reset_flag;
     bool init_flag;
 	bool fan_run_flag;
-	
+	bool flash_updata;
     model_e model;
 
 

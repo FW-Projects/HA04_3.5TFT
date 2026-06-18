@@ -39,6 +39,8 @@
 /* private typedef -----------------------------------------------------------*/
 /* add user code begin private typedef */
 #define LOCAL_DEVICE_ID  0x01
+#define SOFTWARE_VERSTION "V1.0.7"
+#define HARDWARE_VERSTION "V1.0.1"
 /* add user code end private typedef */
 
 /* private define ------------------------------------------------------------*/
@@ -59,6 +61,10 @@ uint8_t usart1_tx_buff[22];
 uint32_t usart1_crc_buff[258];
 uint8_t usart1_rx_buff[1036];
 uint8_t pro_buff[1024];
+
+static uint8_t sw_ver_major, sw_ver_minor, sw_ver_patch;
+static uint8_t hw_ver_major, hw_ver_minor, hw_ver_patch;
+
 /* add user code end private variables */
 
 /* private function prototypes --------------------------------------------*/
@@ -69,6 +75,8 @@ void usart1_connet_pc(void);
 void copy_uint8_array(uint8_t* dest, const uint8_t* src, size_t start_offset, size_t length);
 uint32_t convert_data(const uint8_t *input_array, uint32_t *output_array,
                       uint32_t start_index, uint32_t end_index);
+static int parse_version_string(const char *str, uint8_t *major, uint8_t *minor, uint8_t *patch);
+void init_version_parse(void);
 /* add user code end function prototypes */
 
 /* private user code ---------------------------------------------------------*/
@@ -486,6 +494,14 @@ void usart1_send_error(void)
 
 void usart1_connet_pc(void)
 {
+	static bool first_in = true;
+
+    if (first_in)
+    {
+        init_version_parse();
+        first_in = false;
+    }
+	
     uint32_t crc_value = 0;
     usart1_tx_buff[0] = 0xD1;
     usart1_tx_buff[1] = 0x01;
@@ -494,12 +510,12 @@ void usart1_connet_pc(void)
     usart1_tx_buff[4] = LOCAL_DEVICE_ID;
     usart1_tx_buff[5] = 0x00;
     usart1_tx_buff[6] = 0x0A;
-    usart1_tx_buff[7] = 0x18;
-    usart1_tx_buff[8] = 0x00;
-    usart1_tx_buff[9] = 0x00;
-    usart1_tx_buff[10] = 0x00;
-    usart1_tx_buff[11] = 0x00;
-    usart1_tx_buff[12] = 0x00;
+    usart1_tx_buff[7] = sw_ver_major;
+    usart1_tx_buff[8] = sw_ver_minor;
+    usart1_tx_buff[9] = sw_ver_patch;
+    usart1_tx_buff[10] = hw_ver_major;
+    usart1_tx_buff[11] = hw_ver_minor;
+    usart1_tx_buff[12] = hw_ver_patch;
     usart1_tx_buff[13] = 0x00;
     usart1_tx_buff[14] = 0x00;
     usart1_tx_buff[15] = 0x00;
@@ -520,5 +536,60 @@ void usart1_connet_pc(void)
 		
     }
 }
+static int parse_version_string(const char *str, uint8_t *major, uint8_t *minor, uint8_t *patch)
+{
+    if (str == NULL || str[0] != 'V')
+    {
+        return -1;
+    }
 
+    const char *p = str + 1;  // 跳过 'V'
+    // 解析第一个数字
+    *major = 0;
+
+    while (*p >= '0' && *p <= '9')
+    {
+        *major = *major * 10 + (*p - '0');
+        p++;
+    }
+
+    if (*p != '.')
+    {
+        return -1;
+    }
+
+    p++; // 跳过 '.'
+    // 解析第二个数字
+    *minor = 0;
+
+    while (*p >= '0' && *p <= '9')
+    {
+        *minor = *minor * 10 + (*p - '0');
+        p++;
+    }
+
+    if (*p != '.')
+    {
+        return -1;
+    }
+
+    p++; // 跳过 '.'
+    // 解析第三个数字
+    *patch = 0;
+
+    while (*p >= '0' && *p <= '9')
+    {
+        *patch = *patch * 10 + (*p - '0');
+        p++;
+    }
+
+    // 允许后面有其它字符，忽略即可
+    return 0;
+}
+
+void init_version_parse(void)
+{
+    parse_version_string(SOFTWARE_VERSTION, &sw_ver_major, &sw_ver_minor, &sw_ver_patch);
+    parse_version_string(HARDWARE_VERSTION, &hw_ver_major, &hw_ver_minor, &hw_ver_patch);
+}
 /* add user code end 1 */
