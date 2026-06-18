@@ -31,7 +31,6 @@ void output_handle(void)
     get_handle_work_state(&sFWHA01_t);
 	get_handle_error_state(&sFWHA01_t);
 	fan_control(&sFWHA01_t);
- //    fan_control(&sFWHA01_t);
 }
 
 static void get_handle_position(HA01_Handle *this)
@@ -271,7 +270,7 @@ static void get_handle_error_state(HA01_Handle *this)
 			if (this->Work_handle_state == HANDLE_SLEEP)
 			{
 				/* keep fan output until the temp below 60 */
-				if (this->system_parameter.actual_temp >= 40)
+				if (this->system_parameter.actual_temp >= 60 && this->system_parameter.actual_temp < 70)
 				{
 					if (fan_run_flag == false)
 					{
@@ -313,8 +312,7 @@ static void get_handle_error_state(HA01_Handle *this)
 					{
 						/* open fan output with actual temp change*/
 						this->system_parameter.sleep_air_data = this->system_parameter.actual_temp * 0.4;
-//						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 1.13 + 30);
-						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data);
+						tmr_channel_value_set(TMR2, TMR_SELECT_CHANNEL_2, this->system_parameter.sleep_air_data * 0.56 + 30);
 					}
 				}
 				else
